@@ -15,18 +15,21 @@
 
 ---
 
-## 1. 前置检查 + 三条铁律（违反会破坏协作，务必遵守）
+## 1. 开工前置 + 三条铁律（违反会破坏协作，务必遵守）
 
-### 1.0 前置检查（每次读/写之前，先做这两步）
+### 1.0 开工前置（每次动手前，严格按序：先查 → 再报状态 → 后写内容）
 
-在尝试读或写**任何共享内容**之前，务必先按顺序：
+在做**任何事**（读或写共享内容）之前，必须依次完成：
 
-1. **看远程仓库有没有更新**：`git pull --rebase` 同步到最新，留意有无新提交、新锁、以及 `discussion/decisions.md` 里的新决策。
-2. **看队友有没有新需求 / 新工作记录（正在做的工作）**：
-   - 读 `requests/*.md`：有没有 `@你` 的新请求，或队友「当前状态」变化需要你配合；
-   - 读 `locks/*.lock`：谁正持锁、锁了哪个路径（即队友正在做的工作 WIP），避免与其撞车。
+1. **查远程**：`git pull --rebase` 同步到最新，留意有无新提交、新锁、以及 `discussion/decisions.md` 里的新决策。
+2. **查队友**：读 `requests/*.md`（有没有 `@你` 的新请求、队友「当前状态」变化）、读 `locks/*.lock`（谁正持锁、锁了哪个路径 = 队友正在做的 WIP），避免撞车。
+3. **报自己的状态（硬性，且必须先于写内容）**：在**你自己的** `requests/agent_<你>.md`「当前状态 · 正在做」写下你即将做的事（如 `拆解问题 → discussion/problem.md`），然后 `git add requests/agent_<你>.md` → `git commit` → **`git push`**。
+   - 状态板单一 owner、**免锁**，这一步不需要锁；但**必须先 push 成功**，队友才能在你动手前看到你的意图。
+   - 纯读取、不产出内容时，状态可从简（如 `阅读 code/solver.py`），但同样要先 push 再读。
 
-两步确认无误后，再按第 3 节加锁、开始读/写。（读 `requests/` 本身免锁，但仍建议先 `git pull --rebase` 看最新。）
+三步做完，才进入第 3 节：**拿锁 → 写内容 → push 成果 → 释放锁**（期间和结束再回状态板更新进度、或改回「空闲」）。
+
+> ⚠️ **顺序铁律：先更新状态并 push，再写内容——不可颠倒。** 先把内容写了才补状态，队友的前置检查（第 1、2 步）就看不到你的意图，等于放弃协调、极易重复劳动或撞车。
 
 ### 1.1 三条铁律
 
@@ -213,6 +216,7 @@ git push
 
 ## 5. 请求机制（requests/）
 
+- **状态优先（硬性顺序，见 1.0 第 3 步）**：做任何事之前，先在本文件「当前状态 · 正在做」写下你要做什么并 `git push`，**然后**才拿锁、写内容；做完把状态更新为进度或改回「空闲」。绝不允许先写内容、后补状态。
 - 每个 agent 只写自己的 `requests/agent_<你>.md`，**不需要锁**（单一 owner，天然无冲突）。
 - **需要别人做事**：在**你自己的**文件里追加一行，`@` 目标 agent：
   ```
@@ -251,7 +255,10 @@ git push
 
 ### 示例一：读一段代码（读锁）
 ```bash
-git pull --rebase
+git pull --rebase                       # 前置① 查远程
+# 前置② 查队友：requests/*.md 有无 @我、locks/code.lock 有无冲突
+# 前置③ 报状态（先于动手）：requests/agent_A.md「正在做: 阅读 solver.py」
+git add requests/agent_A.md ; git commit -m "req: agent_A 状态: 阅读 solver.py" ; git push
 # 看 locks/code.lock：没有与 code/models/solver.py 重叠的活跃 W 行 → 可以拿读锁
 # 编辑 locks/code.lock 追加： R agent_A <现在UTC> code/models/solver.py
 git add locks/code.lock
@@ -268,13 +275,17 @@ git push
 ### 示例二：改代码并产出结果（写锁 + 顺序）
 ```bash
 # 需要同时改 code/models/solver.py 和写 results/run1/ → 按顺序 code → results 申请写锁
-git pull --rebase
+git pull --rebase                       # 前置① 查远程
+# 前置② 查队友：requests/*.md 有无 @我、locks 有无冲突
+# 前置③ 报状态（必须先于写内容）：requests/agent_A.md「正在做: 改 solver + 产出 run1」
+git add requests/agent_A.md ; git commit -m "req: agent_A 状态: 改 solver+产出 run1" ; git push
 # locks/code.lock 中没有与 code/models/solver.py 重叠的活跃锁 → 追加： W agent_A <现在UTC> code/models/solver.py
 git add locks/code.lock ; git commit -m "lock: agent_A acquire W on code/models/solver.py" ; git push
 # 再拿 results/run1/ 写锁（同样 pull→判断路径重叠→写 W→commit→push）
 # ……改 code/models/solver.py、把输出写进 results/run1/……（超过 15~20 分钟记得续租两把锁）
 git add -A ; git commit -m "code: 实现求解器并输出结果" ; git pull --rebase ; git push
 # 释放（先 results 后 code 亦可，顺序不限）：分别删自己那行 → commit → push
+# 收尾：requests/agent_A.md「正在做」改回「空闲」 → commit → push
 ```
 
 ---
