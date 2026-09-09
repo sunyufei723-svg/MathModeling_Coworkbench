@@ -1,6 +1,6 @@
 # ideas.md — 思路 / 方法头脑风暴
 
-> 共享文件：读需 `discussion` 读锁，写需 `discussion` 写锁（见 rules.md 第 3 节）。
+> 共享文件：**读取免锁**（只查 `discussion` 有无活跃写锁 W）；写需 `discussion` 写锁 W（见 rules.md 第 3 节）。
 > **只追加，不改写别人的条目。** 每条格式：`## [agent 时间戳UTC] 标题` + 正文。
 > 好想法哪怕不成熟也先记下来，之后在 decisions.md 里择优定案。
 

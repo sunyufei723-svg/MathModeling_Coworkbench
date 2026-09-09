@@ -1,8 +1,8 @@
 # 数模国赛 · 三人 × Agent 共享工作区
 
 一个用 **git 仓库**搭建的协作工作区：3 名队员各用一个 agent（1 个 Qoder + 2 个 codex），
-在各自电脑上通过远程仓库协同完成数学建模国赛。核心是一套**严格读写锁**协议，保证多个
-agent 并发读写共享文件时不互相覆盖，并支持同一资源内按具体路径并行加锁。
+在各自电脑上通过远程仓库协同完成数学建模国赛。核心是一套**写锁**协议，保证多个
+agent 并发写共享文件时不互相覆盖，并支持同一资源内按具体路径并行加锁（读取一律免锁）。
 
 - **人看的规范**：本文件（`README.md`）。
 - **agent 入口**：[`AGENTS.md`](AGENTS.md)（codex 自动读取，仅摘要 + 导向 rules.md）。
@@ -38,7 +38,7 @@ git pull --rebase
 ├── .gitignore         # 忽略大数据/临时/编译产物
 ├── .gitattributes     # 统一换行符、锁文件处理策略
 │
-├── discussion/        # 公共讨论区（共享，读/写需锁）
+├── discussion/        # 公共讨论区（共享，读免锁/写需锁）
 │   ├── problem.md     #   题目理解与拆解
 │   ├── ideas.md       #   思路/方法（只追加）
 │   └── decisions.md   #   已定决策与理由（只追加）
@@ -48,9 +48,9 @@ git pull --rebase
 │   ├── agent_B.md
 │   └── agent_C.md
 │
-├── code/              # 代码（共享，读/写需锁）
-├── results/           # 实验结果、图表、输出（共享，读/写需锁）
-├── files/             # 文件（共享，读/写需锁）
+├── code/              # 代码（共享，读免锁/写需锁）
+├── results/           # 实验结果、图表、输出（共享，读免锁/写需锁）
+├── files/             # 文件（共享，读免锁/写需锁）
 │   ├── raw/           #   原始数据（只读为主）
 │   ├── intermediate/  #   中间产物
 │   └── final/         #   最终交付
@@ -67,20 +67,20 @@ git pull --rebase
 ## 协作总原则
 
 1. **各自电脑 + 远程仓库同步**：一切以远程 `main` 为准，勤 `pull --rebase`、勤 `push`。
-2. **共享资源先加锁再动手**：`code/ results/ discussion/ files/` 是共享区，读要读锁、写要写锁；优先锁具体文件或目录，必要时才锁整个资源。
+2. **写共享资源先加写锁再动手**：`code/ results/ discussion/ files/` 是共享区，**读取免锁**（先看目标有没有被别人写锁占住）、**写要写锁 W**；优先锁具体文件或目录，必要时才锁整个资源。
 3. **请求区单一 owner**：`requests/agent_X.md` 只有 X 本人写，别人只读——所以请求区**不用加锁**。
 4. **讨论只追加、不改别人**：`ideas.md` / `decisions.md` 每条署名 + 时间戳，追加而非重写。
 5. **成果及时推送**：本地 commit 只有 push 后别人才能看到。
 
 ---
 
-## 读写锁规则（核心，务必理解）
+## 写锁规则（核心，务必理解）
 
-采用**严格读写锁**语义：
+只有**写锁 W**，没有读锁：
 
-- **读锁 R**：多个 agent 可同时持有（读读兼容）。
-- **写锁 W**：独占，持有期间**不允许任何其他锁**（读写、写写都互斥）。
-- 规则一句话：**读共享文件前拿读锁，改共享文件前拿写锁。**
+- **写锁 W**：独占其路径范围，持有期间**不允许其他写锁**重叠同一路径（不同路径可并行）。
+- **读取免锁**：git 以 commit 为原子快照，读到的永远是完整版本；读取只需先看目标路径有没有被活跃 W 锁盖住——有则等对方改完再读最新版，无则直接读（0 锁、0 push）。
+- 规则一句话：**改共享文件前拿写锁 W，读共享文件不用锁（只查有没有写锁）。**
 
 ### 为什么这样能在多台电脑上生效
 
@@ -90,33 +90,27 @@ git 没有跨网络的"原子加锁"，但 **`git push` 是原子的**——远�
 
 ### 锁文件长什么样
 
-`locks/code.lock` 里，`#` 是注释，每个持有者一行 `模式 agent 时间戳(UTC) 路径`；空文件 = 没加锁：
+`locks/code.lock` 里，`#` 是注释，每个写锁持有者一行 `W agent 时间戳(UTC) 路径`；空文件 = 没加锁：
 
 ```
 # 锁文件：code
 W agent_A 2026-09-09T14:30:00Z code/models/solver.py
 W agent_B 2026-09-09T14:31:10Z code/plotting/charts.py
 ```
-```
-# 锁文件：discussion
-R agent_A 2026-09-09T14:30:00Z discussion/ideas.md
-R agent_B 2026-09-09T14:31:10Z discussion/ideas.md
-```
 
-省略路径的旧格式仍有效，视为锁住整个资源目录。
+两条写锁路径不重叠 → 合法并行。省略路径的旧格式仍有效，视为锁住整个资源目录。
 
 ### 拿锁 / 放锁的完整步骤（精确 git 命令）
 
-见 [`rules.md` 第 3 节](rules.md)，那里是给 agent 的权威版本。人肉速记：
+见 [`rules.md` 第 3 节](rules.md)，那里是给 agent 的权威版本。人肉速记（写操作共 3 次网络往返）：
 
 ```
-拿锁： git pull --rebase
-       → 看 locks/R.lock 是否兼容（只比较路径重叠的活跃锁）
-       → 兼容就加自己一行，格式为 模式 agent 时间戳 路径 → git add locks/R.lock → git commit → git push
-       → push 成功=拿到；push 被拒=有人抢先，软回退后重试：
-         git reset --soft HEAD~1 ; git restore --staged --worktree locks/R.lock ; git pull --rebase
-放锁： 先把成果 commit + push（仍在持锁期间）
-       → git pull --rebase → 删掉自己那行 → git add → commit → push
+① git pull --rebase                    # 查远程 + 查队友
+② 状态 + 加锁 → 一个 commit → push      # requests/agent_X.md 写状态 + locks/R.lock 加 W 行
+                                        # push 成功 = 状态广播 + 锁生效；被拒 = 有人抢先，回退重试：
+                                        #   git reset --soft HEAD~1 ; git restore --staged --worktree locks/R.lock ; git pull --rebase --autostash
+③ 本地写内容（在锁 + 30 分钟租约保护下）
+④ 内容 + 删锁行 + 改状态 → 一个 commit → push   # 被拒则 git pull --rebase --autostash 后重 push
 ```
 
 ### 防死锁：租约 30 分钟
@@ -152,7 +146,7 @@ R agent_B 2026-09-09T14:31:10Z discussion/ideas.md
 # 在 GitHub / Gitee 建一个空仓库（不要勾选自动生成 README），拿到地址后：
 git remote add origin <远程仓库地址>
 git add -A
-git commit -m "init: 数模共享工作区骨架 + 读写锁协作协议"
+git commit -m "init: 数模共享工作区骨架 + 写锁协作协议"
 git push -u origin main
 ```
 
