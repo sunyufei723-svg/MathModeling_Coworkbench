@@ -1,0 +1,28 @@
+# ===== 统一换行符与文件处理 =====
+# 三台机器可能 Windows/其它混用，统一以 LF 入库，避免锁文件/文档出现 CRLF 差异导致的假冲突。
+
+* text=auto eol=lf
+
+# 文本类：强制 LF
+*.md    text eol=lf
+*.lock  text eol=lf
+*.py    text eol=lf
+*.tex   text eol=lf
+*.txt   text eol=lf
+*.csv   text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+
+# 二进制：不做换行符转换、不做文本 diff
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.pdf   binary
+*.xlsx  binary
+*.xls   binary
+*.docx  binary
+
+# 锁文件冲突策略：默认合并（不要改成 union）。
+# 按 AGENTS.md：锁文件冲突时用 `git rebase --abort` + 重新 pull + 重走拿锁流程，不手工硬拼。

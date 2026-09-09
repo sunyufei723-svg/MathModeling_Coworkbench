@@ -1,0 +1,60 @@
+# ===== 数模共享工作区 .gitignore =====
+# 原则：入库源码/文档/结果/锁；排除大数据、临时文件、编译与办公临时产物。
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# ---- 操作系统 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 编辑器 / IDE ----
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ---- 临时 / 备份 ----
+*.tmp
+*.temp
+*.bak
+*.log
+~$*
+
+# ---- Office 临时锁文件（Word/Excel 打开时产生）----
+.~lock.*#
+
+# ---- LaTeX 论文编译产物（保留 .tex/.bib/最终 pdf，排除中间文件）----
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+
+# ---- 大数据 / 压缩包（如确需入库，删除对应行或用 Git LFS）----
+# 说明：files/raw/ 下的大数据集默认不入库，避免仓库膨胀；
+#      小样本可放行，大数据另传网盘并在 discussion/decisions.md 记录。
+*.zip
+*.rar
+*.7z
+*.mat
+*.h5
+*.hdf5
+*.nc
+
+# ---- 明确放行：结果图与最终交付（即使上面忽略了压缩包，这些仍入库）----
+!results/**/*.png
+!results/**/*.jpg
+!results/**/*.pdf
+!files/final/**
