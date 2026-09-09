@@ -61,3 +61,6 @@ desktop.ini
 !results/**/*.jpg
 !results/**/*.pdf
 !files/final/**
+
+# ---- 本机 Agent 身份标记 ----
+/identity.md
