@@ -2,7 +2,7 @@
 
 一个用 **git 仓库**搭建的协作工作区：3 名队员各用一个 agent（1 个 Qoder + 2 个 codex），
 在各自电脑上通过远程仓库协同完成数学建模国赛。核心是一套**严格读写锁**协议，保证多个
-agent 并发读写共享文件时不互相覆盖。
+agent 并发读写共享文件时不互相覆盖，并支持同一资源内按具体路径并行加锁。
 
 - **人看的规范**：本文件（`README.md`）。
 - **agent 入口**：[`AGENTS.md`](AGENTS.md)（codex 自动读取，仅摘要 + 导向 rules.md）。
@@ -67,7 +67,7 @@ git pull --rebase
 ## 协作总原则
 
 1. **各自电脑 + 远程仓库同步**：一切以远程 `main` 为准，勤 `pull --rebase`、勤 `push`。
-2. **共享资源先加锁再动手**：`code/ results/ discussion/ files/` 是共享区，读要读锁、写要写锁。
+2. **共享资源先加锁再动手**：`code/ results/ discussion/ files/` 是共享区，读要读锁、写要写锁；优先锁具体文件或目录，必要时才锁整个资源。
 3. **请求区单一 owner**：`requests/agent_X.md` 只有 X 本人写，别人只读——所以请求区**不用加锁**。
 4. **讨论只追加、不改别人**：`ideas.md` / `decisions.md` 每条署名 + 时间戳，追加而非重写。
 5. **成果及时推送**：本地 commit 只有 push 后别人才能看到。
@@ -90,17 +90,20 @@ git 没有跨网络的"原子加锁"，但 **`git push` 是原子的**——远�
 
 ### 锁文件长什么样
 
-`locks/code.lock` 里，`#` 是注释，每个持有者一行 `模式 agent 时间戳(UTC)`；空文件 = 没加锁：
+`locks/code.lock` 里，`#` 是注释，每个持有者一行 `模式 agent 时间戳(UTC) 路径`；空文件 = 没加锁：
 
 ```
 # 锁文件：code
-W agent_A 2026-09-09T14:30:00Z          # agent_A 持有 code 的写锁（独占）
+W agent_A 2026-09-09T14:30:00Z code/models/solver.py
+W agent_B 2026-09-09T14:31:10Z code/plotting/charts.py
 ```
 ```
 # 锁文件：discussion
-R agent_A 2026-09-09T14:30:00Z          # 两个读锁可共存
-R agent_B 2026-09-09T14:31:10Z
+R agent_A 2026-09-09T14:30:00Z discussion/ideas.md
+R agent_B 2026-09-09T14:31:10Z discussion/ideas.md
 ```
+
+省略路径的旧格式仍有效，视为锁住整个资源目录。
 
 ### 拿锁 / 放锁的完整步骤（精确 git 命令）
 
@@ -108,8 +111,8 @@ R agent_B 2026-09-09T14:31:10Z
 
 ```
 拿锁： git pull --rebase
-       → 看 locks/R.lock 是否兼容（读锁:无活跃W即可；写锁:必须全空）
-       → 兼容就加自己一行 → git add locks/R.lock → git commit → git push
+       → 看 locks/R.lock 是否兼容（只比较路径重叠的活跃锁）
+       → 兼容就加自己一行，格式为 模式 agent 时间戳 路径 → git add locks/R.lock → git commit → git push
        → push 成功=拿到；push 被拒=有人抢先，软回退后重试：
          git reset --soft HEAD~1 ; git restore --staged --worktree locks/R.lock ; git pull --rebase
 放锁： 先把成果 commit + push（仍在持锁期间）
@@ -121,7 +124,7 @@ R agent_B 2026-09-09T14:31:10Z
 - 每个锁行带 UTC 时间戳，**超过 30 分钟没更新 = 失效**，别人可当它不存在并抢占。
 - 这样即使某个 agent 崩溃没放锁，也不会把全队卡死。
 - **长时间持锁要续租**：每 15~20 分钟更新一次自己那行的时间戳。
-- 同时需要多把锁时，**按固定顺序申请**：`code → discussion → files → results`，避免交叉等待。
+- 同时需要多把锁时，**按固定顺序申请**：`code → discussion → files → results`；同一资源内多个路径按目录优先、路径字母序申请，避免交叉等待。
 
 ---
 
@@ -161,3 +164,4 @@ git push -u origin main
 ---
 
 _本工作区由三人共同维护。修改协作规范前，先在 `discussion/decisions.md` 记录共识。_
+
