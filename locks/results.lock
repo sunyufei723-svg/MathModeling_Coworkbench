@@ -1,6 +1,6 @@
-# 锁文件：results —— 由 rules.md 第 3 节协议管理，请勿手动乱改
+# 锁文件：results —— 由 rules.md 第 5 层 + docs/5-concurrency.md 协议管理，请勿手动乱改
 # 格式：每个活跃写锁持有者一行  "W <agent> <UTC时间戳> <路径>"
-#   W = 写锁（独占其路径范围）；本仓库只有写锁，读取不加锁（见 rules.md 3.0）
+#   W = 写锁（独占其路径范围）；本仓库只有写锁，读取不加锁（见 docs/5-concurrency.md 5.2）
 # 只有注释 / 空行 = 未加锁
 # 租约：时间戳超过 30 分钟未更新视为失效，可被删除并抢占
-# 拿锁 / 放锁 / 续租 / push 被拒回退的完整步骤见 rules.md 第 3 节
+# 拿锁 / 放锁 / 续租 / push 被拒回退的完整步骤见 docs/5-concurrency.md

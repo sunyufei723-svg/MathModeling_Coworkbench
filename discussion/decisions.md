@@ -1,6 +1,6 @@
 # decisions.md — 已定决策记录
 
-> 共享文件：**读取免锁**（只查 `discussion` 有无活跃写锁 W）；写需 `discussion` 写锁 W（见 rules.md 第 3 节）。
+> 共享文件：**读取免锁**（只查 `discussion` 有无活跃写锁 W）；写需 `discussion` 写锁 W（见 rules.md 第 5 层 / docs/5-concurrency.md）。
 > **只追加。** 一旦定案，全队按此执行；要推翻旧决策，追加新条目并说明原因，不要删旧的。
 > 每条格式：`## D<编号> [时间戳UTC] 决策标题` + 决策内容 / 理由 / 参与者 / 影响。
 
@@ -43,4 +43,10 @@
 - **理由**：诊断发现每次完整流程慢的根因是 ~10 次串行 GitHub 网络往返(HTTPS+GCM 单次 1.2-2.7s)，而非本地操作(本地 git <0.05s)。读锁在 git 模型下多余——git 以 commit 为原子快照，读方永远读到完整版本，不会读到“写了一半”的文件；读取真正的风险只是“读到即将被覆盖的旧版”，靠查 W 锁即可规避。合并 push 把锁的 acquire/release 并入相邻 push，往返从 10 降到 3，且不损失锁语义(push 原子性仍是串行化基础、W 锁仍独占路径、租约仍防死锁)。
 - **参与者**：agent_A 提出并记录(应用户要求)；用户在两个决策点拍板(彻底废除 R 锁、立即落地)。
 - **影响**：读取共享文件不再加锁、不再 push(读操作 0 往返)；写操作合并为 2 次 push。锁文件只剩 W 行，兼容表简化为“W vs W 路径重叠则等待”。**对 D4 的调整**：D4 “做任何事前先 push 状态”细化为“写操作前才 push 状态(与锁合并)，纯读取不产出内容时不 push”。D0-D4 的核心(单一 owner 免锁、push 原子性、路径级锁 D2、前置检查 D3、状态优先 D4)均保留，本条是其上的效率优化。旧的 R 锁行若残留视为无效，可忽略或顺手清理。
+
+## D6 [2026-09-09T14:58:55Z] 协议重构为 5 层 + 简洁版/详解分离
+- **决策**：把协作规则按 5 层重构——工作规范(identity/rules/AGENTS)、通信层(requests/)、知识层(discussion/)、执行层(code/results/files)、并发控制层(locks/)；5 层为**概念分层、物理目录不变**。rules.md 瘦身为「简洁权威版」(5 层结构表 + 核心流程 + 三条铁律 + 每层速览)，AGENTS.md 为极简入口，README.md 为人看的 5 层导航；把详细解释、完整 git 命令、原理、端到端例子移到新建的 docs/1-work-norms.md ~ docs/5-concurrency.md，rules.md 每层给出对应 docs 路径，agent 看不懂简洁版就按路径读详解。锁协议细节(原 rules.md 第 3 节)整体迁入 docs/5-concurrency.md。
+- **理由**：用户要求「给 AI 看的要简洁、流程清晰、项目结构明确(5 层)、例子和详解另置并给路径、看不懂自己读」。原 rules.md 298 行摘要与细节混杂、AI 每次都要通读；分层 + 简洁/详解分离后主读文件大幅变短(rules.md 298→~85 行)、细节按需加载，减少阅读量加快运行，5 层让项目结构一目了然。
+- **参与者**：agent_A 提出并记录(应用户要求)；用户在三个决策点拍板(概念分层不动物理目录、AGENTS+rules简洁+docs按5层、更新README)。
+- **影响**：① 新增 docs/ 目录(5 个详解文件)，成为协议的一部分，受整把 discussion 写锁代理保护；② rules.md/AGENTS.md/README.md 全部重写，D1「AGENTS 入口 + rules 权威」精神保留(rules 仍最高优先级、AGENTS 仍极简入口)，但 rules 由「完整协议」变为「简洁版 + 指向 docs」；③ 4 个锁文件注释头、decisions/ideas/problem.md 头部里「rules.md 第 3 节」的引用改为「rules.md 第 5 层 / docs/5-concurrency.md」；④ D0-D5 的实质规则(单一 owner 免锁、push 原子性乐观锁、路径级锁 D2、前置检查 D3、状态优先 D4、废读锁+合并push+读免锁 D5)全部保留，本次只重新组织与分层、不改锁语义。identity.md(本机、不入库)对 rules.md 的旧引用由各 agent 自行在本机更新。
 

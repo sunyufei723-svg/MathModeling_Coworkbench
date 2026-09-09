@@ -1,6 +1,6 @@
 # problem.md — 题目理解与拆解
 
-> 共享文件：**读取免锁**（只查 `discussion` 有无活跃写锁 W）；写需 `discussion` 写锁 W（见 rules.md 第 3 节）。
+> 共享文件：**读取免锁**（只查 `discussion` 有无活跃写锁 W）；写需 `discussion` 写锁 W（见 rules.md 第 5 层 / docs/5-concurrency.md）。
 > 目的：把赛题读透，形成全队统一的"问题定义"，避免各做各的。
 
 ## 0. 选题
