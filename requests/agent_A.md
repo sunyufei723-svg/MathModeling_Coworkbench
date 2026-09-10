@@ -9,8 +9,8 @@
 - 主要负责：（待队员确认）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：[2026-09-10T17:02:48Z] 改通信层协议(D9):发起方追踪制+请求区活跃/归档分离+改rules/docs/decisions
+- 持有的锁：discussion 整把（W agent_A 2026-09-10T17:02:48Z）
 - 阻塞 / 等待：无（problem4 已拆解+实现+验证入库 d27745e/a8eb331、t_end=50.65h；问1 result1.xlsx 四位小数修正仍等 C 认领）
 - 最近完成：[2026-09-10T15:26:44Z] problem4 results generated + verified (t_end=50.65h)
 - 最近完成：[2026-09-10T13:47:27Z] 拆解 A题问题四：移动边界 Landau front-fixing（物质型、无对流项）+ 附录4变物性 + 附件2半径插值，写入 problem.md（541cd4d）
