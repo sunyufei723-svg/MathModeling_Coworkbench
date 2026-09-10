@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import argparse
+import os
 from pathlib import Path
 
 import numpy as np
@@ -8,14 +10,33 @@ import pandas as pd
 from solver import EnvironmentSeries, SolverConfig, solve_problem2
 
 
-SOURCE_DIR = Path(
-    r"D:\电脑管家迁移文件\xwechat_files\wxid_tjlrf4lbc84b22_b62d\msg\file\2026-09\CUMCM2026Problems\A题"
-)
-ATTACHMENT1 = SOURCE_DIR / "附件" / "附件1.xlsx"
-OUTPUT_DIR = Path(__file__).resolve().parents[2] / "results" / "problem2"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+OUTPUT_DIR = PROJECT_ROOT / "results" / "problem2"
+TEMPLATE_EXPORT_SLICE = slice(1, None)
 
 
-def load_environment(path: Path = ATTACHMENT1) -> EnvironmentSeries:
+def resolve_attachment1(project_root: Path = PROJECT_ROOT, explicit_path: Path | None = None) -> Path:
+    if explicit_path is not None:
+        candidates = [explicit_path]
+    else:
+        env_source_dir = os.environ.get("CUMCM_A_PROBLEM_DIR")
+        candidates = []
+        if env_source_dir:
+            candidates.append(Path(env_source_dir) / "附件" / "附件1.xlsx")
+        candidates.append(project_root / "files" / "raw" / "CUMCM2026Problems" / "A题" / "附件" / "附件1.xlsx")
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    searched = "\n".join(str(candidate) for candidate in candidates)
+    raise FileNotFoundError(
+        "未找到附件1.xlsx。请用 --attachment1 指定文件，或设置 CUMCM_A_PROBLEM_DIR 为 A题目录。\n"
+        f"已搜索：\n{searched}"
+    )
+
+
+def load_environment(path: Path) -> EnvironmentSeries:
     frame = pd.read_excel(path)
     return EnvironmentSeries(
         time_s=frame["时间"].to_numpy(dtype=float),
@@ -71,15 +92,23 @@ def write_markdown_tables(temp_table: pd.DataFrame, moisture_table: pd.DataFrame
 
 
 def main() -> None:
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    result = solve_problem2(load_environment(), SolverConfig())
+    parser = argparse.ArgumentParser(description="求解 A题第二问并生成 result2.xlsx")
+    parser.add_argument("--attachment1", type=Path, default=None, help="附件1.xlsx 的路径")
+    args = parser.parse_args()
 
-    export_slice = slice(1, None)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    attachment1 = resolve_attachment1(explicit_path=args.attachment1)
+    result = solve_problem2(load_environment(attachment1), SolverConfig())
+
     temperature_frame = simulation_to_frame(
-        result.time_s[export_slice], result.radius_cm, result.temperature_c[export_slice]
+        result.time_s[TEMPLATE_EXPORT_SLICE],
+        result.radius_cm,
+        result.temperature_c[TEMPLATE_EXPORT_SLICE],
     )
     moisture_frame = simulation_to_frame(
-        result.time_s[export_slice], result.radius_cm, result.moisture[export_slice]
+        result.time_s[TEMPLATE_EXPORT_SLICE],
+        result.radius_cm,
+        result.moisture[TEMPLATE_EXPORT_SLICE],
     )
 
     workbook_path = OUTPUT_DIR / "result2.xlsx"
@@ -93,7 +122,13 @@ def main() -> None:
     moisture_table = selected_table(result, result.moisture, sample_seconds, sample_radius)
     write_markdown_tables(temp_table, moisture_table)
 
+    print(f"attachment1: {attachment1}")
     print(f"result workbook: {workbook_path}")
+    print(
+        "coupling convergence: "
+        f"{int(result.coupling_converged.sum())}/{len(result.coupling_converged)} steps, "
+        f"max iterations {int(result.coupling_iterations.max())}"
+    )
     print("")
     print("表3 3小时内药材的温度")
     print(temp_table.to_string(index=False))

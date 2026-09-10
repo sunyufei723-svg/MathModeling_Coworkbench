@@ -1,11 +1,14 @@
 import sys
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import numpy as np
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import run_problem2
 from solver import (
     EnvironmentSeries,
     SolverConfig,
@@ -70,6 +73,41 @@ class Problem2SolverTests(unittest.TestCase):
         self.assertEqual(result.coupling_iterations.shape, (20,))
         self.assertGreater(int(result.coupling_iterations.max()), 1)
         self.assertTrue(result.coupling_converged.all())
+
+    def test_attachment_path_can_be_resolved_from_project_relative_location(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            attachment = root / "files" / "raw" / "CUMCM2026Problems" / "A题" / "附件" / "附件1.xlsx"
+            attachment.parent.mkdir(parents=True)
+            attachment.write_text("placeholder", encoding="utf-8")
+
+            resolved = run_problem2.resolve_attachment1(root, explicit_path=None)
+
+            self.assertEqual(resolved, attachment)
+
+    def test_export_slice_matches_result2_template_starting_at_one_second(self):
+        time_s = np.array([0.0, 1.0, 2.0])
+        radius = np.array([0.0, 0.1])
+        values = np.array([[9.0, 9.1], [1.0, 1.1], [2.0, 2.1]])
+
+        frame = run_problem2.simulation_to_frame(
+            time_s[run_problem2.TEMPLATE_EXPORT_SLICE],
+            radius,
+            values[run_problem2.TEMPLATE_EXPORT_SLICE],
+        )
+
+        self.assertEqual(frame.iloc[0, 0], 1)
+        self.assertEqual(frame.iloc[-1, 0], 2)
+
+    def test_problem2_explanation_document_records_review_decisions(self):
+        doc_path = Path(__file__).resolve().parents[2] / "results" / "problem2" / "problem2_solution_and_code_explanation.md"
+
+        text = doc_path.read_text(encoding="utf-8")
+
+        self.assertIn("Picard", text)
+        self.assertIn("exp(-0.45/C)", text)
+        self.assertIn("result2.xlsx", text)
+        self.assertIn("t=0", text)
 
 
 if __name__ == "__main__":
