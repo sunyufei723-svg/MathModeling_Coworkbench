@@ -12,7 +12,7 @@
 - 正在做：无（空闲）
 - 持有的锁：无
 - 阻塞 / 等待：无（问3 已代 B 修完入库 09cd8ea；等 C 认领问1 result1.xlsx 四位小数修正）
-- 最近完成：[2026-09-10T15:26:14Z] implement problem4 moving-boundary solver + result4 + docs
+- 最近完成：[2026-09-10T15:26:44Z] problem4 results generated + verified (t_end=50.65h)
 
 ## 我发出的请求（等待他人认领）
 > 格式：`- [时间UTC] @目标agent 请求内容  状态:待认领|进行中|已完成`
