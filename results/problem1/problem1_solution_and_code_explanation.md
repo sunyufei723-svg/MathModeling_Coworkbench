@@ -1,368 +1,175 @@
-# A题第一问解决思路与代码解析
+# A题第一问解决思路与代码解析（修正版）
 
-## 1. 第一问到底要求什么
+## 1. 修正结论
 
-第一问研究的是药材在烘干开始后前 30 分钟内的温度和水分浓度变化。
+本版覆盖旧版问题一求解。核心修正有四项：
 
-题目给出的药材可以近似看成圆柱：
+1. 水分扩散系数改为题设公式
+   \[
+   D(C)=7\times10^{-9}\exp\!\left(-\frac{0.89}{C}\right)\ \mathrm{m^2/s},
+   \]
+   不再使用错误的 \(7\times10^{-9}\exp(-0.89C)\)。
+2. 水分方程保持 Fick 定律的守恒形式，不能把变系数 \(D(C)\) 直接移到散度算子之外。
+3. 数值方法统一为一维径向有限体积法（FVM）与隐式 BDF 时间积分。
+4. 区分计算网格和输出网格：内部使用 \(\Delta r=0.0025\rm\,cm\)，最终仍按题目要求每 1 s、每 0.1 cm 输出。
 
-- 长度：25 cm
-- 半径：2 cm
-- 初始温度：28 deg C
-- 初始水分浓度：2.55 kg/kg
+## 2. 几何简化与模型选择
 
-第一问暂时不考虑药材收缩，所以半径始终固定为 2 cm。附件2中半径随时间变化的数据留到第四问使用。
+药材视为半径 \(R=2\rm\,cm\)、长度 \(L=25\rm\,cm\) 的圆柱。初始温度和干基含水率分别为
 
-题目要求输出的位置是“到药材中心的距离”：
+\[
+T_0=28^\circ\mathrm C,\qquad C_0=2.55\ \mathrm{kg/kg}.
+\]
 
-```text
-0, 0.5, 1.0, 1.5, 2.0 cm
-```
+热扩散率为
 
-这里的距离不是长度方向上的距离，而是从圆柱中心轴向外到表面的径向距离。也就是说，第一问求的是药材横截面半径方向上的温度和水分浓度分布：
+\[
+\alpha=\frac{k}{\rho c_p}
+=\frac{0.36}{820\times2600}
+\approx1.6886\times10^{-7}\ \mathrm{m^2/s}.
+\]
 
-```text
-r = 0 cm      中心轴
-r = 2 cm      药材表面
-```
+热、质传递 Biot 数分别约为
 
-由于题目没有要求长度方向上的变化，我们假设药材沿长度方向和圆周方向性质均匀，只考虑半径方向。这就把三维圆柱问题简化成一维径向问题。
+\[
+Bi_T=\frac{hR}{k}\approx1.389,
+\qquad
+Bi_C=\frac{h_mR}{D(2.55)}\approx3.24.
+\]
 
-## 2. 建模假设
+二者均明显大于 0.1，不能把药材内部温度或含水率视为空间均匀。另一方面，1800 s 内热、水分扩散尺度约为
 
-第一问采用以下假设：
+\[
+\sqrt{\alpha t}\approx1.74\rm\,cm,
+\qquad
+\sqrt{D(2.55)t}\approx0.30\rm\,cm,
+\]
 
-1. 药材为均质、各向同性圆柱体。
-2. 药材长度方向和圆周方向温度、水分浓度分布均匀，只考虑径向变化。
-3. 第一问中药材尺寸不变，半径固定为 2 cm。
-4. 药材初始温度和初始水分浓度处处相同。
-5. 烘房空气温度和空气水分浓度由附件1给出，中间时刻采用线性插值。
-6. 表面通过对流换热和对流传质与烘房空气交换热量和水分。
+都远小于圆柱半长 12.5 cm。因此忽略端面和轴向变化，取
 
-这些假设的意义是：我们不去计算整个圆柱体的三维场，而是计算从中心到表面的这一条半径线。这样既符合题目输出格式，也能抓住表面先升温、先失水，中心后响应的主要规律。
+\[
+T=T(r,t),\qquad C=C(r,t),\qquad 0\le r\le R.
+\]
 
-## 3. 温度模型
+## 3. 控制方程与边界条件
 
-药材内部温度满足圆柱坐标下的一维非稳态热传导方程：
+第一问的 \(\rho,c_p,k\) 为常数，且 \(D\) 只依赖 \(C\)，所以温度场和水分场可以独立求解。
 
-```text
-partial T / partial t = alpha * (partial^2 T / partial r^2 + 1/r * partial T / partial r)
-```
+温度场采用守恒型 Fourier 方程：
 
-其中：
+\[
+\rho c_p\frac{\partial T}{\partial t}
+=\frac1r\frac{\partial}{\partial r}
+\left(kr\frac{\partial T}{\partial r}\right).
+\]
 
-```text
-alpha = k / (rho * cp)
-```
+水分场采用守恒型非线性 Fick 方程：
 
-第一问给定参数：
+\[
+\frac{\partial C}{\partial t}
+=\frac1r\frac{\partial}{\partial r}
+\left[rD(C)\frac{\partial C}{\partial r}\right],
+\qquad
+D(C)=7\times10^{-9}\exp\!\left(-\frac{0.89}{C}\right).
+\]
 
-```text
-rho = 820 kg/m^3
-cp  = 2600 J/(kg*K)
-k   = 0.36 W/(m*K)
-h   = 25 W/(m^2*K)
-```
+中心为对称边界：
 
-初始条件：
+\[
+T_r(0,t)=0,\qquad C_r(0,t)=0.
+\]
 
-```text
-T(r, 0) = 28 deg C
-```
+表面为 Robin 边界：
 
-中心边界条件：
+\[
+-kT_r(R,t)=h\,[T_s-T_\infty(t)],
+\]
 
-```text
-partial T / partial r = 0, at r = 0
-```
+\[
+-D(C_s)C_r(R,t)=h_m\,[C_s-C_\infty(t)].
+\]
 
-这是因为圆柱中心轴是对称位置，热量不会“穿过中心轴”向某一个方向偏流。
+附件 1 的 \(T_\infty(t)\) 和 \(C_\infty(t)\) 在相邻实测时刻之间使用分段线性插值。
 
-表面边界条件：
+本问没有声称实际烘干不存在蒸发潜热。这里仅按照题设给出的参数体系，采用热传导与水分扩散解耦的最小闭合模型，不额外引入题目未给定的潜热及热湿耦合源项。
 
-```text
--k * partial T / partial r = h * (T_surface - T_air)
-```
+## 4. 有限体积离散与 BDF 积分
 
-其中 `T_air` 是附件1中烘房温度插值得到的当前时刻空气温度。
+令节点 \(r_i=i\Delta r\)，节点控制体体积和控制面面积分别为
 
-## 4. 水分浓度模型
+\[
+V_i=\pi\left(r_{i+1/2}^2-r_{i-1/2}^2\right),
+\qquad
+A_{i+1/2}=2\pi r_{i+1/2}.
+\]
 
-药材内部水分浓度满足圆柱坐标下的一维非稳态扩散方程：
+长度方向取单位长度。温度内部节点离散为
 
-```text
-partial C / partial t = 1/r * partial / partial r (r * D * partial C / partial r)
-```
+\[
+\rho c_pV_i\frac{dT_i}{dt}
+=kA_{i-1/2}\frac{T_{i-1}-T_i}{\Delta r}
++kA_{i+1/2}\frac{T_{i+1}-T_i}{\Delta r}.
+\]
 
-第一问给定水分扩散系数：
+水分界面扩散系数采用算术平均
 
-```text
-D = 7e-9 * exp(-0.89C)
-```
+\[
+D_{i+1/2}=\frac{D(C_i)+D(C_{i+1})}{2},
+\]
 
-初始条件：
+于是
 
-```text
-C(r, 0) = 2.55 kg/kg
-```
+\[
+V_i\frac{dC_i}{dt}
+=D_{i-1/2}A_{i-1/2}\frac{C_{i-1}-C_i}{\Delta r}
++D_{i+1/2}A_{i+1/2}\frac{C_{i+1}-C_i}{\Delta r}.
+\]
 
-中心边界条件：
+表面控制体直接加入对流换热或对流传质通量，中心控制体天然满足零通量条件，不需要人为设置 ghost point。空间离散后得到两组常微分方程，用稀疏三对角 Jacobian 结构的 BDF 方法积分至 1800 s。
 
-```text
-partial C / partial r = 0, at r = 0
-```
+内部计算网格为 801 个节点（\(\Delta r=0.0025\rm\,cm\)）；输出时抽取
 
-表面边界条件：
+\[
+r=0,0.1,\ldots,2.0\rm\,cm,
+\qquad
+t=1,2,\ldots,1800\rm\,s.
+\]
 
-```text
--D * partial C / partial r = hm * (C_surface - C_air)
-```
+网格加密复核中，内部网格从 0.005 cm 加密至 0.0025 cm 后，论文所列抽样单元的最大变化约为 \(1.1\times10^{-4}\ ^\circ\mathrm C\) 和 \(5.6\times10^{-5}\ \mathrm{kg/kg}\)，说明当前结果已达到题目四位小数输出所需的稳定量级。
 
-其中：
+## 5. 代码结构与复现流程
 
-```text
-hm = 8e-7 m/s
-```
+- `solver.py`：参数、时变边界插值、守恒型径向 FVM 和 BDF 求解。
+- `run_problem1.py`：读取边界 JSON/CSV，求解，生成工作簿数据载荷与论文表格。
+- `extract_environment.mjs`：从附件 1 工作簿提取“时间、温度、水分浓度”三列。
+- `export_result1.mjs`：保留模板双工作表结构，写入完整结果并统一四位小数格式。
+- `test_solver.py`：检查扩散系数公式、网格分离、边界插值和基本物理趋势。
 
-`C_air` 是附件1中烘房空气水分浓度插值得到的当前时刻值。
-
-直观理解是：药材表面水分先被热风带走，内部水分再慢慢向表面扩散，所以表面水分浓度下降最快，中心下降最慢。
-
-## 5. 数值求解方法
-
-题目要求完整结果为：
-
-```text
-时间：每隔 1 s
-距离：每隔 0.1 cm
-```
-
-所以代码中设置：
-
-```text
-dt = 1 s
-dr = 0.1 cm = 0.001 m
-r = 0, 0.1, 0.2, ..., 2.0 cm
-t = 0, 1, 2, ..., 1800 s
-```
-
-半径方向共有 21 个网格点，时间方向共有 1801 个时刻。导出 Excel 时按模板从 1 s 到 1800 s 写入，共 1800 行。
-
-我们采用半隐式有限差分法：
-
-- 下一时刻的未知量一起求解，所以稳定性比显式差分更好。
-- 每个时间步会形成一个三对角线性方程组。
-- 代码用 Thomas 算法求解三对角方程组。
-- 水分扩散系数 `D` 依赖当前水分浓度，所以每一步用上一时刻的 `C` 计算 `D`，再推进到下一步。
-
-## 6. 代码文件结构
-
-当前第一问代码分成三个文件。
-
-### 6.1 solver.py
-
-位置：
-
-```text
-E:\MathModeling_Coworkbench\code\problem1\solver.py
-```
-
-这个文件负责核心模型和数值计算。
-
-主要对象：
-
-```python
-EnvironmentSeries
-```
-
-保存附件1中的环境数据，包括时间、烘房温度、烘房水分浓度。它有两个方法：
-
-```python
-temperature_at(t_s)
-moisture_at(t_s)
-```
-
-作用是对附件1数据做线性插值。例如附件1每 60 秒给一个数据点，但模型每 1 秒需要一个空气温度和空气水分浓度，所以要插值。
-
-```python
-SolverConfig
-```
-
-保存第一问的模型参数，例如半径、网格步长、模拟时间、初始温度、初始水分浓度、热学参数和传质系数。
-
-```python
-SimulationResult
-```
-
-保存模拟结果，包括：
-
-```text
-time_s          时间数组
-radius_cm       半径位置数组
-temperature_c   温度结果矩阵
-moisture        水分浓度结果矩阵
-```
-
-其中 `temperature_c[i, j]` 表示第 `i` 个时间、第 `j` 个半径位置的温度。
-
-### 6.2 核心函数
-
-```python
-build_radial_grid_cm(radius_cm, dr_cm)
-```
-
-生成半径网格：
-
-```text
-0, 0.1, 0.2, ..., 2.0 cm
-```
-
-```python
-moisture_diffusivity(c)
-```
-
-根据第一问给出的经验公式计算水分扩散系数：
-
-```text
-D = 7e-9 * exp(-0.89C)
-```
-
-```python
-_solve_tridiagonal(lower, diag, upper, rhs)
-```
-
-求解三对角线性方程组。半隐式差分每一步都会得到一个三对角方程组，用这个函数快速求解。
-
-```python
-_implicit_radial_step(...)
-```
-
-推进一个时间步。温度和水分都可以写成“径向扩散 + 表面对流边界”的形式，所以这一个函数被温度模型和水分模型共用。
-
-```python
-solve_problem1(environment, config)
-```
-
-第一问的总求解函数。它会：
-
-1. 建立半径网格。
-2. 建立时间网格。
-3. 设置初始温度和初始水分浓度。
-4. 每 1 秒推进一次温度。
-5. 每 1 秒推进一次水分浓度。
-6. 返回完整模拟结果。
-
-### 6.3 run_problem1.py
-
-位置：
-
-```text
-E:\MathModeling_Coworkbench\code\problem1\run_problem1.py
-```
-
-这个文件负责读取附件1、调用求解器、导出结果。
-
-核心流程是：
-
-```text
-读取附件1.xlsx
--> 建立 EnvironmentSeries
--> 调用 solve_problem1
--> 生成温度表和水分浓度表
--> 写入 result1.xlsx
--> 抽取论文表1、表2
--> 写入 problem1_tables.md
-```
-
-输出位置：
-
-```text
-E:\MathModeling_Coworkbench\results\problem1\result1.xlsx
-```
-
-以及：
-
-```text
-E:\MathModeling_Coworkbench\results\problem1\problem1_tables.md
-```
-
-### 6.4 test_solver.py
-
-位置：
-
-```text
-E:\MathModeling_Coworkbench\code\problem1\test_solver.py
-```
-
-这个文件负责基础测试，主要检查：
-
-1. 附件1环境数据插值是否正确。
-2. 半径网格是否为 `0-2 cm`、间隔 `0.1 cm`。
-3. 初始温度和初始水分浓度是否处处一致。
-4. 表面温度是否比中心更快升高。
-5. 表面水分浓度是否比中心更快下降。
-6. 结果中是否没有无穷大或非法数值。
-
-## 7. 如何在 VSCode 中运行
-
-打开文件夹：
-
-```text
-E:\MathModeling_Coworkbench
-```
-
-在 VSCode 终端中运行：
+在仓库根目录运行：
 
 ```powershell
-python code\problem1\run_problem1.py
+node code/problem1/extract_environment.mjs --input "附件1.xlsx" --output "work/problem1_environment.json"
+python code/problem1/run_problem1.py --environment "work/problem1_environment.json" --payload "work/problem1_result.json"
+node code/problem1/export_result1.mjs --template "results/problem1/result1.xlsx" --payload "work/problem1_result.json" --output "results/problem1/result1.xlsx"
+python -m unittest discover -s code/problem1 -p "test_*.py" -v
 ```
 
-如果你的系统默认 Python 缺少 `pandas` 或 `openpyxl`，可以改用 Codex 自带 Python：
+Python 依赖见 `requirements.txt`。两个 `.mjs` 脚本使用当前 Codex 工作区提供的 `@oai/artifact-tool` 工作簿运行时。
 
-```powershell
-C:\Users\Lenovo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe code\problem1\run_problem1.py
-```
+## 6. 最终结果与物理解释
 
-运行成功后，会生成：
+完整结果见 `result1.xlsx`，论文抽样值见 `problem1_tables.md`。1800 s 时：
 
-```text
-results\problem1\result1.xlsx
-results\problem1\problem1_tables.md
-```
+\[
+T(0,1800)=33.5753^\circ\mathrm C,
+\qquad
+T(R,1800)=36.7856^\circ\mathrm C,
+\]
 
-## 8. 结果怎么看
+\[
+C(0,1800)=2.5500\ \mathrm{kg/kg},
+\qquad
+C(R,1800)=1.5102\ \mathrm{kg/kg}.
+\]
 
-第一问结果表现出合理的物理趋势：
-
-1. 表面 `r=2 cm` 升温最快，中心 `r=0 cm` 升温最慢。
-2. 表面水分浓度下降最快，中心水分浓度几乎不变。
-3. 前 30 分钟属于预热和平衡初期，水分主要在靠近表面的区域变化，中心还没有明显失水。
-
-1800 s 时，模拟得到：
-
-```text
-中心温度：33.5767 deg C
-表面温度：36.7862 deg C
-中心水分浓度：2.5500 kg/kg
-表面水分浓度：1.4000 kg/kg
-```
-
-这个趋势和烘干过程的直觉一致：热风先影响表面，内部响应滞后。
-
-## 9. 论文里可以怎么写
-
-第一问论文表述可以按下面逻辑组织：
-
-1. 将药材视为半径固定的均质圆柱体。
-2. 忽略轴向和周向差异，只建立径向一维模型。
-3. 对温度建立圆柱坐标下的非稳态热传导方程。
-4. 对水分浓度建立圆柱坐标下的非稳态扩散方程。
-5. 中心采用对称边界，表面采用对流换热和对流传质边界。
-6. 附件1中的烘房温度和水分浓度通过线性插值作为外界条件。
-7. 采用半隐式有限差分法求解，并输出题目要求的时间点和空间位置。
-
-一句话总结：
-
-```text
-第一问的核心不是直接套附件数据，而是用附件1作为外界条件，建立圆柱径向传热-传质模型，计算药材内部各半径位置随时间变化的温度和水分浓度。
-```
+表面先升温、先失水，中心响应明显滞后。30 min 时热扰动已深入大部分半径，而显著失水仍主要集中在表层，这与热扩散尺度约 1.74 cm、水分扩散尺度约 0.30 cm 的数量级判断一致。
