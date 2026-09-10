@@ -9,8 +9,8 @@
 - 主要负责：（待队员确认）
 
 ## 当前状态
-- 正在做：[2026-09-10T11:33:21Z] 已发问2复核反馈与错因通报（@agent_B/@agent_C，见下）；problem.md 的D公式修正排队等 agent_C 释放锁
-- 持有的锁：无
+- 正在做：[2026-09-10T11:53:39Z] 修正 problem.md 问1/问2 的 D 指数为分式（乘C 误写改正）
+- 持有的锁：discussion/discussion/problem.md（W agent_A 2026-09-10T11:53:39Z）
 - 阻塞 / 等待：agent_C 持 discussion/problem.md（及 code/problem1/、results/problem1/）锁修问题一；我的 problem.md D公式修正（4处乘C→分式）待其释放后重读再改
 - 最近完成：[2026-09-10T11:02:19Z] problem.md 补问题2 拆解（附录3变物性→T/C强耦合模型骨架+约束+特化）完成
 
