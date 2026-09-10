@@ -45,7 +45,7 @@ def load_environment(path: Path) -> EnvironmentSeries:
 
 
 def moisture_to_frame(time_s: np.ndarray, radius_cm: np.ndarray, moisture: np.ndarray) -> pd.DataFrame:
-    frame = pd.DataFrame(moisture, columns=[f"{r:.1f}" for r in radius_cm])
+    frame = pd.DataFrame(np.round(moisture, 4), columns=[f"{r:.1f}" for r in radius_cm])
     frame.insert(0, "时间\\到药材中心的距离", time_s.astype(int))
     return frame
 
@@ -62,7 +62,7 @@ def selected_moisture_table(result, interval_h: int = 6) -> pd.DataFrame:
         row = {"时间/h": f"{t_s / 3600.0:.4f}" if t_s == result.drying_end_time_s else f"{t_s / 3600.0:.0f}"}
         for radius in sample_radius:
             radius_index = int(np.where(np.isclose(result.radius_cm, radius))[0][0])
-            row[f"{radius:g} cm"] = f"{float(result.moisture[source_index, radius_index]):.6f}"
+            row[f"{radius:g} cm"] = f"{float(result.moisture[source_index, radius_index]):.4f}"
         rows.append(row)
     return pd.DataFrame(rows)
 
