@@ -51,6 +51,26 @@ class Problem2SolverTests(unittest.TestCase):
         self.assertLess(result.moisture[-1, -1], result.moisture[-1, 0])
         self.assertGreaterEqual(result.moisture.min(), 0.0)
 
+    def test_solver_uses_picard_coupling_iterations_inside_each_time_step(self):
+        env = EnvironmentSeries(
+            time_s=np.array([0.0, 20.0]),
+            temperature_c=np.array([28.0, 55.0]),
+            moisture=np.array([0.01963, 0.05000]),
+        )
+        config = SolverConfig(
+            duration_s=20,
+            dt_s=1.0,
+            dr_cm=0.1,
+            max_coupling_iterations=8,
+            coupling_tolerance=1e-12,
+        )
+
+        result = solve_problem2(env, config)
+
+        self.assertEqual(result.coupling_iterations.shape, (20,))
+        self.assertGreater(int(result.coupling_iterations.max()), 1)
+        self.assertTrue(result.coupling_converged.all())
+
 
 if __name__ == "__main__":
     unittest.main()

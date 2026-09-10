@@ -28,6 +28,8 @@ class SolverConfig:
     initial_moisture: float = 2.55
     heat_transfer_w_m2_k: float = 25.0
     mass_transfer_m_s: float = 8e-7
+    max_coupling_iterations: int = 8
+    coupling_tolerance: float = 1e-8
 
 
 @dataclass(frozen=True)
@@ -36,6 +38,8 @@ class SimulationResult:
     radius_cm: np.ndarray
     temperature_c: np.ndarray
     moisture: np.ndarray
+    coupling_iterations: np.ndarray
+    coupling_converged: np.ndarray
 
 
 def build_radial_grid_cm(radius_cm: float, dr_cm: float) -> np.ndarray:
@@ -134,35 +138,57 @@ def solve_problem2(environment: EnvironmentSeries, config: SolverConfig | None =
 
     temperature = np.empty((steps + 1, len(radius_cm)), dtype=float)
     moisture = np.empty_like(temperature)
+    coupling_iterations = np.zeros(steps, dtype=int)
+    coupling_converged = np.zeros(steps, dtype=bool)
     temperature[0, :] = config.initial_temperature_c
     moisture[0, :] = config.initial_moisture
 
     for n in range(steps):
-        c_now = np.maximum(moisture[n, :], 1e-9)
-        t_now = temperature[n, :]
-        rho_cp = density(c_now) * heat_capacity(c_now)
-        k_now = thermal_conductivity(c_now)
-        d_now = moisture_diffusivity(c_now, t_now)
         t_next = time_s[n + 1]
+        t_guess = temperature[n, :].copy()
+        c_guess = moisture[n, :].copy()
+        next_temperature = t_guess
+        next_moisture = c_guess
 
-        temperature[n + 1, :] = _implicit_radial_variable_step(
-            temperature[n, :],
-            k_now,
-            rho_cp,
-            config.dt_s,
-            dr_m,
-            config.heat_transfer_w_m2_k,
-            environment.temperature_at(t_next),
-        )
-        moisture[n + 1, :] = _implicit_radial_variable_step(
-            moisture[n, :],
-            d_now,
-            np.ones_like(d_now),
-            config.dt_s,
-            dr_m,
-            config.mass_transfer_m_s,
-            environment.moisture_at(t_next),
-        )
-        moisture[n + 1, :] = np.maximum(moisture[n + 1, :], 0.0)
+        for iteration in range(1, config.max_coupling_iterations + 1):
+            c_safe = np.maximum(c_guess, 1e-9)
+            rho_cp = density(c_safe) * heat_capacity(c_safe)
+            k_now = thermal_conductivity(c_safe)
+            d_now = moisture_diffusivity(c_safe, t_guess)
 
-    return SimulationResult(time_s, radius_cm, temperature, moisture)
+            next_temperature = _implicit_radial_variable_step(
+                temperature[n, :],
+                k_now,
+                rho_cp,
+                config.dt_s,
+                dr_m,
+                config.heat_transfer_w_m2_k,
+                environment.temperature_at(t_next),
+            )
+            next_moisture = _implicit_radial_variable_step(
+                moisture[n, :],
+                d_now,
+                np.ones_like(d_now),
+                config.dt_s,
+                dr_m,
+                config.mass_transfer_m_s,
+                environment.moisture_at(t_next),
+            )
+            next_moisture = np.maximum(next_moisture, 0.0)
+
+            delta_t = np.max(np.abs(next_temperature - t_guess))
+            delta_c = np.max(np.abs(next_moisture - c_guess))
+            if max(delta_t, delta_c) <= config.coupling_tolerance:
+                coupling_converged[n] = True
+                coupling_iterations[n] = iteration
+                break
+
+            t_guess = next_temperature
+            c_guess = next_moisture
+        else:
+            coupling_iterations[n] = config.max_coupling_iterations
+
+        temperature[n + 1, :] = next_temperature
+        moisture[n + 1, :] = next_moisture
+
+    return SimulationResult(time_s, radius_cm, temperature, moisture, coupling_iterations, coupling_converged)
