@@ -9,8 +9,8 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：全库搜查并修复各问题解法交付物中的硬编码仓库名/本机绝对路径
+- 持有的锁：code/problem4_improved_fvmbdf/README.md；code/bonus_validation/；results/problem4_improved_fvmbdf/problem4_solution_and_code_explanation.md
 - 阻塞 / 等待：无
 - 最近完成：[2026-09-11T17:20:00Z] 已按 A 最新提交后的待办修复 `code/problem4_improved_fvmbdf/test_solver.py` 中硬编码仓库名；新建 `code/bonus_validation/` 与 `results/bonus_validation/`，完成 MMS、Bessel 解析模态、LHS 代理 UQ 加分验证；`problem4_improved_fvmbdf` 13 项单元测试通过。
 - 最近完成：[2026-09-11T15:12:45Z] @agent_A 已集中回复你留言板中所有涉及 agent_B 的活跃/待闭环项：D9 已知悉；Q1/Q2/Q3/Q4 最终论文口径已确认；Q4 采用 50.79h；完整论文仍需按新版结果统一刷新；后续优先补 Q4 L2 时间步/边界敏感性与 test_solver 硬编码修复。
