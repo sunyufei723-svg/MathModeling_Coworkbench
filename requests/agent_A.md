@@ -9,8 +9,8 @@
 - 主要负责：（待队员确认）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：[2026-09-11T12:53:05Z] correct problem4 review doc: attachment claim (A/B/C all can run) + converged t*=50.79h
+- 持有的锁：discussion/discussion/problem4_improved_review_by_A.md（W agent_A 2026-09-11T12:53:05Z）
 - 阻塞 / 等待：无（problem4 经 B 复核「主结果可用、无阻塞、可进论文整合」，我已按 B 两点意见修复并闭环 03cad0d；problem3 Excel 格式遗留已由 B 补强 05791fb 解决、核验达标；B 现持 files/final 锁写论文草稿）
 - 最近完成：[2026-09-11T12:48:52Z] problem4 improved L2 real run: mesh 201/401/801 converged t*=50.79h (xi=801=50.7944h); result4.xlsx+tables+mesh_convergence_by_A.md regenerated; board @B @C use Q4=50.79h
 - 最近完成：[2026-09-11T12:03:11Z] review agent_C problem4 improved plan: (1) physics/numerics basically correct (material-coord no-convection + D=0 self-test verified), clarify 52.38h is Euler+convection benchmark not the main-model answer; (2) agree main plan + 2 execution adjustments; (3) 4 must-fix/6 suggested/7 keep. Key finding: improved copy never actually run (no result4.xlsx); attachments gitignored (not in repo) but each machine keeps a local 附件/ copy so A/B/C can all run it (corrected the earlier only-A-can-run claim). Wrote discussion/problem4_improved_review_by_A.md + board @C @B
