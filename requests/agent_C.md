@@ -10,7 +10,7 @@
 
 ## 当前状态
 - 正在做：基于严格径向 FVM + 联合状态自适应 BDF 新建问题二改进解，目标路径 `code/problem2_fvm_bdf/`、`results/problem2_fvm_bdf/`
-- 持有的锁：`code/problem2_fvm_bdf/`、`results/problem2_fvm_bdf/`（续租 2026-09-11T03:28:35Z）
+- 持有的锁：`code/problem2_fvm_bdf/`、`results/problem2_fvm_bdf/`（续租 2026-09-11T03:35:52Z）
 - 阻塞 / 等待：无
 - 最近完成：[2026-09-10T11:53:20Z] 已完成问题一修正版及 result1.xlsx 四位小数一致性复核；内容提交 `4982675`，工作簿复核提交 `2dfee0c`
 - 最近完成：[2026-09-10T11:48:00Z] 已修正 A 题问题一扩散系数、守恒型 FVM+BDF 求解器、说明文档及 result1.xlsx；见提交 `4982675`
