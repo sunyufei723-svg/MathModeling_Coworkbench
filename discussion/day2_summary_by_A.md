@@ -1,0 +1,296 @@
+# A 题（药材烘干）协作工作区 · 第 2 天结束总结
+
+- **归档人**：agent_A（本机 Qoder，队员 `sunyufei723-svg`）
+- **归档时间**：2026-09-11T16:38Z（UTC）
+- **仓库状态**：HEAD = origin/main = `aa47e65`（本次会话拿锁后），前序 `faeed3c`
+- **持有锁**：`discussion/day2_summary_by_A.md` + `files/final/`（agent_A 路径级，写本文件与刷新完整论文用，完成后释放）
+
+> **目的**：把第 2 天结束时仓库的全貌梳理清楚——四问各用了什么方法、优势劣势是什么；还有哪些事待完成；哪些事需要队员拍板。第 3 天任意一台机器拉下仓库后，读完本文件即可对齐当前状态，无需回溯十几条留言板。
+
+---
+
+## 零、一句话现状
+
+四问的最终结果（数字 + 方法）全队已定案：
+
+| 问 | 采用版本 | 关键结果 |
+|---|---|---|
+| Q1 | `problem1_improved` | 数字与基线四位一致（1800 s 中心/表面 T = 33.5753/36.7856 °C，C = 2.5500/1.5102 kg/kg），方法描述补「调和平均 + C≥0」 |
+| Q2 | `problem2_fvm_bdf` | 3 h 端点 T = 49.8495/49.9664 °C，C = 1.7662/1.0081 kg/kg |
+| Q3 | `problem3_fvm_bdf` | t\* = **57.1727 h**，边界情景 53.62–61.07 h |
+| Q4 | `problem4_fvm_bdf`（L3） | t\* = **50.8245 h**，边界情景 47.68–54.28 h |
+
+**唯一未完成** = 完整论文 `files/final/A题完整论文.tex` 仍残留旧口径（Q2 Picard / Q3 55.0583 h / Q4 50.6528 h）。本次会话经队员指示：**刷新论文，Q4 主值用 L3 = 50.8245 h，全文涉及答案的数字精确到 4 位小数**。
+
+---
+
+## 一、各问题方法、优势与劣势
+
+### 问题 1 · 预热平衡 0–1800 s（附录 2 常物性 → T/C 解耦）
+
+| 版本 | 目录 | 方法要点 |
+|---|---|---|
+| 基线（agent_C 修正版） | [`code/problem1/`](../code/problem1) | 一维径向守恒型 FVM + 自适应隐式 BDF；内部网格 Δr = 0.0025 cm；分式扩散系数 D(C) = 7×10⁻⁹·exp(−0.89/C)；ρ/cp/k 常数、D 仅依赖 C ⇒ T/C 解耦独立求解；输出 1 s × 0.1 cm 网格到 result1.xlsx |
+| **改进（agent_A）** | [`code/problem1_improved/`](../code/problem1_improved) | 同基线 + 界面 D **算术平均 → 调和平均**（Patankar 串联扩散阻力标准）+ 输出前 **max(C, 0) 非负裁剪** |
+
+**最终采用**：`problem1_improved` 口径（B 拍板）。
+
+**1800 s 结果**（两版四位小数完全相同）：中心/表面 T = **33.5753 / 36.7856 °C**，中心/表面 C = **2.5500 / 1.5102 kg/kg**。
+
+**优势**
+- 内部网格远细于输出网格（0.0025 vs 0.1 cm），空间精度充分；
+- 自适应 BDF 自动处理初期薄边界层的刚性；
+- 解耦使 Q1 成为整条管线最稳的一环，可作 Q2/Q3/Q4 空间算子背书；
+- 调和平均界面 D 在干燥前沿 D 跨数量级时理论上更准；
+- C ≥ 0 裁剪是防御性约束，避免强脱水工况出现非物理负值。
+
+**劣势**
+- Q1 工况温和（30 min 内表面最低 C = 1.51，远 > 0），两项改进对 Q1 数字影响 max 仅 **2.56×10⁻⁷ kg/kg**（4 位小数完全一致），改进价值主要体现在与 Q2/Q3/Q4 口径统一 + 鲁棒性，不是「结果更好」；
+- 附录 2 未给汽化潜热，本问传热方程无蒸发源项——合理简化但论文应在模型评价中承认。
+
+---
+
+### 问题 2 · 整个烘干过程（报告窗口 0–3 h，附录 3 变物性 → T/C 强耦合）
+
+| 版本 | 目录 | 方法要点 |
+|---|---|---|
+| 基线（agent_B） | [`code/problem2/`](../code/problem2) | Δr = 0.1 cm, Δt = 1 s；径向 FVM；backward-Euler 隐式；T/C 双向耦合用 **Picard 步内定点迭代**（tol = 1e-8，max 8 次）。10800 步全收敛，单步最大 Picard 迭代 3 次 |
+| **改进（agent_C）** | [`code/problem2_fvm_bdf/`](../code/problem2_fvm_bdf) | **严格径向 FVM**（V_i = π(r_{i+1/2}² − r_{i−1/2}²) 精确到机器精度）+ **联合状态自适应 BDF**（scipy `solve_ivp(method='BDF')`，rtol = 2e-8，atol_T/C = 2e-9/2e-10，max_step = 5 s）+ 界面 k、D **调和平均**；内部网格 0.025 cm（81 节点，162 维联合状态） |
+
+**最终采用**：`problem2_fvm_bdf`（B 拍板）。
+
+**3 h 端点结果对照**
+
+| 指标 | 基线 Picard | fvm_bdf | 新 − 旧 |
+|---|---:|---:|---:|
+| 中心温度 / °C | 49.8531 | **49.8495** | −0.0036 |
+| 表面温度 / °C | 49.9692 | **49.9664** | −0.0028 |
+| 中心水分 / kg·kg⁻¹ | 1.7625 | **1.7662** | +0.0037 |
+| 表面水分 / kg·kg⁻¹ | 0.9993 | **1.0081** | +0.0088 |
+
+**优势**（fvm_bdf）
+- 严格守恒 FVM，通量残差到机器精度；
+- 自适应 BDF 自动应对 Arrhenius 项 exp(−3850/T_K) 的刚性；
+- 调和平均在 D 跨数量级时（干燥前沿）更准；
+- 已验证网格无关（温度 max 4.16×10⁻⁵ °C，水分 max 4.67×10⁻⁵ kg/kg）与 BDF 容差无关（温度 1.91×10⁻⁵ °C，水分 4.84×10⁻⁸ kg/kg）。
+
+**劣势**
+- 实现更复杂，依赖 scipy BDF 机制；
+- 基线 Picard 在 3 h 窗口内已完全收敛，两版四位数字有可见差异（表面水分差 0.0088）——不是「错」，是离散口径差；
+- 主计算 0.025 cm 网格对最初几秒的表面薄边界层仍未完全网格无关（t = 1 s 表面水分差 ~0.005 kg/kg），但论文表格采样从 0.5 h 起，不受影响。
+
+---
+
+### 问题 3 · 达标停机 t_end（附录 3 + 全 2–3 天积分）
+
+| 版本 | 目录 | 方法要点 | t_end |
+|---|---|---|---|
+| 基线（agent_B，agent_A 代修四位小数） | [`code/problem3/`](../code/problem3) | 与 Q2 基线同结构（Picard + BE），Δt = 10 s，全程积分至全截面 max(C) < 0.15；19821 步全收敛，最大 Picard 4 次 | 198210 s = **55.0583 h**（60 s 网格首次达标） |
+| **改进（agent_C）** | [`code/problem3_fvm_bdf/`](../code/problem3_fvm_bdf) | 严格 FVM + 联合状态自适应 BDF + **终止事件** g(t) = max(C) − 0.15（terminal, direction = −1）→ 连续临界时间；BE 交叉验证；空间网格加密至 **0.00078125 cm（2561 节点）**；边界敏感性 3×3 | 连续 t\* = 205821.7420 s = **57.172706 h**；首个 60 s 严格达标 = 205860 s = 57.183333 h |
+
+**最终采用**：`problem3_fvm_bdf`（B 拍板）；原 55.0583 h 降为方法基准对照。
+
+**敏感性范围**（来自 [`boundary_sensitivity.md`](../results/problem3_fvm_bdf/boundary_sensitivity.md)）：
+- >4 h 边界 3×3 扰动（T ± 2 °C × C {0.9, 1.0, 1.1}）→ t\* ∈ **[53.6154, 61.0702] h**（后期温度是主驱动）；
+- h_m ± 10% → t\* ∈ [56.5955, 57.9086] h；
+- 数据驱动 tail-avg（最后 30 min / 1 h 平均）→ t\* ∈ [57.1727, 57.4829] h。
+
+**优势**
+- 连续事件定位（不困在 60 s 输出网格）；
+- 空间网格收敛到 Richardson 外推差 10 s（观察阶 p = 2.30）；
+- BDF vs BE 双求解器互证（差 7.95 s）；
+- 量化了「>4 h 恒温段边界外推」这个头号物理不确定度（±3.5 h），让论文能把点估计诚实升级为情景范围；
+- 守恒残差 1.08×10⁻¹⁶，裁剪单元 0，水分单调性通过。
+
+**劣势**
+- 空间网格 0.00078125 cm（2561 节点）是必要的：消融显示若网格不够细而直接换调和平均会得到 **557 h 的伪差**——论文写「调和平均更准」必须同时说明网格要求，否则评委会追问；
+- 边界外推假设是支配性误差源，非数值方法能解决；论文应明确报区间。
+
+---
+
+### 问题 4 · 整个烘干 + 移动边界（附录 4 + 附件 2 R(t)）
+
+四层阶梯（已 reconcile，见 [`problem4_L2_L3_reconcile_by_A.md`](problem4_L2_L3_reconcile_by_A.md)）：
+
+| 层级 | 目录 | 口径 | t\*/h | 角色 |
+|---|---|---|---:|---|
+| L1（基线） | [`code/problem4/`](../code/problem4) | 近似离散、算术均值、xi = 201、固定 dt = 10 s BE + Picard | 50.6528 | 历史基准（最粗） |
+| L2 | [`code/problem4_improved_fvmbdf/`](../code/problem4_improved_fvmbdf) | 物质坐标 front-fixing（无对流项）+ 调和 D + xi = 801 + 固定 dt = 10 s BE + Picard | 50.7944 | 基准对照 rung；**A/C 双管线互证到 4 位小数** |
+| **L3** | [`code/problem4_fvm_bdf/`](../code/problem4_fvm_bdf) | 严格 FVM（守恒残差 2.087×10⁻¹⁶）+ k/D 调和 + 联合状态自适应 BDF + 连续终止事件 + xi = 3201 + BE 交叉验证 + 完整敏感性套件 | **50.8245** | **论文问题四主值** |
+| L4 | L3 的 eulerian 分支 | Euler 型空间坐标 + 收缩对流项 (ξR′/R)∂u/∂ξ + 同一 L3 离散 | 52.3842 | 模型形式敏感性对照（**非更高层级**，是另一种坐标物理解释） |
+
+**最终采用**：L3 = **50.8245 h**（agent_A reconcile，队员本次拍板）。
+
+**关键数字**
+- 连续临界 t\* = 182968.225 s = **50.824507 h**；
+- 首个 60 s 严格达标 = 183000 s = 50.833333 h；
+- >4 h 边界情景范围 = **[47.6834, 54.2753] h**；
+- 网格 201 → 3201 单调收敛，末级差 **3.295 s**；
+- BDF 容差三档（1e-7 / 1e-8 / 1e-9）→ t\* 差 < 2×10⁻⁴ s；
+- BDF vs 最细 BE 交叉差 **6.15 s**；
+- 最小原始水分 0.0525，clip = 0；全域 max(C) 恒在中心 ξ = 0。
+
+**优势**（L3）
+- **Landau 物质坐标 ξ = r/R(t) + 主模型无对流项**（D = 0 自检：物质点 C 守恒 ✓；空间型会虚假平流 ✗）；
+- 守恒残差到机器精度；
+- 网格单调收敛 + BDF 容差收敛 + BDF/BE 双求解器互证；
+- 无状态裁剪；
+- 边界敏感性已量化（47.68–54.28 h，主导误差源）；
+- 已覆盖 B 提出的全部 Q4 后续优先级（dt 敏感性、>4 h 边界 3×3、adaptive BDF/Euler 对照）。
+
+**劣势**
+- **dry_mass_index 相对变化 28.02%**——题目给定 R(t) + 经验密度关系未形成严格质量闭合，C 已诚实标注为**模型局限**（非求解器失败）；论文应在模型评价中一句话说明（加分项）；
+- **表 6 的 1.5 cm 列自 6 h 起全程留空**——附件 2 R(t) 前期陡降（R(6 h) < 1.5 cm，event R = 1.2 cm），是半径轨迹真实形状、非误读；论文应注明 R(t) 轨迹（前期快、后期缓），避免评委误判；
+- L2 → L3 差 +0.030 h（+0.06%），远小于边界情景 ±3.3 h——数值口径已榨干，物理边界假设才是误差主源。
+
+---
+
+### 跨问统一方法主线（B 拍板）
+
+> **守恒径向 FVM + 隐式 BDF 时间推进 + 调和平均界面通量 + 全截面 max(C) 停机判据**；问题四另加 **Landau 物质坐标 front-fixing**。
+
+---
+
+## 二、待完成事项
+
+### A. 论文 tex 未刷新（**头号阻塞**，本次会话已解锁并开始处理）
+
+`files/final/A题完整论文.tex`（18 页，已编译通过）仍残留旧口径，与已定案的最终数字互相打架：
+
+| 位置 | 旧值 | 应刷新为 |
+|---|---|---|
+| 摘要 L57（Q1） | BDF 隐式积分 | 补「调和平均界面 D + C ≥ 0 非负约束」 |
+| 摘要 L59（Q2） | Picard，49.8531/49.9692，1.7625/**0.9993** | fvm_bdf，49.8495/49.9664，1.7662/**1.0081** |
+| 摘要 L61（Q3） | 55.0583 h，Picard 收敛 | **57.1727 h**，BDF + 事件定位，补敏感性 53.62–61.07 h |
+| 摘要 L63（Q4） | 182350 s = 50.6528 h | 182968 s = **50.8245 h**，补敏感性 47.68–54.28 h |
+| L65 关键词 | Picard 迭代 | 调和平均界面通量 / 自适应 BDF |
+| L157 | t_end = 50.65 h < 72 h | t_end = 50.82 h < 72 h |
+| L342/L358（Q2 方法） | Δr = 0.1 cm, Δt = 1 s, BE + Picard, 10800 步 max 3 | 严格 FVM + 自适应 BDF，网格/容差敏感性数据 |
+| L370–L375 表 3 | 基线温度 | fvm_bdf 温度 |
+| L387–L392 表 4 | 基线水分 | fvm_bdf 水分 |
+| L418（Q3 方法） | 19821 步 Picard | BDF 连续事件 + BE 交叉 |
+| L437 | t_end = 198210 s = 55.0583 h | 205821.7420 s = **57.1727 h** |
+| L452–L461 表 5 | 基线 6 h × 5 列 | fvm_bdf 表 5（含精确事件行 57.172706） |
+| L507（Q4 方法） | N = 201, dt = 10 s, BE + Picard | N = 3201，自适应 BDF，连续事件 |
+| L529 | t_end = 182350 s = 50.6528 h | 182968.225 s = **50.8245 h** |
+| L539–L548 表 6 | L1 数字 | L3 数字（含移动表面列） |
+| L553/L556 结论 | 50.6528 h | **50.8245 h** |
+| L558–L572 检验章 | Picard 步数 + 21→401 网格 | BDF/BE 双求解器 + 201→3201 网格 + 边界敏感性区间 |
+| L574–L593 评价章 | 未提 L1–L4 阶梯、未提干基质量闭合 28% 局限 | 补 L1–L4 阶梯表 + dry_mass 局限 + 后期边界主导不确定度 |
+| L607–L639 附录 | `code/problem1-4/` 接口 | `problem1_improved/` + `problem2_fvm_bdf/` + `problem3_fvm_bdf/` + `problem4_fvm_bdf/` |
+
+**本次会话已获队员授权刷新**，Q4 主值按 L3 = 50.8245 h（4 位小数），全文涉及答案的数字精确到 4 位小数。
+
+### B. 代码/结果层遗留（非阻塞、锁空闲即可做）
+
+1. **`code/problem4_improved_fvmbdf/test_solver.py:31` 硬编码仓库名**（换机会 12/13 失败）——B、A 都提过，属 code 锁范围，本次未处理（本次只拿 discussion + files 锁）。
+2. `code/problem4_fvm_bdf/test_solver.py` 是否有同类硬编码——A 已在留言板问 C，C 未回执；本次会话未查。
+3. `附件/` 被 gitignore，各机器本地存副本可跑；论文表述避免「只有某台机器能跑」（B `ideas.md` 高风险坑 #8）。
+
+### C. 沟通闭环（等对方回，非阻塞）
+
+**agent_A 留言板活跃 2 条**
+- `@agent_C`：请确认 (a) 附件 2 R(t) 前期陡降属实（R(6h) < 1.5 cm）；(b) `test_solver.py:31` 硬编码是否已修。
+- `@agent_B`：Q4 主值更新 50.79 h → 50.82 h（reconcile 衍生）。
+
+**agent_C 留言板活跃 1 条**
+- `@agent_A`：复核《问题四改进思路讨论.txt》——A 已在 [`problem4_improved_review_by_A.md`](problem4_improved_review_by_A.md) 交付复核 + [`problem4_L2_L3_reconcile_by_A.md`](problem4_L2_L3_reconcile_by_A.md) 落地结论，C 尚未回执；按 D9 发起方追踪制，由 C 自行核验闭环。
+
+### D. 加分项（`ideas.md` A/B 头脑风暴列出，均未启动）
+
+按 agent_A 分级（详见 [`ideas.md`](ideas.md) [agent_A 2026-09-11T14:57Z]）：
+
+**高价值·低成本（强烈推荐）**
+- **Q1 Bessel 本征函数级数解析解** → 近精确交叉验证温度算子（Q2/Q3/Q4 复用同一空间算子，一并背书）；
+- **至少一问 MMS（制造解法）** → 证明代码正确性（GCI/Richardson 只证收敛）；
+- **Sobol / Morris 全局敏感性** → 量化排序哪个假设主导 t\* 方差；
+- **LHS 蒙特卡洛 / PCE** → 把 t\* 升为带置信区间的结论（如 57.17 [53.62, 61.07] h @95%）。
+
+**中价值**
+- Newton 全联立替代 Picard（后期强耦合更稳）；
+- Radau IIA 作 Q3/Q4 后期刚性的交叉验证档；
+- Q4 与附件 2 R(t) 的质量守恒一致性校验；
+- 论文点明「为何不用 Stefan」（前沿由附件 2 prescribed，非自由边界）。
+
+**仅讨论/展望（参数不可辨识，勿作主模型）**
+- Luikov 热梯度项、汽化潜热源项、两相 Whitaker、分数阶扩散。
+
+**不建议**：2D/3D 重写、ETD/Rosenbrock、浸入边界——数据/时间不支持。
+
+---
+
+## 三、需要队员拍板的事项
+
+### 本次会话已拍板（2026-09-11T16:37Z 前后）
+
+- ✅ **决策 1**：授权刷新 `files/final/A题完整论文.tex`（agent_A 执行）。
+- ✅ **决策 2**：Q4 论文主值用 **L3 = 50.8245 h**（4 位小数），全文涉及答案的数字精确到 4 位小数。
+- ✅ **决策 3**：本文件（day2 总结）以 **md** 形式入库到 `discussion/`。
+
+### 仍待队员后续拍板
+
+- ⭐ **决策 A：加分项做不做？做哪些？**（详见 §二·D）
+  - 若时间充裕，强烈推荐至少做 Q1 Bessel 解析交叉验证 + Sobol/PCE 给 Q3/Q4 t\* 置信区间——直击 B 头号风险（>4 h 边界不确定度），评委信服度高。
+  - 若时间紧，直接进论文定稿 + 修 test_solver 硬编码即完赛。
+
+- **决策 B：`test_solver.py:31` 硬编码仓库名什么时候修？**
+  - 需要拿 code 锁；本次会话未拿。可在论文刷新完成后另起一轮。
+
+- **决策 C：论文里 Q4 的 L1–L4 阶梯表要不要写进去？**
+  - **建议写**（在模型检验章或模型评价章）：明确 50.6528 / 50.7944 / 50.8245 / 52.3842 四个数字各自的角色（历史基准 / 互证锚点 / 主值 / 模型形式对照），防止评委看到多个数字误以为在挑好看的。
+  - 本次刷新会按「建议写」处理，若队员反对再删。
+
+- **决策 D：Q4 的 dry_mass_index 28.02% 相对变化要不要写进模型评价？**
+  - **建议写**（一句话诚实说明「题目给定 R(t) + 经验密度关系未形成严格质量闭合，是模型局限而非求解器失败」），加分项。
+  - 本次刷新会按「建议写」处理。
+
+- **决策 E：分工——第 3 天谁做什么？**
+  - 候选：B 继续打磨论文文字 / A 做加分项（Bessel + Sobol/PCE）/ C 复核刷新后的论文 + 修 test_solver 硬编码。
+  - 待队员协商。
+
+---
+
+## 四、本次会话产出清单（agent_A 承诺）
+
+1. `discussion/day2_summary_by_A.md`（本文件）；
+2. `files/final/A题完整论文.tex` 全文刷新（四位小数 + Q4 = 50.8245 h + Q2/Q3 切 fvm_bdf + Q1 方法描述补调和平均+C≥0 + 检验章 + 评价章 + 附录代码接口）；
+3. `files/final/A题完整论文.pdf` XeLaTeX 二次编译刷新；
+4. `requests/agent_A.md` 状态板更新 + 活跃项追加（@B/@C 通知论文已刷新）；
+5. 两把锁（discussion + files）合并 commit 释放。
+
+---
+
+## 五、关键文件索引（第 3 天快速回看用）
+
+**最终数字与方法**
+- [`results/problem1_improved/problem1_improved_tables.md`](../results/problem1_improved/problem1_improved_tables.md)
+- [`results/problem2_fvm_bdf/problem2_tables.md`](../results/problem2_fvm_bdf/problem2_tables.md)
+- [`results/problem2_fvm_bdf/numerical_verification.md`](../results/problem2_fvm_bdf/numerical_verification.md)
+- [`results/problem3_fvm_bdf/problem3_tables.md`](../results/problem3_fvm_bdf/problem3_tables.md)
+- [`results/problem3_fvm_bdf/numerical_verification.md`](../results/problem3_fvm_bdf/numerical_verification.md)
+- [`results/problem3_fvm_bdf/boundary_sensitivity.md`](../results/problem3_fvm_bdf/boundary_sensitivity.md)
+- [`results/problem4_fvm_bdf/problem4_tables.md`](../results/problem4_fvm_bdf/problem4_tables.md)
+- [`results/problem4_fvm_bdf/numerical_verification.md`](../results/problem4_fvm_bdf/numerical_verification.md)
+- [`results/problem4_fvm_bdf/boundary_sensitivity.md`](../results/problem4_fvm_bdf/boundary_sensitivity.md)
+
+**关键决策与复核**
+- [`problem.md`](problem.md)（四问拆解 + 模型骨架）
+- [`decisions.md`](decisions.md)（D9/D10 通信协议）
+- [`ideas.md`](ideas.md)（B 风险复盘 + A 替代方法头脑风暴）
+- [`problem4_improved_review_by_A.md`](problem4_improved_review_by_A.md)（§二十二 方案复核）
+- [`problem4_L2_L3_reconcile_by_A.md`](problem4_L2_L3_reconcile_by_A.md)（L2/L3 reconcile）
+
+**留言板**
+- [`requests/agent_A.md`](../requests/agent_A.md)（本机）
+- [`requests/agent_B.md`](../requests/agent_B.md)（B 集中回复在 15:12:45Z 完成回报段）
+- [`requests/agent_C.md`](../requests/agent_C.md)（C 活跃 1 条 @A 复核请求，已交付待 C 核验）
+
+**论文**
+- [`files/final/A题完整论文.tex`](../files/final/A题完整论文.tex)（本次刷新对象）
+- [`files/final/A题完整论文.pdf`](../files/final/A题完整论文.pdf)（本次重编译对象）
+- [`files/final/A题前三问论文初稿.tex`](../files/final/A题前三问论文初稿.tex)（B 原稿，保留不动）
+- [`files/raw/数学建模国赛论文模板.tex`](../files/raw/数学建模国赛论文模板.tex)（模板，已归档）
+
+---
+
+_本文件由 agent_A 于 2026-09-11T16:38Z 起写入 `discussion/`，作为第 2 天协作结束的状态快照。第 3 天开工前建议先读本文件对齐状态，再读 `requests/agent_*.md` 看有无新动态。_
