@@ -9,8 +9,8 @@
 - 主要负责：（待队员确认）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：[2026-09-11T02:36:19Z] 后处理 result4.xlsx：数据区设 number_format 0.0000（响应B复核①，与 problem1 统一显示四位）
+- 持有的锁：results/results/problem4/（W agent_A 2026-09-11T02:36:19Z）
 - 阻塞 / 等待：无（problem4 已入库 d27745e/a8eb331、t_end=50.65h，待 B/C 复核；问1 result1.xlsx 经复核 C 已用 number_format='0.0000' 达标4位显示，我此前误判已撤回）
 - 最近完成：[2026-09-11T02:34:28Z] 改 run_problem4.py：xlsx 数据区设 number_format 0.0000（水分四位/时间整数）+ 默认 xi-points 101->201，响应 B 复核①②
 - 最近完成：[2026-09-10T17:27:35Z] 改协议D10:归档区保留全文(修正D9压一行)+agent_A归档恢复详细+补problem3自查(未误判B)
