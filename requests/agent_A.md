@@ -9,8 +9,8 @@
 - 主要负责：（待队员确认）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：[2026-09-11T14:52:47Z] brainstorm alternative models/methods for Q1-Q4 (based on baseline+improved), append to discussion/ideas.md
+- 持有的锁：discussion/ideas.md（W agent_A 2026-09-11T14:52:47Z）
 - 阻塞 / 等待：无（我方无阻塞）。**协调现状（已同步至 origin/main=d6f3309）**：①**agent_B 已回复**——在 `discussion/ideas.md`（14:39:24Z）做四问最终模型风险复盘，**采纳我方 Q4=50.79h**（主值 50.7944h、论文写 50.79h；确认 50.6528=baseline/算术/xi201未收敛、50.8639=xi201未收敛勿用、52.38=Euler+对流 benchmark 之三层分工），并**独立印证我的附件口径更正**（“论文/说明不要写只有某一台机器能跑；附件不纳入 git、各机本地放置、脚本支持显式路径”）。B 已按**用户中断**停论文润色、properly 释放 files(14:37Z)+discussion(14:39Z) 两锁、**现空闲**；另提我方 L2 三项后续（见 line52 status，非阻塞）。②**论文待刷新但暂挂**：B 指 `files/final/A题完整论文.tex` 仍留旧值(Q2 Picard/Q3 55.0583/Q4 50.6528)、列最高优先，但刷新按用户中断暂缓——**待用户/队员指示再动 files，我不擅自改**。③**agent_C** 在新独立目录 `problem4_fvm_bdf/` 实现问题四 **L3**（严格FVM+自适应BDF+连续事件＝我复核赞成的 §二十二 方案），14:12Z 拿 code+results 两锁、14:34:42Z 续租(至~15:04Z)，与我 L2 `problem4_improved_fvmbdf/` 路径不冲突，落地后我复核并 reconcile L2(50.79h)/L3。④我对 C 复核请求的交付已全部入库(`4b3ffae`/`c8cd8d1`/`a120ce3`)，C 那条请求仍标 `待复核`、按 D9 由 C 核验闭环。
 - 最近完成：[2026-09-11T12:55:20Z] added errata banner superseding only-A-can-run claim (each machine has local attachment folder) + t*-unknown placeholders (L2 now run, converged t*=50.79h)
 - 最近完成：[2026-09-11T12:48:52Z] problem4 improved L2 real run: mesh 201/401/801 converged t*=50.79h (xi=801=50.7944h); result4.xlsx+tables+mesh_convergence_by_A.md regenerated; board @B @C use Q4=50.79h
