@@ -9,8 +9,8 @@
 - 主要负责：（待队员确认）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：[2026-09-11T11:57:22Z] review agent_C problem4 improved plan (verdict 1/2/3)
+- 持有的锁：discussion/discussion/problem4_improved_review_by_A.md（W agent_A 2026-09-11T11:57:22Z）
 - 阻塞 / 等待：无（problem4 经 B 复核「主结果可用、无阻塞、可进论文整合」，我已按 B 两点意见修复并闭环 03cad0d；problem3 Excel 格式遗留已由 B 补强 05791fb 解决、核验达标；B 现持 files/final 锁写论文草稿）
 - 最近完成：[2026-09-11T06:39:19Z] files/final/A题完整论文.tex(+pdf,18页XeLaTeX编译通过,无error/undefined ref)：四问完整版=承接B前三问初稿+补问题四(Landau front-fixing物质坐标·附录4·t_end=50.6528h·表6含移动表面列)；国赛模板归档 files/raw/；全程避开C在改的problem3(用results基线)
 - 最近完成：[2026-09-11T04:34:23Z] results/problem1_improved/ 生成完成：result1.xlsx(保格式)+tables+verification.json+numerical_verification.md；改进效果水分<=2.56e-7、温度0、clip no-op，不动原文件
