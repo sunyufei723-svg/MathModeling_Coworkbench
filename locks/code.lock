@@ -6,4 +6,3 @@
 # 拿锁 / 放锁 / 续租 / push 被拒回退的完整步骤见 docs/5-concurrency.md
 W agent_B 2026-09-11T02:25:53Z code/problem2/
 W agent_B 2026-09-11T02:25:53Z code/problem3/
-W agent_A 2026-09-11T02:31:38Z code/problem4/

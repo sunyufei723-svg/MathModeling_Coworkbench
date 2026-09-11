@@ -115,6 +115,13 @@ def write_outputs(result) -> tuple[Path, Path]:
     moisture_frame = moisture_to_frame(result)
     with pd.ExcelWriter(workbook_path, engine="openpyxl") as writer:
         moisture_frame.to_excel(writer, sheet_name="水分浓度", index=False)
+        ws = writer.sheets["水分浓度"]
+        for row in ws.iter_rows(min_row=2):  # 数据区（跳过表头）：float 水分设四位小数显示、int 时间列设整数
+            for cell in row:
+                if isinstance(cell.value, float):
+                    cell.number_format = "0.0000"
+                elif isinstance(cell.value, int):
+                    cell.number_format = "0"
 
     table = selected_moisture_table(result)
     text = [
@@ -137,7 +144,7 @@ def main() -> None:
     parser.add_argument("--attachment1", type=Path, default=None, help="附件1.xlsx（烘房温湿）路径")
     parser.add_argument("--attachment2", type=Path, default=None, help="附件2.xlsx（半径收缩）路径")
     parser.add_argument("--dt", type=float, default=10.0, help="内部时间步长，单位 s")
-    parser.add_argument("--xi-points", type=int, default=101, help="ξ 网格点数")
+    parser.add_argument("--xi-points", type=int, default=201, help="ξ 网格点数（生产口径 201，与发布结果一致）")
     args = parser.parse_args()
 
     attachment1 = resolve_attachment("附件1.xlsx", explicit_path=args.attachment1)
