@@ -1,0 +1,331 @@
+% !TeX program = xelatex
+% 编译：XeLaTeX -> XeLaTeX。将所有“请替换”内容替换后，删除不需要的灰色写作提示。
+\documentclass[UTF8,a4paper,12pt]{ctexart}
+
+\usepackage[left=2.54cm,right=2.54cm,top=2.54cm,bottom=2.54cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,longtable,array,multirow,tabularx}
+\usepackage{graphicx,float,subcaption}
+\usepackage{caption}
+\usepackage{algorithm2e}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+
+% 字体与版式：中文宋体；英文、数字 Times New Roman；全文单倍行距。
+\IfFontExistsTF{SimSun}{\setCJKmainfont{SimSun}}{}
+\IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{}
+\linespread{1.0}\selectfont
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+\renewcommand{\theequation}{\arabic{equation}}
+\numberwithin{equation}{section}
+
+% 图表紧凑设置：图表后必须紧跟解释段；空间不足时宁可拆分或转入附录，不要缩小到难读。
+\captionsetup{font={small},labelfont=bf,labelsep=quad,skip=2pt,aboveskip=2pt,belowskip=0pt}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{0pt}
+\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{4pt plus 1pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+
+% 标题：一级标题四号加粗居中，二、三级标题小四号左对齐。
+\ctexset{
+  section={format=\centering\bfseries\fontsize{14pt}{18pt}\selectfont, name={,、}, number=\chinese{section}, aftername=\quad, beforeskip=14pt, afterskip=8pt},
+  subsection={format=\bfseries\fontsize{12pt}{16pt}\selectfont, beforeskip=10pt, afterskip=5pt},
+  subsubsection={format=\bfseries\fontsize{12pt}{16pt}\selectfont, beforeskip=8pt, afterskip=4pt}
+}
+\pagestyle{fancy}
+\fancyhf{}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% 写作提示：交稿前建议删除所有 \writingrule 命令。
+\newcommand{\writingrule}[1]{\par\noindent\begingroup\color{gray}\small\textbf{【本节写作规则】}#1\par\endgroup}
+\newcommand{\transition}[1]{\par\noindent\begingroup\color{gray}\small\textbf{【章节衔接】}#1\par\endgroup}
+\newcommand{\placeholder}[1]{\textcolor{gray}{【#1】}}
+\newcommand{\qtask}{\placeholder{填写本问的输入、目标、限制和输出}}
+
+% 如题目有第四问，将 \qfourtrue；否则保持 \qfourfalse。
+\newif\ifqfour
+\qfourfalse
+
+% 代码样式（附录仅保留可追溯的核心代码，不粘贴整个工程）。
+\lstset{basicstyle=\ttfamily\small,breaklines=true,frame=single,columns=fullflexible,numbers=left,numberstyle=\tiny,showstringspaces=false}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black,pdftitle={数学建模国赛论文模板}}
+
+\begin{document}
+
+\begin{center}
+  {\fontsize{14pt}{18pt}\selectfont\bfseries \placeholder{论文题目}}\par\vspace{10pt}
+  {\fontsize{14pt}{18pt}\selectfont\bfseries 摘要}
+\end{center}
+\writingrule{采用“总起段 + 逐问作答 + 关键词”。总起 1--3 句，背景最多 1--2 句；每问单独成段，依次写任务与模型、核心思路、关键方法或指标、具体结果、结果用途或承接。摘要只概述一次全局数据预处理；普通摘要约 600--900 字，复杂四问约 900--1200 字。}
+
+\noindent \placeholder{总起：交代研究对象、总体建模路线和总体目标。}
+
+\noindent \textbf{针对问题一，}\placeholder{写任务、模型、方法、定量结果及其对问题二的作用。}
+
+\noindent \textbf{针对问题二，}\placeholder{明确“在问题一结果基础上”，写新增目标/约束、方法、定量结果及其对问题三的作用。}
+
+\noindent \textbf{针对问题三，}\placeholder{写新增实际因素或综合决策、方法、定量结果和结论边界。}
+
+\ifqfour
+\noindent \textbf{针对问题四，}\placeholder{写任务、模型、方法、定量结果和结果用途。}
+\fi
+
+\noindent \placeholder{用 1--2 句概括检验结论或总体评价。}\par
+\noindent \textbf{关键词：} \placeholder{研究对象}\quad \placeholder{核心模型}\quad \placeholder{求解算法}\quad \placeholder{目标指标}
+
+\section{问题重述}
+\subsection{问题背景}
+中药材烘干是影响药材品质、生产效率与能耗的重要工序。热风烘干通常包括预热平衡和恒温干燥两个阶段：前者以药材升温和表层水分响应为主，后者以持续脱水为主。传统试验优化需要较长周期和较高成本，因此有必要建立能够反映药材内部温度和水分迁移规律的数学模型，用仿真结果辅助烘干工艺参数分析。
+
+题目将药材近似为长 $25\rm\,cm$、半径 $2\rm\,cm$ 的圆柱体，给出初始温度、初始干基含水率、烘房温湿边界和若干经验物性公式。本文仅讨论前三问，不考虑第四问中的半径收缩。
+
+\subsection{已知数据、条件与约束}
+药材初始温度为 $28^\circ\mathrm C$，初始水分浓度为 $2.55\rm\,kg/kg$，初始状态在空间上均匀分布。附件1给出了烘房环境温度 $T_\infty(t)$ 与环境水分浓度 $C_\infty(t)$ 的时间序列。问题一使用附录2参数，问题二和问题三使用附录3经验公式。题目要求结果按指定时刻和指定径向位置列入论文表格，并将完整时空网格写入对应 Excel 文件，数值保留四位小数。
+
+\subsection{逐问任务}
+问题一要求在 $0$ 到 $1800\rm\,s$ 的预热平衡阶段内，建立药材温度和水分浓度的时空变化模型，给出表1和表2，并输出 $1\rm\,s$ 与 $0.1\rm\,cm$ 分辨率的完整结果。
+
+问题二要求建立预热平衡和恒温干燥全过程的温度、水分耦合模型，并给出前 $3\rm\,h$ 内每隔 $0.5\rm\,h$、半径方向 $0,0.5,1,1.5,2\rm\,cm$ 处的温度和水分浓度。
+
+问题三要求在问题二模型基础上继续积分，求药材各处水分浓度均低于 $0.15\rm\,kg/kg$ 所需的烘干时间，并输出每隔 $6\rm\,h$ 及终止时刻的水分浓度分布。
+
+\section{问题分析}
+\subsection{问题一分析}
+问题一处于预热平衡阶段，时间较短，外部边界由附件1在 $0$ 到 $1800\rm\,s$ 内直接插值得到。附录2中 $\rho,c_p,k$ 为常数，水分扩散系数 $D$ 只依赖 $C$，因此温度方程与水分方程在数学上解耦。该问的核心是用足够稳定的径向扩散模型解释表面先升温、先失水，中心响应滞后的现象，并给后续耦合模型提供统一的几何、边界和离散框架。
+
+\subsection{问题二分析}
+问题二在几何与边界形式上继承问题一，但物性公式发生变化：$\rho,c_p,k$ 随水分浓度改变，$D$ 同时依赖水分浓度与绝对温度。于是水分场影响温度方程中的物性参数，温度场又影响水分扩散系数，二者形成非线性双向耦合。该问的建模重点是每个时间步内同步更新物性并保证耦合迭代收敛。
+
+\subsection{问题三分析}
+问题三不再只报告固定时间窗口，而是把问题二的耦合模型延拓到烘干结束。终止条件为药材所有径向位置的水分浓度均低于 $0.15\rm\,kg/kg$，因此应监测全截面水分最大值。由于中心点失水最慢，终止时间通常由中心含水率决定。该问的主要不确定性来自附件1只给出前 $4\rm\,h$ 环境数据，本文采用末值恒定外推作为恒温干燥段边界，并在模型评价中说明该假设的影响。
+
+\section{模型假设}
+\begin{enumerate}[label=\arabic*.,leftmargin=2.5em]
+  \item 药材可视为长圆柱体，长度远大于半径，忽略轴向传递和端面效应，只考虑一维径向传热、传质。
+  \item 初始时刻药材内部温度和干基含水率均匀分布，分别为 $28^\circ\mathrm C$ 和 $2.55\rm\,kg/kg$。
+  \item 药材表面与烘房热风之间采用第三类换热和第三类传质边界；烘房内温度与水分浓度空间均匀。
+  \item 问题一至问题三均不考虑半径收缩，半径固定为 $R=0.02\rm\,m$。
+  \item 附录3未另给对流换热系数和对流传质系数，问题二和问题三沿用附录2参数 $h=25\rm\,W/(m^2\cdot K)$、$h_m=8\times10^{-7}\rm\,m/s$。
+  \item 题目未提供显式蒸发潜热源项所需参数，本文在题设经验物性体系下不额外加入相变源项。
+  \item 问题三中 $4\rm\,h$ 后的恒温干燥边界取附件1末时刻环境温度和环境水分浓度并保持不变。
+\end{enumerate}
+
+\section{符号说明}
+\begin{table}[H]
+  \centering
+  \caption{主要符号说明}
+  \begin{tabular}{>{\centering\arraybackslash}p{0.18\textwidth}p{0.55\textwidth}>{\centering\arraybackslash}p{0.17\textwidth}}
+    \toprule
+    符号 & 含义 & 单位\\ \midrule
+    $r$ & 到药材中心轴的径向距离 & m\\
+    $R$ & 药材半径，前三问取 $0.02$ & m\\
+    $t$ & 烘干时间 & s\\
+    $T(r,t)$ & 药材内部温度 & $^\circ\mathrm C$\\
+    $T_K$ & 绝对温度，$T_K=T+273.15$ & K\\
+    $C(r,t)$ & 干基水分浓度 & kg/kg\\
+    $T_\infty(t)$ & 烘房环境温度 & $^\circ\mathrm C$\\
+    $C_\infty(t)$ & 烘房环境水分浓度 & kg/kg\\
+    $\rho(C)$ & 密度 & kg/m$^3$\\
+    $c_p(C)$ & 比热容 & J/(kg$\cdot$K)\\
+    $k(C)$ & 热导率 & W/(m$\cdot$K)\\
+    $D(C,T)$ & 有效水分扩散系数 & m$^2$/s\\
+    $h$ & 对流换热系数 & W/(m$^2\cdot$K)\\
+    $h_m$ & 对流传质系数 & m/s\\
+    $t_{\rm end}$ & 达到水分阈值所需烘干时间 & h\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{数据预处理与数据侧写}
+\writingrule{本章只做各问共用的数据基础：数学化加工、可视化规律展示及后续建模依据。不提前回答具体问题。关键处理和衍生变量必须公式化；每张图表服务一个建模目的，且其后紧跟解释段。}
+\subsection{数据来源与字段关联}
+\placeholder{说明附件、字段、主键/连接键、数据粒度及后续用途；必要时给字段说明表。}
+\subsection{缺失值、异常值与一致化处理}
+\placeholder{说明缺失、重复、异常、时间格式、单位和类别映射，以及处理后数据状态。}
+例如，以四分位距识别异常值：
+\begin{equation}
+  \mathrm{IQR}=Q_3-Q_1,\qquad x<Q_1-1.5\mathrm{IQR}\ \text{或}\ x>Q_3+1.5\mathrm{IQR}.
+\end{equation}
+\placeholder{解释为何采用该判定、如何处理异常值及其对后续变量的影响。}
+\subsection{数据聚合与衍生变量构造}
+\placeholder{逐一给出共用衍生变量的定义、含义、方向性和用途；仅服务某一问的局部特征放入对应问题章节。}
+\begin{equation}
+  z_i=\text{\placeholder{填写衍生变量的明确计算式}},\qquad i=1,2,\ldots,n.
+\end{equation}
+\subsection{标准化处理与统计指标定义}
+\placeholder{依据正负方向选择标准化方式，并定义后文实际使用的均值、标准差、增长率、变异系数等。}
+\begin{equation}
+  x_i'=\frac{x_i-\min_j x_j}{\max_j x_j-\min_j x_j}.
+\end{equation}
+\subsection{时间、空间、分布规律与相关关系分析}
+\placeholder{图前：交代数据来源、时间/空间范围与指标。}\par
+\begin{figure}[H]
+  \centering
+  \fbox{\rule{0pt}{4cm}\rule{0.75\textwidth}{0pt}}
+  \caption{\placeholder{图表标题}}
+  \label{fig:data-profile}
+\end{figure}
+\placeholder{图后解释必须覆盖：图展示什么；横纵轴/图例/分组含义；峰值、低值、拐点、异常或组间差异；现实含义；该现象如何支撑后续模型。多子图按 (a)、(b)、(c) 顺序逐一解释。}
+\subsection{本章小结及对后续建模的支撑}
+\writingrule{必须逐一说明：问题一调用哪些数据和变量；问题二继承问题一什么结果并增加哪些变量/约束；问题三采用哪个基准方案并扰动哪些参数。}
+\placeholder{写出逐问数据接口与继承关系，不要只写“为后续建模提供基础”。}
+\transition{以下每问均按“任务与前文承接—建模思路—模型建立—模型求解—结果分析—小结与后续衔接”独立闭环。}
+
+\section{问题一模型的建立与求解}
+\writingrule{问题一通常是基础模型。必须明确数据接口、待求量和输出；模型建立含变量、核心关系、指标/目标、完整模型和解释；求解说明算法理由、参数、步骤、停止条件；结果量化并交给问题二。}
+\subsection{本问任务与前文承接}
+\qtask
+\subsection{建模思路}
+\placeholder{用“首先、其次、然后、最后”说明输入、关系构造、求解与输出，不直接堆公式。}
+\subsection{模型建立}
+\writingrule{依次完成变量定义、核心关系/指标、目标函数、约束（如有）、完整模型和解释。每个输入、参数、决策变量和输出均须定义；核心指标须写公式、含义、方向性和与目标的关系。}
+\begin{equation}
+  \text{\placeholder{填写问题一核心关系或目标函数。}}
+\end{equation}
+\placeholder{解释公式、变量、指标方向和完整模型如何回答本问。}
+\subsection{模型求解}
+\writingrule{写清算法适用理由、关键步骤、参数设置、终止条件和输出；不能只写软件名称。复杂算法可用下列伪代码。}
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwIn{\placeholder{输入数据、参数和约束}}
+  \KwOut{\placeholder{问题一输出}}
+  初始化\placeholder{状态或参数}\;
+  \While{\placeholder{未满足停止条件}}{
+    \placeholder{执行核心更新、筛选或求解步骤}\;
+  }
+  \Return \placeholder{结果}\;
+  \caption{问题一求解流程}
+\end{algorithm}
+\subsection{结果分析}
+\placeholder{量化关键结果，说明是否满足任务、为何合理、如何成为问题二的输入。每个图表后立即写五要素解释段。}
+\subsection{本问小结与后续衔接}
+\placeholder{总结：基于什么数据，建立什么模型，得到什么结果，回答什么任务；明确问题二继承模型、结果、约束或方法中的哪一项。}
+
+\section{问题二模型的建立与求解}
+\writingrule{开头必须明确“在问题一……基础上”，说明新增目标、变量、约束或现实因素。仍按六段闭环，不重复第五章的全局清洗与变量构造。优化问题必须给出决策变量、目标函数、约束、变量范围和完整模型。}
+\subsection{本问任务与前文承接}
+\placeholder{在问题一的\ldots{}基础上，本问\ldots{}；明确新增内容与输出。}
+\subsection{建模思路}
+\placeholder{按输入—目标—约束—求解—输出描述路线。}
+\subsection{模型建立}
+\begin{equation}
+  \text{\placeholder{填写问题二的关系、目标与约束。}}
+\end{equation}
+\placeholder{逐条解释约束的现实来源、变量范围、完整模型及其输入输出。}
+\subsection{模型求解}
+\placeholder{说明算法理由、关键参数、可行性判断、停止条件和输出。}
+\subsection{结果分析}
+\placeholder{引用关键表行/列、最优与次优值、差异及其现实含义；明确基准方案如何交给问题三。}
+\subsection{本问小结与后续衔接}
+\placeholder{总结问题二及其向问题三提供的基准模型、方案、参数或约束。}
+
+\section{问题三模型的建立与求解}
+\writingrule{开头明确相对问题二新增什么、保持什么不变、只改变什么。若为稳定性或综合决策，须给出基准方案、扰动对象与幅度、评价指标、量化结果和结论边界；仍按六段闭环。}
+\subsection{本问任务与前文承接}
+\placeholder{明确基准方案、继承内容和本问新增因素。}
+\subsection{建模思路}
+\placeholder{说明从基准到扩展/扰动/综合决策的步骤。}
+\subsection{模型建立}
+\begin{equation}
+  \text{\placeholder{填写问题三模型、扰动设计或综合评价函数。}}
+\end{equation}
+\placeholder{定义扰动对象、幅度、重复次数、评价指标和完整模型。}
+\subsection{模型求解}
+\placeholder{说明算法、参数设置、实验/仿真次数、停止条件和输出。}
+\subsection{结果分析}
+\placeholder{量化结果、解释现象、说明适用范围或失效边界，并回扣问题任务。}
+\subsection{本问小结与后续衔接}
+\placeholder{总结问题三及其对模型检验、评价章节提供的证据。}
+
+\ifqfour
+\section{问题四模型的建立与求解}
+\writingrule{第四问也必须使用与前三问一致的六段闭环，并明确继承的模型、结果或约束。}
+\subsection{本问任务与前文承接}\qtask
+\subsection{建模思路}\placeholder{填写路线。}
+\subsection{模型建立}\placeholder{填写变量、关系、目标、约束、完整模型和解释。}
+\subsection{模型求解}\placeholder{填写算法理由、参数、停止条件和输出。}
+\subsection{结果分析}\placeholder{填写量化结果、图表解释及其现实含义。}
+\subsection{本问小结与后续衔接}\placeholder{填写总结。}
+\fi
+
+\section{模型检验与稳定性分析}
+\writingrule{用于证明模型可信、稳定、可用，不另建相互冲突的新模型。推荐“模型检验—灵敏度分析—鲁棒性分析—本章小结”。给出比较对象、量化指标、扰动范围/次数、稳定区间和适用边界，避免“结果基本不变”等空话。}
+\subsection{模型检验}
+\placeholder{预测类可报告 MAE、RMSE、MAPE、$R^2$；优化类核查约束、目标和可执行性；评价类检查排序与权重稳定性。}
+\subsection{灵敏度分析}
+\placeholder{只选 2--4 个关键参数，写清扰动幅度、结果变化和最敏感参数及使用建议。}
+\subsection{鲁棒性分析}
+\placeholder{写明扰动方式、幅度、重复次数、均值/标准差/变异系数或方案翻转率，并给出失效条件。}
+\subsection{本章小结}
+\placeholder{回扣可信、稳定、可用三个判断，并为模型不足与改进提供证据。}
+
+\section{模型评价}
+\writingrule{本章严格只有以下三个小节：优点 3--5 条并对应前文具体设计；不足 2--4 条且说明影响范围；改进 2--3 条并对应不足。不写公式、不重复检验细节，不另开推广、展望或社会意义小节。}
+\subsection{模型优点}
+\begin{itemize}[leftmargin=2em]
+  \item \placeholder{对应模型结构、约束、算法或检验设计的具体优点。}
+  \item \placeholder{具体优点。}
+  \item \placeholder{具体优点。}
+\end{itemize}
+\subsection{模型不足}
+\begin{itemize}[leftmargin=2em]
+  \item \placeholder{真实不足及其影响范围。}
+  \item \placeholder{真实不足及其影响范围。}
+\end{itemize}
+\subsection{模型改进方向}
+\placeholder{针对上述不足，说明数据、参数、约束、随机性、算法或动态更新等可实施的改进路径。}
+
+\clearpage
+\section*{AI 工具使用声明}
+\addcontentsline{toc}{section}{AI 工具使用声明}
+本参赛队在竞赛过程中使用了 AI 工具，主要用于\placeholder{如语言润色、代码调试等简要用途}，详细使用情况见支撑材料。
+
+\clearpage
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{参考文献}
+\bibitem{ref1} \placeholder{作者. 文献题名[文献类型]. 出版地：出版社，年份.}
+\bibitem{ref2} \placeholder{作者. 论文题名[J]. 期刊名，年份，卷(期)：页码.}
+\end{thebibliography}
+
+\clearpage
+\appendix
+\section{附录核心代码}
+\writingrule{按问题组织 Q1、Q2、Q3（及 Q4）核心代码。每问保留数据读取/关键预处理、模型构建、参数设置、核心求解和关键输出；删除绘图美化、重复辅助函数、调试输出、临时路径和无意义注释。}
+\subsection{Q1 核心代码}
+\begin{lstlisting}[language=Python,caption={问题一核心代码示例}]
+# 请替换：数据读取、关键预处理、模型构建、求解与输出
+def solve_q1(data, params):
+    result = None
+    return result
+\end{lstlisting}
+\subsection{Q2 核心代码}
+\begin{lstlisting}[language=Python,caption={问题二核心代码示例}]
+def solve_q2(q1_result, data, params):
+    result = None
+    return result
+\end{lstlisting}
+\subsection{Q3 核心代码}
+\begin{lstlisting}[language=Python,caption={问题三核心代码示例}]
+def solve_q3(q2_result, data, params):
+    result = None
+    return result
+\end{lstlisting}
+\ifqfour
+\subsection{Q4 核心代码}
+\begin{lstlisting}[language=Python,caption={问题四核心代码示例}]
+def solve_q4(previous_results, data, params):
+    result = None
+    return result
+\end{lstlisting}
+\fi
+
+\end{document}
