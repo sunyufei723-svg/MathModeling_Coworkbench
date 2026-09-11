@@ -1,6 +1,6 @@
 # problem4_improved_fvmbdf
 
-问题4独立改进副本。此文件夹不改动 `E:\MathModeling_Coworkbench` 源文件。
+问题4独立改进副本。此文件夹不改动原 `code/problem4/` 源文件。
 
 核心改动：
 
@@ -12,7 +12,7 @@
 验证：
 
 ```powershell
-cd E:\MathModeling_Coworkbench\code\problem4_improved_fvmbdf
+cd code\problem4_improved_fvmbdf
 py -m unittest -v
 ```
 

@@ -5,6 +5,7 @@
 包含内容：
 
 - `run_bonus_validation.py`：独立运行脚本，生成解析/MMS/UQ 验证报告。
+- `check_repo_portability.py`：扫描 `code/`、`results/`、`files/`，防止解法交付物残留本机绝对路径或临时仓库名。
 - 输出目录：`results/bonus_validation/`
 
 验证覆盖：
@@ -17,6 +18,7 @@
 
 ```powershell
 py code\bonus_validation\run_bonus_validation.py
+py code\bonus_validation\check_repo_portability.py
 ```
 
 该脚本只依赖 `numpy` 和 `scipy`，不读取附件数据，不改动 `problem1` 到 `problem4` 的任何现有代码。

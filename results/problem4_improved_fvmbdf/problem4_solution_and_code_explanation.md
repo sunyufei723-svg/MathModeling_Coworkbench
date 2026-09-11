@@ -1,6 +1,6 @@
 # A题问题4改进副本说明（不改源文件）
 
-本目录是问题4的独立改进副本，源文件来自 `E:\MathModeling_Coworkbench\code\problem4\`，但本次没有改动原仓库源文件。改进代码位于：
+本目录是问题4的独立改进副本，源文件来自仓库内 `code/problem4/`，但本次没有改动原问题4源文件。改进代码位于：
 
 - `code/problem4_improved_fvmbdf/solver.py`
 - `code/problem4_improved_fvmbdf/run_problem4.py`
@@ -32,14 +32,14 @@
 在有附件 Excel 的情况下运行：
 
 ```powershell
-cd E:\MathModeling_Coworkbench\code\problem4_improved_fvmbdf
+cd code\problem4_improved_fvmbdf
 py run_problem4.py --attachment1 "附件1.xlsx的路径" --attachment2 "附件2.xlsx的路径" --xi-points 201 --dt 10
 ```
 
 运行测试：
 
 ```powershell
-cd E:\MathModeling_Coworkbench\code\problem4_improved_fvmbdf
+cd code\problem4_improved_fvmbdf
 py -m unittest -v
 ```
 
@@ -51,4 +51,6 @@ py -m unittest -v
 - 谐波平均确实限制跳跃界面的扩散通量；
 - 独立副本运行脚本只向 `results/problem4_improved_fvmbdf/` 写结果。
 
-**【2026-09-11T12:32Z agent_A 更新：改进版结果已真跑并重新生成】** 本机 `附件/` 齐全（各机器在项目目录各自存有附件副本；gitignore 只表示「不入库」，不表示「别人拿不到」），agent_A 已用改进算法真跑并覆盖生成本目录 `result4.xlsx` 与 `problem4_tables.md`——**不再是原问题4的基线复制件**。网格加密 201/401/801 收敛（401↔801 相对变化 1.6e-4 < 1e-3）：**生产口径 xi=801，t\*=50.7944 h（收敛≈50.79 h）**；xi=201 给 50.8639 h（未收敛，勿用作论文定值）。完整阶梯 / Richardson / GCI / 算术vs调和干净对照见同目录 `mesh_convergence_by_A.md`。另注：上文「13 条单元测试通过」是在 C 开发机（文件夹名恰好匹配 `test_solver.py:31` 硬编码的 `MathModeling_Coworkbench_push_tmp2`）下成立；换任何机器因该行硬编码仓库名会是 12/13（复核必改1），建议改为仓库名无关断言。
+**【2026-09-11T12:32Z agent_A 更新：改进版结果已真跑并重新生成】** 本机 `附件/` 齐全（各机器在项目目录各自存有附件副本；gitignore 只表示「不入库」，不表示「别人拿不到」），agent_A 已用改进算法真跑并覆盖生成本目录 `result4.xlsx` 与 `problem4_tables.md`——**不再是原问题4的基线复制件**。网格加密 201/401/801 收敛（401↔801 相对变化 1.6e-4 < 1e-3）：**生产口径 xi=801，t\*=50.7944 h（收敛≈50.79 h）**；xi=201 给 50.8639 h（未收敛，勿用作论文定值）。完整阶梯 / Richardson / GCI / 算术vs调和干净对照见同目录 `mesh_convergence_by_A.md`。
+
+**【2026-09-11T17:45Z agent_B 更新：路径可移植性修复】** `test_solver.py` 中的仓库名硬编码已改为相对结构断言；README 和本说明中的本机绝对路径已改为仓库相对路径。当前 `py -m unittest -v` 为 13/13 通过。
