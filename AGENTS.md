@@ -7,7 +7,7 @@
 
 1. 读本机 `identity.md`，确认「我是 `agent_A` / `agent_B` / `agent_C` 中的哪一个」，全程只用这个身份。
 2. 完整读 [`rules.md`](rules.md)：5 层结构、核心流程、三条铁律都在里面。
-3. `rules.md` 某层看不懂 → 按它给的路径读 `docs/1~5-*.md`（详细解释 + 完整 git 命令 + 例子）。
+3. `rules.md` 某层或论文质量规则看不懂 → 按它给的路径读 `docs/1~6-*.md`（详细解释 + 完整 git 命令 + 论文规则 + 例子）。
 
 ## 项目 5 层（概念分层，物理目录不变）
 
@@ -24,4 +24,4 @@
 2. **只写自己的 `requests/agent_<你>.md`**：单一 owner，别人只读，免锁。
 3. **commit ≠ 生效，必须 push**：锁和成果只有 push 成功后才对其他 agent 可见。
 
-> 各层详解：工作规范 [`docs/1-work-norms.md`](docs/1-work-norms.md) · 通信 [`docs/2-communication.md`](docs/2-communication.md) · 知识 [`docs/3-knowledge.md`](docs/3-knowledge.md) · 执行 [`docs/4-execution.md`](docs/4-execution.md) · 并发控制 [`docs/5-concurrency.md`](docs/5-concurrency.md)。
+> 各层详解：工作规范 [`docs/1-work-norms.md`](docs/1-work-norms.md) · 通信 [`docs/2-communication.md`](docs/2-communication.md) · 知识 [`docs/3-knowledge.md`](docs/3-knowledge.md) · 执行 [`docs/4-execution.md`](docs/4-execution.md) · 并发控制 [`docs/5-concurrency.md`](docs/5-concurrency.md) · 论文质量 [`docs/6-paper-quality.md`](docs/6-paper-quality.md)。

@@ -9,9 +9,10 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：制定最终论文写作与质量规则，更新 rules.md 和 docs/
-- 持有的锁：discussion（整锁，用于 rules.md/docs/decisions.md 协议更新）
+- 正在做：无（空闲）
+- 持有的锁：无
 - 阻塞 / 等待：无
+- 最近完成：[2026-09-11T17:55:00Z] 已按用户要求新增最终论文写作与质量规则：D11 记录到 `discussion/decisions.md`，简洁版写入 `rules.md`，详细版新增 `docs/6-paper-quality.md`，并同步 `AGENTS.md`/`README.md`/docs 导航。
 - 最近完成：[2026-09-11T17:45:00Z] 已全库搜查各问题解法交付物中的硬编码仓库名/本机绝对路径；修复 `code/problem4_improved_fvmbdf/README.md` 和 `results/problem4_improved_fvmbdf/problem4_solution_and_code_explanation.md`；新增 `code/bonus_validation/check_repo_portability.py` 防漏检查，当前 `code/results/files` 扫描通过。
 - 最近完成：[2026-09-11T17:20:00Z] 已按 A 最新提交后的待办修复 `code/problem4_improved_fvmbdf/test_solver.py` 中硬编码仓库名；新建 `code/bonus_validation/` 与 `results/bonus_validation/`，完成 MMS、Bessel 解析模态、LHS 代理 UQ 加分验证；`problem4_improved_fvmbdf` 13 项单元测试通过。
 - 最近完成：[2026-09-11T15:12:45Z] @agent_A 已集中回复你留言板中所有涉及 agent_B 的活跃/待闭环项：D9 已知悉；Q1/Q2/Q3/Q4 最终论文口径已确认；Q4 采用 50.79h；完整论文仍需按新版结果统一刷新；后续优先补 Q4 L2 时间步/边界敏感性与 test_solver 硬编码修复。
@@ -47,6 +48,7 @@
 
 ## 完成回报（通知发起方）
 > 格式：`- [时间UTC] @发起agent 你请求的X已完成，见 <路径>`
+- [2026-09-11T17:55:00Z] @agent_A/@agent_C 论文写作规则已更新：简洁版见 `rules.md` 的“最终论文质量规则”，详细版见 `docs/6-paper-quality.md`；后续改 `files/final/` 论文时必须补齐引用并删除工程协作细节。
 - [2026-09-11T17:45:00Z] @agent_A 关于硬编码仓库名继续清理：已修复解法交付物中剩余本机绝对路径，并新增 `code/bonus_validation/check_repo_portability.py`；当前 `py code\bonus_validation\check_repo_portability.py` 扫描 `code/results/files` 通过。
 - [2026-09-11T17:20:00Z] @agent_A 关于最新提交后的修复/加分项：已修掉 `code/problem4_improved_fvmbdf/test_solver.py` 中硬编码仓库名；已新增 `code/bonus_validation/` 和 `results/bonus_validation/`，报告见 `results/bonus_validation/bonus_validation_report.md`。
 - [2026-09-11T15:12:45Z] @agent_A 关于 D9 通信协议变更：已知悉并按“发起方追踪制 / 活跃与归档分离 / 回报自愿”执行；后续我仍只写 `requests/agent_B.md`，不改你的 `requests/agent_A.md`。

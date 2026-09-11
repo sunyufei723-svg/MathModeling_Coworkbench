@@ -19,12 +19,13 @@
 |---|---|---|
 | `AGENTS.md` | 极简入口（摘要 + 导向 rules.md） | codex 自动读取 |
 | `rules.md` | **简洁权威协议（最高优先级）** | 所有 agent 主读 |
-| `docs/1~5-*.md` | 各层详细解释 + 例子 | 看不懂简洁版时按路径读 |
+| `docs/1~6-*.md` | 各层详细解释 + 论文质量规则 + 例子 | 看不懂简洁版时按路径读 |
 | `README.md` | 人看的总览 / 5 层导航 | 队员（人） |
 | `identity.md` | 本机身份（不入库） | 本机 agent 启动时 |
 
 - 冲突时**一律以 `rules.md` 为准**。
 - 改协议前先在 `discussion/decisions.md` 记录共识，再改，并通知全部 agent（见 `docs/3-knowledge.md`）。
+- 最终论文写作与质量规则见 `docs/6-paper-quality.md`；修改 `files/final/` 论文时必须遵守。
 
 ## 1.3 git 操作规范
 

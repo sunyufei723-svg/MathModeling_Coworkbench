@@ -2,7 +2,7 @@
 
 一个用 **git 仓库**搭建的协作工作区：3 名队员各用一个 agent（1 个 Qoder + 2 个 codex），在各自电脑上通过远程仓库协同完成数学建模国赛。
 
-核心是一套**写锁协议**，保证多个 agent 并发写共享文件时不互相覆盖（读取一律免锁）。整个项目按 **5 层**组织，规则**简洁版给 AI 主读、详细解释与例子放 `docs/` 按需读**。
+核心是一套**写锁协议**，保证多个 agent 并发写共享文件时不互相覆盖（读取一律免锁）。整个项目按 **5 层**组织，另设最终论文质量规则；规则**简洁版给 AI 主读、详细解释与例子放 `docs/` 按需读**。
 
 ## 文档给谁看
 
@@ -11,7 +11,7 @@
 | `README.md`（本文件） | **人（队员）** | 总览 + 5 层导航 + 上手 |
 | [`AGENTS.md`](AGENTS.md) | **agent 入口** | codex 自动读，极简摘要 + 导向 rules.md |
 | [`rules.md`](rules.md) | **agent 规则** | 简洁权威协议，最高优先级 |
-| [`docs/1~5-*.md`](docs/) | **agent 详解** | 各层详细解释 + 完整 git 命令 + 例子，看不懂简洁版时读 |
+| [`docs/1~6-*.md`](docs/) | **agent 详解** | 各层详细解释 + 论文质量规则 + 完整 git 命令 + 例子，看不懂简洁版时读 |
 
 ## 项目结构：5 层
 
@@ -33,7 +33,7 @@
 ├── identity.md        # 【1 工作规范】本机 agent 身份（不入库）
 ├── docs/              # 【1 工作规范】各层详解 + 例子（agent 按需读）
 │   ├── 1-work-norms.md      2-communication.md     3-knowledge.md
-│   ├── 4-execution.md       5-concurrency.md
+│   ├── 4-execution.md       5-concurrency.md       6-paper-quality.md
 ├── .gitignore  .gitattributes
 │
 ├── requests/          # 【2 通信层】每人只写自己的，免锁
@@ -66,7 +66,7 @@ git pull --rebase
 - **读**共享文件：`pull` → 查目标有无活跃写锁 W → 直接读（**免锁、0 push**）。
 - **写**共享文件：`pull` →〔状态 + 锁〕一次 push → 本地写 →〔内容 + 解锁 + 状态〕一次 push（**共 3 次网络往返**）。
 
-完整规则见 [`rules.md`](rules.md)，锁协议原理与例子见 [`docs/5-concurrency.md`](docs/5-concurrency.md)。
+完整规则见 [`rules.md`](rules.md)，锁协议原理与例子见 [`docs/5-concurrency.md`](docs/5-concurrency.md)，最终论文质量规则见 [`docs/6-paper-quality.md`](docs/6-paper-quality.md)。
 
 ## 仓库初始化（队长首次操作）
 
