@@ -1,0 +1,271 @@
+{
+  "source_attachment": "E:\\Agent_Duo_Workflowbench\\附件\\附件1.xlsx",
+  "configs": {
+    "baseline": {
+      "radius_cm": 2.0,
+      "internal_dr_cm": 0.0025,
+      "output_dr_cm": 0.1,
+      "duration_s": 1800,
+      "output_dt_s": 1.0,
+      "initial_temperature_c": 28.0,
+      "initial_moisture": 2.55,
+      "density_kg_m3": 820.0,
+      "heat_capacity_j_kg_k": 2600.0,
+      "thermal_conductivity_w_m_k": 0.36,
+      "heat_transfer_w_m2_k": 25.0,
+      "mass_transfer_m_s": 8e-07,
+      "relative_tolerance": 1e-07,
+      "absolute_tolerance": 1e-09,
+      "max_time_step_s": 10.0,
+      "interface_mean": "arithmetic",
+      "clip_negative_moisture": false
+    },
+    "improved": {
+      "radius_cm": 2.0,
+      "internal_dr_cm": 0.0025,
+      "output_dr_cm": 0.1,
+      "duration_s": 1800,
+      "output_dt_s": 1.0,
+      "initial_temperature_c": 28.0,
+      "initial_moisture": 2.55,
+      "density_kg_m3": 820.0,
+      "heat_capacity_j_kg_k": 2600.0,
+      "thermal_conductivity_w_m_k": 0.36,
+      "heat_transfer_w_m2_k": 25.0,
+      "mass_transfer_m_s": 8e-07,
+      "relative_tolerance": 1e-07,
+      "absolute_tolerance": 1e-09,
+      "max_time_step_s": 10.0,
+      "interface_mean": "harmonic",
+      "clip_negative_moisture": true
+    },
+    "grid_refined": {
+      "radius_cm": 2.0,
+      "internal_dr_cm": 0.00125,
+      "output_dr_cm": 0.1,
+      "duration_s": 1800,
+      "output_dt_s": 1.0,
+      "initial_temperature_c": 28.0,
+      "initial_moisture": 2.55,
+      "density_kg_m3": 820.0,
+      "heat_capacity_j_kg_k": 2600.0,
+      "thermal_conductivity_w_m_k": 0.36,
+      "heat_transfer_w_m2_k": 25.0,
+      "mass_transfer_m_s": 8e-07,
+      "relative_tolerance": 1e-07,
+      "absolute_tolerance": 1e-09,
+      "max_time_step_s": 10.0,
+      "interface_mean": "harmonic",
+      "clip_negative_moisture": true
+    }
+  },
+  "baseline_reproduction_vs_original": {
+    "note": "arithmetic+no-clip（原版行为）对 C 的 result1.xlsx；差异源于 scipy 积分器版本，非流程错误",
+    "temperature_c": {
+      "maximum_absolute_difference": 0.00019124405612203077,
+      "signed_difference_at_maximum": -0.00019124405612203077,
+      "time_s_at_maximum": 120.0,
+      "radius_cm_at_maximum": 2.0,
+      "mean_absolute_difference": 1.4732062634363932e-05,
+      "four_decimal_cells_equal": 32301,
+      "cell_count": 37800
+    },
+    "moisture": {
+      "maximum_absolute_difference": 0.00012630308894290287,
+      "signed_difference_at_maximum": 0.00012630308894290287,
+      "time_s_at_maximum": 1747.0,
+      "radius_cm_at_maximum": 2.0,
+      "mean_absolute_difference": 2.6535742572112343e-06,
+      "four_decimal_cells_equal": 36825,
+      "cell_count": 37800
+    }
+  },
+  "improvement_effect_harmonic_vs_arithmetic": {
+    "note": "improved vs baseline，同一 scipy 环境，唯一变量＝界面平均方式＋裁剪 → 纯改进归因",
+    "temperature_c": {
+      "maximum_absolute_difference": 0.0,
+      "signed_difference_at_maximum": 0.0,
+      "time_s_at_maximum": 0.0,
+      "radius_cm_at_maximum": 0.0,
+      "mean_absolute_difference": 0.0,
+      "four_decimal_cells_equal": 37821,
+      "cell_count": 37821
+    },
+    "moisture": {
+      "maximum_absolute_difference": 2.561974412618184e-07,
+      "signed_difference_at_maximum": -2.561974412618184e-07,
+      "time_s_at_maximum": 1800.0,
+      "radius_cm_at_maximum": 2.0,
+      "mean_absolute_difference": 1.4865938075676278e-08,
+      "four_decimal_cells_equal": 37816,
+      "cell_count": 37821
+    }
+  },
+  "improved_vs_original": {
+    "note": "改进解对 C 原 result1.xlsx 的总差异（＝改进效果 + scipy 版本噪声）",
+    "temperature_c": {
+      "maximum_absolute_difference": 0.00019124405612203077,
+      "signed_difference_at_maximum": -0.00019124405612203077,
+      "time_s_at_maximum": 120.0,
+      "radius_cm_at_maximum": 2.0,
+      "mean_absolute_difference": 1.4732062634363932e-05,
+      "four_decimal_cells_equal": 32301,
+      "cell_count": 37800
+    },
+    "moisture": {
+      "maximum_absolute_difference": 0.00012605209848293164,
+      "signed_difference_at_maximum": 0.00012605209848293164,
+      "time_s_at_maximum": 1747.0,
+      "radius_cm_at_maximum": 2.0,
+      "mean_absolute_difference": 2.6489769837496364e-06,
+      "four_decimal_cells_equal": 36826,
+      "cell_count": 37800
+    }
+  },
+  "physical_checks": {
+    "improved_moisture_min": 1.5102352884787082,
+    "baseline_moisture_min": 1.5102355446761495,
+    "clip_is_noop": true,
+    "temperature_identical_baseline_vs_improved": true,
+    "improved_all_finite": true
+  },
+  "selected_tables": {
+    "temperature_c": [
+      [
+        100.0,
+        28.000053639486094,
+        28.00034760031918,
+        28.004045593279148,
+        28.03270159480945,
+        28.180073327165246
+      ],
+      [
+        300.0,
+        28.040787495358913,
+        28.063483263440563,
+        28.151387067028423,
+        28.368056337597025,
+        28.84882995369738
+      ],
+      [
+        600.0,
+        28.45332000691695,
+        28.536019938804344,
+        28.80393119732692,
+        29.315902242294452,
+        30.165317464153414
+      ],
+      [
+        900.0,
+        29.32428559558243,
+        29.45824237061585,
+        29.875446368601224,
+        30.616133087312228,
+        31.730399450215984
+      ],
+      [
+        1200.0,
+        30.54270904910657,
+        30.709757714019375,
+        31.222339604694678,
+        32.11255177115854,
+        33.427613609120755
+      ],
+      [
+        1500.0,
+        31.995710705838,
+        32.186724817922034,
+        32.766013101864075,
+        33.74627161530521,
+        35.120294276062246
+      ],
+      [
+        1800.0,
+        33.57533835133655,
+        33.77199545330338,
+        34.36415588726581,
+        35.362123917310754,
+        36.78555975795204
+      ]
+    ],
+    "moisture": [
+      [
+        100.0,
+        2.55,
+        2.55,
+        2.55,
+        2.54999995698855,
+        2.2470629626159675
+      ],
+      [
+        300.0,
+        2.55,
+        2.55,
+        2.549999998993501,
+        2.5491994433060112,
+        2.050844706226976
+      ],
+      [
+        600.0,
+        2.5499999999999994,
+        2.5499999997880836,
+        2.5499886030869012,
+        2.5352757346780095,
+        1.8769661526322032
+      ],
+      [
+        900.0,
+        2.549999999944412,
+        2.5499997964162415,
+        2.5496838198337173,
+        2.5045434969502587,
+        1.754715369589478
+      ],
+      [
+        1200.0,
+        2.5499999803700804,
+        2.549992982165283,
+        2.5481802964530456,
+        2.464569114737423,
+        1.6585585070041688
+      ],
+      [
+        1500.0,
+        2.5499993087608503,
+        2.549937808778,
+        2.544541403755158,
+        2.42061077911378,
+        1.5787238394386156
+      ],
+      [
+        1800.0,
+        2.5499923966257847,
+        2.549723860657295,
+        2.5383001249795676,
+        2.3754704941577294,
+        1.5102352884787082
+      ]
+    ]
+  },
+  "grid_independence": {
+    "note": "改进解 dr=0.0025 cm vs 0.00125 cm（同一输出网格）",
+    "temperature_c": {
+      "maximum_absolute_difference": 0.0001708919003107212,
+      "signed_difference_at_maximum": -0.0001708919003107212,
+      "time_s_at_maximum": 1500.0,
+      "radius_cm_at_maximum": 2.0,
+      "mean_absolute_difference": 4.72153594847653e-06,
+      "four_decimal_cells_equal": 36053,
+      "cell_count": 37821
+    },
+    "moisture": {
+      "maximum_absolute_difference": 0.00018975469344484353,
+      "signed_difference_at_maximum": 0.00018975469344484353,
+      "time_s_at_maximum": 1.0,
+      "radius_cm_at_maximum": 2.0,
+      "mean_absolute_difference": 5.932486102277144e-07,
+      "four_decimal_cells_equal": 37614,
+      "cell_count": 37821
+    }
+  }
+}
