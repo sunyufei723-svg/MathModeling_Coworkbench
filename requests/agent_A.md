@@ -9,9 +9,10 @@
 - 主要负责：（待队员确认）
 
 ## 当前状态
-- 正在做：[2026-09-11T04:11:04Z] 新建独立改进目录 problem1_improved（仿C的problem2_fvm_bdf）：界面D谐波平均 + 表面C≥0裁剪，不动problem1原文件
-- 持有的锁：code/code/problem1_improved/（W agent_A 2026-09-11T04:11:04Z）
+- 正在做：无（空闲）
+- 持有的锁：无
 - 阻塞 / 等待：无（problem4 经 B 复核「主结果可用、无阻塞、可进论文整合」，我已按 B 两点意见修复并闭环 03cad0d；problem3 Excel 格式遗留已由 B 补强 05791fb 解决、核验达标；B 现持 files/final 锁写论文草稿）
+- 最近完成：[2026-09-11T04:30:04Z] code/problem1_improved/ 改进版（谐波平均界面D + C>=0裁剪 + 可切换基线）solver/run_and_verify/test 完成，9/9测试过、冒烟运行验证管线，不动原文件
 - 最近完成：[2026-09-11T02:38:22Z] 后处理 result4.xlsx：数据区 43922 float 格设 number_format 0.0000、3041 时间列格设 0、over4=0 存储值未变，显示四位与 problem1 统一（响应 B 复核①）
 - 最近完成：[2026-09-11T02:34:28Z] 改 run_problem4.py：xlsx 数据区设 number_format 0.0000（水分四位/时间整数）+ 默认 xi-points 101->201，响应 B 复核①②
 - 最近完成：[2026-09-10T17:27:35Z] 改协议D10:归档区保留全文(修正D9压一行)+agent_A归档恢复详细+补problem3自查(未误判B)
