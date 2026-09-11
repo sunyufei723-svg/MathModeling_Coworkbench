@@ -3,6 +3,9 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
+import openpyxl
+from tempfile import TemporaryDirectory
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -68,6 +71,36 @@ class Problem3SolverTests(unittest.TestCase):
         self.assertLessEqual(float(result.moisture[-1].max()), 0.15)
         self.assertGreater(result.drying_end_time_s, 0)
         self.assertTrue(result.coupling_converged.all())
+
+    def test_result_workbook_formats_data_cells_to_four_decimals(self):
+        with TemporaryDirectory() as tmp:
+            workbook_path = Path(tmp) / "result3.xlsx"
+            moisture = pd.DataFrame(
+                {
+                    "时间\\到药材中心的距离": [60],
+                    "0.0": [2.55],
+                    "0.1": [2.1234],
+                }
+            )
+
+            import run_problem3
+
+            run_problem3.write_result_workbook(workbook_path, moisture)
+
+            workbook = openpyxl.load_workbook(workbook_path)
+            sheet = workbook["水分浓度"]
+            self.assertEqual(sheet["B2"].number_format, "0.0000")
+            self.assertEqual(sheet["C2"].number_format, "0.0000")
+            self.assertNotEqual(sheet["A2"].number_format, "0.0000")
+
+    def test_problem3_explanation_records_boundary_sensitivity(self):
+        doc_path = Path(__file__).resolve().parents[2] / "results" / "problem3" / "problem3_solution_and_code_explanation.md"
+
+        text = doc_path.read_text(encoding="utf-8")
+
+        self.assertIn("边界敏感性", text)
+        self.assertIn("T_env", text)
+        self.assertIn("C_env", text)
 
 
 if __name__ == "__main__":

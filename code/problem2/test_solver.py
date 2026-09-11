@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pandas as pd
+import openpyxl
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -99,6 +100,33 @@ class Problem2SolverTests(unittest.TestCase):
         self.assertEqual(frame.iloc[0, 0], 1)
         self.assertEqual(frame.iloc[-1, 0], 2)
 
+    def test_result_workbook_formats_data_cells_to_four_decimals(self):
+        with TemporaryDirectory() as tmp:
+            workbook_path = Path(tmp) / "result2.xlsx"
+            temperature = pd.DataFrame(
+                {
+                    "时间\\到药材中心的距离": [1],
+                    "0.0": [28.0],
+                    "0.1": [28.1234],
+                }
+            )
+            moisture = pd.DataFrame(
+                {
+                    "时间\\到药材中心的距离": [1],
+                    "0.0": [2.55],
+                    "0.1": [2.1234],
+                }
+            )
+
+            run_problem2.write_result_workbook(workbook_path, temperature, moisture)
+
+            workbook = openpyxl.load_workbook(workbook_path)
+            for sheet_name in ("温度", "水分浓度"):
+                sheet = workbook[sheet_name]
+                self.assertEqual(sheet["B2"].number_format, "0.0000")
+                self.assertEqual(sheet["C2"].number_format, "0.0000")
+                self.assertNotEqual(sheet["A2"].number_format, "0.0000")
+
     def test_problem2_explanation_document_records_review_decisions(self):
         doc_path = Path(__file__).resolve().parents[2] / "results" / "problem2" / "problem2_solution_and_code_explanation.md"
 
@@ -108,6 +136,7 @@ class Problem2SolverTests(unittest.TestCase):
         self.assertIn("exp(-0.45/C)", text)
         self.assertIn("result2.xlsx", text)
         self.assertIn("t=0", text)
+        self.assertIn("网格/时间步无关性", text)
 
 
 if __name__ == "__main__":

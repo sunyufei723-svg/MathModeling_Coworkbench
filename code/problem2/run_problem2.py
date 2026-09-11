@@ -91,6 +91,18 @@ def write_markdown_tables(temp_table: pd.DataFrame, moisture_table: pd.DataFrame
     (OUTPUT_DIR / "problem2_tables.md").write_text("\n".join(text), encoding="utf-8")
 
 
+def write_result_workbook(workbook_path: Path, temperature_frame: pd.DataFrame, moisture_frame: pd.DataFrame) -> None:
+    with pd.ExcelWriter(workbook_path, engine="openpyxl") as writer:
+        temperature_frame.to_excel(writer, sheet_name="温度", index=False)
+        moisture_frame.to_excel(writer, sheet_name="水分浓度", index=False)
+
+        for sheet_name in ("温度", "水分浓度"):
+            sheet = writer.book[sheet_name]
+            for row in sheet.iter_rows(min_row=2, min_col=2):
+                for cell in row:
+                    cell.number_format = "0.0000"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="求解 A题第二问并生成 result2.xlsx")
     parser.add_argument("--attachment1", type=Path, default=None, help="附件1.xlsx 的路径")
@@ -112,9 +124,7 @@ def main() -> None:
     )
 
     workbook_path = OUTPUT_DIR / "result2.xlsx"
-    with pd.ExcelWriter(workbook_path, engine="openpyxl") as writer:
-        temperature_frame.to_excel(writer, sheet_name="温度", index=False)
-        moisture_frame.to_excel(writer, sheet_name="水分浓度", index=False)
+    write_result_workbook(workbook_path, temperature_frame, moisture_frame)
 
     sample_seconds = [1800, 3600, 5400, 7200, 9000, 10800]
     sample_radius = [0, 0.5, 1.0, 1.5, 2.0]

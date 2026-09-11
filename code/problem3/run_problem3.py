@@ -78,14 +78,23 @@ def dataframe_to_markdown(frame: pd.DataFrame) -> str:
     return "\n".join(lines)
 
 
+def write_result_workbook(workbook_path: Path, moisture_frame: pd.DataFrame) -> None:
+    with pd.ExcelWriter(workbook_path, engine="openpyxl") as writer:
+        moisture_frame.to_excel(writer, sheet_name="水分浓度", index=False)
+
+        sheet = writer.book["水分浓度"]
+        for row in sheet.iter_rows(min_row=2, min_col=2):
+            for cell in row:
+                cell.number_format = "0.0000"
+
+
 def write_outputs(result) -> tuple[Path, Path]:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     workbook_path = OUTPUT_DIR / "result3.xlsx"
     table_path = OUTPUT_DIR / "problem3_tables.md"
 
     moisture_frame = moisture_to_frame(result.time_s, result.radius_cm, result.moisture)
-    with pd.ExcelWriter(workbook_path, engine="openpyxl") as writer:
-        moisture_frame.to_excel(writer, sheet_name="水分浓度", index=False)
+    write_result_workbook(workbook_path, moisture_frame)
 
     table = selected_moisture_table(result)
     text = [
