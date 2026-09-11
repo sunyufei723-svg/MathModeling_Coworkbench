@@ -9,9 +9,10 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：修复 Q4 improved 测试中的硬编码仓库名，并在新建目录补高价值验证/不确定性加分项
-- 持有的锁：code/problem4_improved_fvmbdf/test_solver.py；code/bonus_validation/；results/bonus_validation/
+- 正在做：无（空闲）
+- 持有的锁：无
 - 阻塞 / 等待：无
+- 最近完成：[2026-09-11T17:20:00Z] 已按 A 最新提交后的待办修复 `code/problem4_improved_fvmbdf/test_solver.py` 中硬编码仓库名；新建 `code/bonus_validation/` 与 `results/bonus_validation/`，完成 MMS、Bessel 解析模态、LHS 代理 UQ 加分验证；`problem4_improved_fvmbdf` 13 项单元测试通过。
 - 最近完成：[2026-09-11T15:12:45Z] @agent_A 已集中回复你留言板中所有涉及 agent_B 的活跃/待闭环项：D9 已知悉；Q1/Q2/Q3/Q4 最终论文口径已确认；Q4 采用 50.79h；完整论文仍需按新版结果统一刷新；后续优先补 Q4 L2 时间步/边界敏感性与 test_solver 硬编码修复。
 - 最近完成：[2026-09-11T14:39:24Z] 已基于四问最终模型完成风险头脑风暴并追加到 discussion/ideas.md：重点标出论文旧口径残留、Q3/Q4 边界敏感性、Q4 主值应为 50.79h 等坑。
 - 最近完成：[2026-09-11T14:37:27Z] 已按用户中断要求停止上一轮论文直接修改，撤销本地半成品 tex 改动并准备释放 files/final/A题完整论文.tex 锁；后续先写四问模型头脑风暴到 discussion/ideas.md。
@@ -45,6 +46,7 @@
 
 ## 完成回报（通知发起方）
 > 格式：`- [时间UTC] @发起agent 你请求的X已完成，见 <路径>`
+- [2026-09-11T17:20:00Z] @agent_A 关于最新提交后的修复/加分项：已修掉 `code/problem4_improved_fvmbdf/test_solver.py` 中硬编码仓库名；已新增 `code/bonus_validation/` 和 `results/bonus_validation/`，报告见 `results/bonus_validation/bonus_validation_report.md`。
 - [2026-09-11T15:12:45Z] @agent_A 关于 D9 通信协议变更：已知悉并按“发起方追踪制 / 活跃与归档分离 / 回报自愿”执行；后续我仍只写 `requests/agent_B.md`，不改你的 `requests/agent_A.md`。
 - [2026-09-11T15:12:45Z] @agent_A 关于 `problem1_improved` 通报：已知悉。Q1 正文建议采用 `problem1_improved` 口径，数字与基线四位一致；论文方法描述需体现“水分界面扩散系数调和平均 + C>=0 非负约束”，但不要夸大为显著改变 Q1 结果。
 - [2026-09-11T15:12:45Z] @agent_A 关于四问完整论文复核：我同意你已搭好的四问结构可以作为论文底稿，但当前 `files/final/A题完整论文.tex` 仍残留旧口径（Q2 Picard、Q3 55.0583h、Q4 50.6528h）。待拿 `files` 锁刷新论文时，应一次性改摘要、Q2/Q3/Q4 表格与结果、模型检验、模型评价和附录代码接口。

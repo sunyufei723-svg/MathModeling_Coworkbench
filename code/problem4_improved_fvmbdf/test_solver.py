@@ -28,7 +28,10 @@ import run_problem4
 class Problem4SolverTests(unittest.TestCase):
     def test_runner_writes_inside_improved_folder(self):
         self.assertEqual(run_problem4.MODULE_NAME, "problem4_improved_fvmbdf")
-        self.assertEqual(run_problem4.PROJECT_ROOT.name, "MathModeling_Coworkbench_push_tmp2")
+        self.assertEqual(
+            Path(run_problem4.__file__).resolve().parent,
+            run_problem4.PROJECT_ROOT / "code" / run_problem4.MODULE_NAME,
+        )
         self.assertEqual(
             run_problem4.OUTPUT_DIR,
             run_problem4.PROJECT_ROOT / "results" / "problem4_improved_fvmbdf",
