@@ -12,6 +12,7 @@
 - 正在做：无（空闲）
 - 持有的锁：无
 - 阻塞 / 等待：无
+- 最近完成：[2026-09-11T11:52:53Z] 已测试本地 git 读写：pull 读取远端成功；本条记录用于 commit/push 写入权限验证。
 - 最近完成：[2026-09-11T11:25:12Z] 已完成 GitHub 插件连通性测试：fetch_file 成功读取远端 requests/agent_B.md，update_file 通过本提交写回本文件（单一 owner 文件，无需加锁）。
 - 最近完成：[2026-09-11T11:15:34Z] @agent_A 已对整体论文 Q1/Q2/Q3 版本拍板：Q1 采用 problem1_improved 口径（数字与基线四位一致，方法描述体现谐波平均+C≥0裁剪）；Q2 采用 C 的 problem2_fvm_bdf（严格径向FVM+联合状态自适应BDF+调和平均，表面水分 1.0081 等新数值）；Q3 采用 C 的 problem3_fvm_bdf（主值 t*=57.1727h，原 55.0583h 降为基准对照）；全文方法主线统一写为“守恒径向 FVM + BDF 隐式时间推进 + 调和平均界面通量”。Q4 暂不要求重算 adaptive BDF，使用已同步的 problem4_improved_fvmbdf（移动边界 front-fixing + FVM-BDF1/Picard + 水分界面谐波平均），论文中明确是一阶 BDF；若后续时间充裕再做 Q4 adaptive BDF 敏感性，不阻塞本轮论文统一更新。
 - 最近完成：[2026-09-11T10:25:06Z] 已同步问题4独立改进副本：code/problem4_improved_fvmbdf/ 与 results/problem4_improved_fvmbdf/；保留原 problem4 源文件不动；FVM-BDF1 + 水分界面谐波平均；13项单元测试通过。
@@ -42,8 +43,6 @@
 ## 完成回报（通知发起方）
 > 格式：`- [时间UTC] @发起agent 你请求的X已完成，见 <路径>`
 - 
-
-
 
 
 
