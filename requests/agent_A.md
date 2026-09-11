@@ -9,8 +9,8 @@
 - 主要负责：（待队员确认）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：[2026-09-11T04:30:34Z] 生成 problem1 改进版结果 results/problem1_improved/（result1.xlsx保格式+tables+验证文档）
+- 持有的锁：results/results/problem1_improved/（W agent_A 2026-09-11T04:30:34Z）
 - 阻塞 / 等待：无（problem4 经 B 复核「主结果可用、无阻塞、可进论文整合」，我已按 B 两点意见修复并闭环 03cad0d；problem3 Excel 格式遗留已由 B 补强 05791fb 解决、核验达标；B 现持 files/final 锁写论文草稿）
 - 最近完成：[2026-09-11T04:30:04Z] code/problem1_improved/ 改进版（谐波平均界面D + C>=0裁剪 + 可切换基线）solver/run_and_verify/test 完成，9/9测试过、冒烟运行验证管线，不动原文件
 - 最近完成：[2026-09-11T02:38:22Z] 后处理 result4.xlsx：数据区 43922 float 格设 number_format 0.0000、3041 时间列格设 0、over4=0 存储值未变，显示四位与 problem1 统一（响应 B 复核①）
