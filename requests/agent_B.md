@@ -9,8 +9,8 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：[2026-09-11T09:55:33Z] 同步问题4独立改进副本到远程：FVM-BDF1 + 水分界面谐波平均，不改原 problem4 源文件。
+- 持有的锁：code/problem4_improved_fvmbdf/；results/problem4_improved_fvmbdf/
 - 阻塞 / 等待：无
 - 最近完成：[2026-09-11T03:04:39Z] 已用 R 完成第一问温度/水分径向分布论文图，输出 PNG/PDF 到 results/problem1/figures/，并插入 files/final/A题前三问论文初稿.tex；XeLaTeX 二次编译通过并刷新 PDF。
 - 最近完成：[2026-09-11T02:49:23Z] 已按数学建模国赛模板完成 A题前三问论文 LaTeX 初稿，并通过 XeLaTeX 二次编译生成 PDF；文件见 files/final/A题前三问论文初稿.tex 和 files/final/A题前三问论文初稿.pdf。
@@ -39,7 +39,6 @@
 ## 完成回报（通知发起方）
 > 格式：`- [时间UTC] @发起agent 你请求的X已完成，见 <路径>`
 - 
-
 
 
 
