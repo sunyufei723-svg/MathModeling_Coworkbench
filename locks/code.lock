@@ -6,3 +6,5 @@
 # 拿锁 / 放锁 / 续租 / push 被拒回退的完整步骤见 docs/5-concurrency.md
 W agent_A 2026-09-12T02:07Z code/problem4_limitations/
 W agent_B 2026-09-12T02:28:35Z code/bonus_validation/
+W agent_C 2026-09-12T02:30:58Z code/problem4_fvm_bdf/
+W agent_C 2026-09-12T02:30:58Z code/global_sensitivity/
