@@ -56,6 +56,84 @@
       "rate": 2.0043981049290256
     }
   ],
+  "robin_bessel_convergence": [
+    {
+      "n": 40,
+      "l2_error": 0.000511988428602208,
+      "max_error": 0.00224918460977519,
+      "rate": null
+    },
+    {
+      "n": 80,
+      "l2_error": 0.00017491168962844157,
+      "max_error": 0.0010956088707689826,
+      "rate": 1.54948449428908
+    },
+    {
+      "n": 160,
+      "l2_error": 6.072226734675898e-05,
+      "max_error": 0.0005403919131328205,
+      "rate": 1.526329143537297
+    },
+    {
+      "n": 320,
+      "l2_error": 2.1267233836987705e-05,
+      "max_error": 0.00026832179740132744,
+      "rate": 1.5135932628121602
+    }
+  ],
+  "robin_mms_convergence": [
+    {
+      "n": 40,
+      "l2_error": 0.0014829836597309094,
+      "max_error": 0.006529531857060178,
+      "rate": null
+    },
+    {
+      "n": 80,
+      "l2_error": 0.0005097461874269074,
+      "max_error": 0.003196536790646576,
+      "rate": 1.5406517165661755
+    },
+    {
+      "n": 160,
+      "l2_error": 0.00017750740362342332,
+      "max_error": 0.0015805957192949194,
+      "rate": 1.5218998808802315
+    },
+    {
+      "n": 320,
+      "l2_error": 6.22653013106029e-05,
+      "max_error": 0.0007858007018182178,
+      "rate": 1.5113788797748673
+    }
+  ],
+  "implicit_euler_time_convergence": [
+    {
+      "n": 20,
+      "l2_error": 0.012932864301623992,
+      "max_error": 0.012932864301623992,
+      "rate": null
+    },
+    {
+      "n": 40,
+      "l2_error": 0.006532300300204186,
+      "max_error": 0.006532300300204186,
+      "rate": 0.985378810402994
+    },
+    {
+      "n": 80,
+      "l2_error": 0.0032828557480570897,
+      "max_error": 0.0032828557480570897,
+      "rate": 0.992639757552797
+    },
+    {
+      "n": 160,
+      "l2_error": 0.0016456342240419308,
+      "max_error": 0.0016456342240419308,
+      "rate": 0.996307655020814
+    }
+  ],
   "uq_surrogate": {
     "problem3": {
       "samples": 5000,
@@ -127,5 +205,16 @@
       "dominant_layer": "shrinkage_density_closure",
       "recommended_paper_sentence": "For Q4, the LHS boundary surrogate gives a boundary-condition layer of about +/-2.87 h, whereas the shrinkage/density-closure model-form layer shifts the upper bound by +9.91 h; thus the dominant uncertainty comes from the consistency between the prescribed radius trajectory and the empirical density relation, not from the +/-2 deg C and +/-10% boundary perturbations."
     }
+  },
+  "lhs_surrogate_validation": {
+    "status": "needs_pde_points",
+    "pde_point_count": 0,
+    "requested_pde_point_count": "5-10",
+    "metrics": {
+      "maximum_absolute_error_h": null,
+      "maximum_relative_error": null,
+      "rmse_h": null
+    },
+    "interpretation": "The current LHS result is not yet a high-fidelity PDE validation; it is a bilinear surrogate sampled 5000 times from nine accepted boundary-scenario training points. Add 5-10 held-out PDE runs before calling the surrogate validated."
   }
 }
