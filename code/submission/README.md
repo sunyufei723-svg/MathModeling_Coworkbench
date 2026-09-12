@@ -20,7 +20,7 @@ code/submission/
 │   └── baselines/ solver.py（原始近似离散基准，供 run 的复现校验 importlib 加载）
 ├── problem4/                         问题四（主答案 t* = 50.8245 h）
 │   ├── core/    model · environment · radius · scenarios · fvm · solver_bdf · solver_be + test_solver.py
-│   ├── run/     run_and_verify.py + export_result4.mjs
+│   ├── run/     run_and_verify.py（精简样板：终端分节打印 + xlsx + json，不生成 md）+ export_result4.mjs
 │   ├── baselines/ L1/solver.py · L2/solver.py（历史基准，供 reproduce_legacy 复现 L1→L3 口径演进）
 │   └── analysis/                     加固与对照（随附件提交，可选入附录）
 │       ├── bonus_validation/       MMS / Bessel / UQ 加分验证 + 仓库可移植性检查
@@ -29,12 +29,18 @@ code/submission/
 ├── sensitivity/                      全局敏感性与不确定性量化
 │   ├── core/    parameters · morris · pce · sobol · evaluator · cache · radau_crosscheck + test_sensitivity.py
 │   └── run/     run_pipeline.py
+├── figures/                          论文配图绘图（读 results/ 的 xlsx+json 出 png/pdf）
+│   └── plot_paper_figures.py         fig1–fig5，跨 problem1–4 + 敏感性
 └── README.md
 ```
 
 ## 论文附录放置指引
 
-按 `problem1 → problem2 → problem3 → problem4 → sensitivity` 顺序，每题**先 `core/`（模型与求解器）后 `run/`（运行与导出）**，逐文件一字不差贴入即可。`problem3/4` 的 `baselines/`、`problem4/analysis/` 属复现基准与加分验证，可按篇幅决定是否入附录（不影响主题目代码的完整性）。
+按 `problem1 → problem2 → problem3 → problem4 → sensitivity → figures` 顺序，每题**先 `core/`（模型与求解器）后 `run/`（运行与导出）**，逐文件一字不差贴入即可；绘图代码 `figures/` 作为附录最后一节。`problem3/4` 的 `baselines/`、`problem4/analysis/` 属复现基准与加分验证，可按篇幅决定是否入附录。
+
+## 产物规范
+
+代码运行只产出三类：**数据文件**（`result*.xlsx` 结果详情 + `verification.json` 结构化验证、兼画图数据源）、**图**（`png`/`pdf`）、**终端分节打印**（关键结论，供队员直接写进论文）；**不再生成长篇 md 报告**（文字解读归论文）。`problem4/run` 已按此精简为样板（936→698 行，删 7 个 md 生成、改为分节打印）；`figures/plot_paper_figures.py` 读 `results/` 的 xlsx+json 出图。problem1–3 / sensitivity / bonus 的同类精简待推广。
 
 ## 运行
 

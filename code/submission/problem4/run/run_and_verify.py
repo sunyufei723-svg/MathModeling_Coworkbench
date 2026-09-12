@@ -214,277 +214,6 @@ def compare_bdf_be(left: SimulationResult, right: BEResult) -> dict:
     }
 
 
-def markdown_table(headers: list[str], rows: list[list[str]]) -> str:
-    return "\n".join(
-        [
-            "| " + " | ".join(headers) + " |",
-            "| " + " | ".join(["---"] * len(headers)) + " |",
-            *["| " + " | ".join(row) + " |" for row in rows],
-        ]
-    )
-
-
-def write_reports(results_dir: Path, verification: dict, main: SimulationResult) -> None:
-    final = verification["final"]
-    spatial_rows = verification["spatial_grid"]["runs"]
-    bdf_rows = verification["bdf_time_sensitivity"]["runs"]
-    be_rows = verification["be_time_sensitivity"]["runs"]
-    boundary = verification["boundary_sensitivity"]
-    ablation = verification["ablation"]
-
-    table_times = [
-        int(value)
-        for value in main.time_s
-        if value <= main.drying_event_time_s and int(round(value)) % 21600 == 0
-    ]
-    table_rows: list[list[str]] = []
-    indices = [0, 5, 10, 15, -1]
-    for time_s in table_times:
-        index = int(np.where(np.isclose(main.time_s, time_s))[0][0])
-        values = main.moisture[index]
-        table_rows.append(
-            [f"{time_s / 3600.0:.0f}"]
-            + [("" if not np.isfinite(values[column]) else f"{values[column]:.4f}") for column in indices]
-        )
-    event_values = main.event_output_moisture
-    table_rows.append(
-        [f"{main.drying_event_time_s / 3600.0:.6f}（临界）"]
-        + [("" if not np.isfinite(event_values[column]) else f"{event_values[column]:.4f}") for column in indices]
-    )
-    table6 = markdown_table(["时间/h", "0 cm", "0.5 cm", "1.0 cm", "1.5 cm", "药材表面"], table_rows)
-    (results_dir / "problem4_tables.md").write_text(
-        "\n".join(
-            [
-                "# A题问题四 L3 论文表格",
-                "",
-                f"默认边界连续临界时间：**{final['continuous_event_time_h']:.6f} h** "
-                f"（{final['continuous_event_time_s']:.3f} s）。",
-                f"第一个严格达标的60 s输出时刻：**{final['first_strict_60s_time_h']:.6f} h** "
-                f"（{final['first_strict_60s_time_s']} s）。",
-                "",
-                "## 表6 药材烘干过程的水分浓度",
-                "",
-                table6,
-                "",
-                "> 临界时刻依据未四舍五入的全域最大含水率判定；表中数值仅按四位小数显示。固定物理位置超出当前半径时留空，药材表面始终对应 ξ=1。",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-    spatial_table = markdown_table(
-        ["节点数", "连续临界时间/h", "相对前一级差/s", "运行时间/s"],
-        [
-            [
-                str(row["node_count"]),
-                f"{row['event_time_h']:.9f}",
-                "—" if row.get("difference_from_previous_s") is None else f"{row['difference_from_previous_s']:.3f}",
-                f"{row['runtime_s']:.2f}",
-            ]
-            for row in spatial_rows
-        ],
-    )
-    time_table = markdown_table(
-        ["配置", "rtol", "max_step/s", "临界时间/h"],
-        [
-            [row["name"], f"{row['config']['relative_tolerance']:.0e}", f"{row['config']['max_time_step_s']:g}", f"{row['event_time_h']:.9f}"]
-            for row in bdf_rows
-        ],
-    )
-    be_table = markdown_table(
-        ["Δt/s", "临界时间/h", "最大Picard次数", "未收敛步"],
-        [
-            [
-                f"{row['dt_s']:g}",
-                f"{row['event_time_h']:.9f}",
-                str(row["diagnostics"]["maximum_picard_iterations_used"]),
-                str(row["diagnostics"]["unconverged_steps"]),
-            ]
-            for row in be_rows
-        ],
-    )
-    (results_dir / "numerical_verification.md").write_text(
-        "\n".join(
-            [
-                "# 问题四 L3 数值验证",
-                "",
-                "## 空间网格",
-                "",
-                spatial_table,
-                "",
-                f"最终相邻网格验收：**{'通过' if verification['spatial_grid']['passed'] else '未通过'}**。",
-                "",
-                "## BDF容差与最大步长",
-                "",
-                time_table,
-                "",
-                f"BDF时间敏感性：**{'通过' if verification['bdf_time_sensitivity']['passed'] else '未通过'}**。",
-                "",
-                "## 后向欧拉时间步",
-                "",
-                be_table,
-                "",
-                f"BE时间敏感性：**{'通过' if verification['be_time_sensitivity']['passed'] else '未通过'}**；"
-                f"BDF/BE交叉验证：**{'通过' if verification['cross_solver']['passed'] else '未通过'}**。",
-                "",
-                f"最大归一化离散通量平衡残差为 {final['maximum_normalized_balance_residual']:.3e}；"
-                f"最小原始含水率为 {final['minimum_raw_moisture']:.9f} kg/kg，未执行状态裁剪。",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-    boundary_rows = boundary["data_driven"] + boundary["engineering_3x3"] + boundary["mass_transfer"]
-    boundary_table = markdown_table(
-        ["情景", "后期温度/°C", "后期水分", "hm倍率", "临界时间/h", "相对默认/min"],
-        [
-            [
-                row["scenario"],
-                f"{row['post_temperature_c']:.6f}",
-                f"{row['post_moisture']:.6f}",
-                f"{row['mass_transfer_factor']:.1f}",
-                f"{row['event_time_h']:.6f}",
-                f"{row['difference_from_default_s'] / 60.0:.2f}",
-            ]
-            for row in boundary_rows
-        ],
-    )
-    (results_dir / "boundary_sensitivity.md").write_text(
-        "\n".join(
-            [
-                "# 问题四后期环境边界敏感性",
-                "",
-                "附件1仅覆盖前4 h。默认情形使用附件末值恒定延拓；下表为数据驱动延拓、工程扰动和 hm±10% 情景。该范围是情景范围，不是统计置信区间。",
-                "",
-                boundary_table,
-                "",
-                f"全部情景范围：**{boundary['all_scenarios_range_h'][0]:.4f}–{boundary['all_scenarios_range_h'][1]:.4f} h**。",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-    radius_info = verification["radius_sensitivity"]
-    (results_dir / "radius_sensitivity.md").write_text(
-        "\n".join(
-            [
-                "# 半径插值敏感性",
-                "",
-                f"分段线性插值：{radius_info['linear_event_time_h']:.9f} h。",
-                f"单调PCHIP插值：{radius_info['pchip_event_time_h']:.9f} h。",
-                f"绝对差：{radius_info['absolute_difference_s']:.3f} s。",
-                "",
-                "主模型仅使用 R(t)，不需要对带折点的半径序列数值求导。",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-    shrink = verification["shrinkage_ablation"]
-    (results_dir / "shrinkage_ablation.md").write_text(
-        "\n".join(
-            [
-                "# 尺寸收缩消融",
-                "",
-                "两种计算均使用附录4物性、严格FVM、调和平均和同一BDF配置，仅改变半径函数。",
-                "",
-                f"固定半径2 cm：{shrink['fixed_radius_event_time_h']:.6f} h。",
-                f"附件2动态半径：{shrink['dynamic_radius_event_time_h']:.6f} h。",
-                f"收缩使临界时间缩短：**{shrink['time_reduction_h']:.6f} h**。",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-    model_form = verification["model_form_sensitivity"]
-    (results_dir / "model_form_sensitivity.md").write_text(
-        "\n".join(
-            [
-                "# 坐标模型形式敏感性",
-                "",
-                f"主模型（物质坐标、无显式输运项）：{model_form['material_event_time_h']:.6f} h。",
-                f"对照模型（Euler型、含收缩输运项）：{model_form['eulerian_event_time_h']:.6f} h。",
-                f"差异：{model_form['absolute_difference_h']:.6f} h。",
-                "",
-                "题目只给出整体半径而未给出内部速度场，因此论文以均匀仿射收缩的物质坐标解释为主，Euler型只作为模型形式敏感性。",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-    baseline_rows = [
-        ["L1", "原近似离散、算术平均、201点、BE 10 s", f"{verification['baseline']['L1']['event_time_h']:.6f}"],
-        ["L2", "原近似离散、D调和、801点、BE 10 s", f"{verification['baseline']['L2']['event_time_h']:.6f}"],
-        ["L3", "严格FVM、k/D调和、自适应BDF连续事件", f"{final['continuous_event_time_h']:.6f}"],
-        ["L4", "Euler型含收缩输运项，同一L3离散", f"{model_form['eulerian_event_time_h']:.6f}"],
-    ]
-    (results_dir / "baseline_comparison.md").write_text(
-        "\n".join(
-            [
-                "# L1–L4 对照",
-                "",
-                markdown_table(["层级", "模型与数值口径", "临界时间/h"], baseline_rows),
-                "",
-                "L1与L2保留作历史基准；L3是最终主结果；L4不是更高等级，而是另一种坐标物理解释。",
-                "",
-                "## 数值消融",
-                "",
-                markdown_table(
-                    ["实验", "几何", "D平均", "k平均", "时间方法", "临界时间/h", "相对前项/min"],
-                    [
-                        [
-                            row["experiment"], row["geometry"], row["d_mean"], row["k_mean"], row["time_method"],
-                            f"{row['event_time_h']:.6f}",
-                            "—" if row.get("difference_from_previous_s") is None else f"{row['difference_from_previous_s'] / 60.0:.2f}",
-                        ]
-                        for row in ablation
-                    ],
-                ),
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-    (results_dir / "problem4_solution_and_code_explanation.md").write_text(
-        "\n".join(
-            [
-                "# A题问题四 L3 解法与代码说明",
-                "",
-                "## 最终答案",
-                "",
-                f"默认边界下连续临界时间为 **{final['continuous_event_time_h']:.6f} h**；"
-                f"第一个严格满足全域含水率低于0.15 kg/kg的60 s输出时刻为 **{final['first_strict_60s_time_h']:.6f} h**。",
-                f"后期边界全部情景范围为 **{boundary['all_scenarios_range_h'][0]:.4f}–{boundary['all_scenarios_range_h'][1]:.4f} h**。",
-                "",
-                "## 模型",
-                "",
-                "假设圆柱横截面均匀仿射收缩，ξ=r/R(t)标记固定物质点。主方程为材料坐标下的热湿双向耦合扩散方程，扩散算子带1/R(t)^2尺度因子，不另加收缩输运项。物性严格采用附录4；h=25 W/(m²·K)和hm=8×10⁻⁷ m/s沿用附录2并作为假设。题目未给出潜热闭合参数，因此不加入显式蒸发潜热项。",
-                "",
-                "## 数值方法",
-                "",
-                "在ξ∈[0,1]上采用严格圆柱控制体积法，中心和表面半控制体由统一几何权重处理；k和D均在控制面使用调和平均。温度与水分合并成一个状态向量，以SciPy自适应BDF和四块三对角Jacobian稀疏结构求解。附件1阶段结束处拆分积分，终止事件按全域最大含水率连续定位。",
-                "",
-                "后向欧拉+Picard+TDMA使用同一空间算子独立复核。求解状态不裁剪，仅在物性计算中使用C_safe；结果不存在实质负含水率。固定物理位置超过当前半径时在Excel中留空，最后一列始终表示移动药材表面。",
-                "",
-                "## 文件",
-                "",
-                "`model.py`定义附录4物性；`environment.py`和`radius.py`处理附件；`fvm.py`实现参考域控制体几何与通量；`solver_bdf.py`为主求解器；`solver_be.py`为交叉验证器；`run_and_verify.py`执行全量验证；`export_result4.mjs`从原模板生成最终工作簿。",
-                "",
-                f"干物质质量诊断指标在全程的相对变化范围为 {final['dry_mass_index_relative_range']:.2%}。由于题目给定R(t)和经验密度关系未形成严格质量闭合，该指标只用于揭示模型局限，不作为数值求解器失败条件。",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="运行问题四 L3 严格 FVM+BDF 全量验证")
     parser.add_argument("--attachment1", type=Path, required=True)
@@ -910,25 +639,58 @@ def main() -> None:
         rows.append([int(round(time_s)), *[finite_or_none(float(value)) for value in values]])
     payload = {"headers": headers, "rows": rows, "metadata": verification["final"]}
     json_dump(args.work_dir / "result4_payload.json", payload)
-    write_reports(args.results_dir, verification, final_result)
+    def _ok(passed: bool) -> str:
+        return "通过" if passed else "未通过"
 
-    print(
-        json.dumps(
-            {
-                "final": verification["final"],
-                "checks": {
-                    "spatial": spatial_pairs[-1]["accepted"],
-                    "bdf_time": bdf_pass,
-                    "be_time": be_pass,
-                    "cross_solver": cross_pass,
-                    "quality": quality_pass,
-                },
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
-        flush=True,
-    )
+    final = verification["final"]
+    boundary = verification["boundary_sensitivity"]
+    bar = "=" * 64
+    print(bar, flush=True)
+    print("问题四 L3 严格 FVM+BDF —— 运行与验证结果汇总", flush=True)
+    print(bar, flush=True)
+    print(f"[主答案] 连续临界时间 t* = {final['continuous_event_time_h']:.6f} h ({final['continuous_event_time_s']:.3f} s)", flush=True)
+    print(f"[主答案] 首个严格达标 60 s 时刻 = {final['first_strict_60s_time_h']:.6f} h", flush=True)
+    print(f"[主答案] 后期边界全部情景范围 = {boundary['all_scenarios_range_h'][0]:.4f}-{boundary['all_scenarios_range_h'][1]:.4f} h", flush=True)
+    print("-" * 64, flush=True)
+    print("[空间网格收敛]", flush=True)
+    for row in verification["spatial_grid"]["runs"]:
+        diff = row.get("difference_from_previous_s")
+        diff_s = "--" if diff is None else f"{diff:+.3f} s"
+        print(f"  N={row['node_count']:>5}: t*={row['event_time_h']:.9f} h  (相邻差 {diff_s}, {row['runtime_s']:.1f} s)", flush=True)
+    print(f"  相邻网格验收：{_ok(verification['spatial_grid']['passed'])}", flush=True)
+    print("[BDF 容差/步长敏感性]", flush=True)
+    for row in verification["bdf_time_sensitivity"]["runs"]:
+        print(f"  {row['name']}: rtol={row['config']['relative_tolerance']:.0e} max_step={row['config']['max_time_step_s']:g}s -> t*={row['event_time_h']:.9f} h", flush=True)
+    print(f"  BDF 时间敏感性：{_ok(verification['bdf_time_sensitivity']['passed'])}", flush=True)
+    print("[后向欧拉交叉验证]", flush=True)
+    for row in verification["be_time_sensitivity"]["runs"]:
+        print(f"  dt={row['dt_s']:g}s -> t*={row['event_time_h']:.9f} h (Picard max {row['diagnostics']['maximum_picard_iterations_used']}, 未收敛步 {row['diagnostics']['unconverged_steps']})", flush=True)
+    print(f"  BE 时间敏感性：{_ok(verification['be_time_sensitivity']['passed'])}；BDF/BE 交叉：{_ok(verification['cross_solver']['passed'])}", flush=True)
+    print("[后期边界情景敏感性]", flush=True)
+    for row in boundary["data_driven"] + boundary["engineering_3x3"] + boundary["mass_transfer"]:
+        print(f"  {row['scenario']}: T={row['post_temperature_c']:.4f}C C={row['post_moisture']:.4f} hm x{row['mass_transfer_factor']:.1f} -> t*={row['event_time_h']:.6f} h ({row['difference_from_default_s']/60.0:+.2f} min)", flush=True)
+    rad = verification["radius_sensitivity"]
+    print(f"[半径插值] linear={rad['linear_event_time_h']:.9f} h  pchip={rad['pchip_event_time_h']:.9f} h  差={rad['absolute_difference_s']:.3f} s", flush=True)
+    sh = verification["shrinkage_ablation"]
+    print(f"[收缩消融] 动态半径={sh['dynamic_radius_event_time_h']:.6f} h  固定2cm={sh['fixed_radius_event_time_h']:.6f} h  缩短={sh['time_reduction_h']:.6f} h", flush=True)
+    mf = verification["model_form_sensitivity"]
+    print(f"[坐标模型形式] 物质坐标={mf['material_event_time_h']:.6f} h  Euler={mf['eulerian_event_time_h']:.6f} h  差={mf['absolute_difference_h']:.6f} h", flush=True)
+    print("[基准对照 L1-L4]", flush=True)
+    print(f"  L1(原近似/算术/201/BE10s) = {verification['baseline']['L1']['event_time_h']:.6f} h", flush=True)
+    print(f"  L2(原近似/D调和/801/BE10s) = {verification['baseline']['L2']['event_time_h']:.6f} h", flush=True)
+    print(f"  L3(严格FVM/调和/自适应BDF) = {final['continuous_event_time_h']:.6f} h  <- 主答案", flush=True)
+    print(f"  L4(Euler含收缩输运项)      = {mf['eulerian_event_time_h']:.6f} h", flush=True)
+    print("[数值消融 A0-A4]", flush=True)
+    for row in verification["ablation"]:
+        d = row.get("difference_from_previous_s")
+        d_s = "--" if d is None else f"{d/60.0:+.2f} min"
+        print(f"  {row['experiment']} {row['geometry']}/D:{row['d_mean']}/k:{row['k_mean']}/{row['time_method']} -> {row['event_time_h']:.6f} h ({d_s})", flush=True)
+    print("-" * 64, flush=True)
+    print(f"[守恒核验] 最大归一化通量残差={final['maximum_normalized_balance_residual']:.3e}  最小原始含水率={final['minimum_raw_moisture']:.9f} kg/kg", flush=True)
+    print(f"[干物质诊断] 相对变幅={final['dry_mass_index_relative_range']:.2%}（模型局限指标，非失败判据）", flush=True)
+    print(f"[总验收] 全部数值验收：{_ok(final['all_numerical_acceptance_checks_passed'])}", flush=True)
+    print(bar, flush=True)
+    print(f"已写出：{args.results_dir / 'verification.json'}（结构化验证，兼画图数据源）、{args.work_dir / 'result4_payload.json'}（供 export_result4.mjs 生成 result4.xlsx）", flush=True)
 
 
 if __name__ == "__main__":
