@@ -9,9 +9,10 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：合并处理决策 D/F，升级最终论文 Q4 干物质闭合局限表述
-- 持有的锁：files/final/
+- 正在做：空闲
+- 持有的锁：无
 - 阻塞 / 等待：无
+- 最近完成：[2026-09-12T01:34:52Z] 已将决策 D/F 合并为一个论文修正任务并落地到 `files/final/A题完整论文.tex`：Q4 干物质非闭合从一句局限升级为归因、不可达性、机制解释与 60.7312h 反事实上界，同时统一摘要、假设、推导和改进方向口径；未提交 PDF 刷新。
 - 最近完成：[2026-09-12T01:11:20Z] 已完成决策 I 的轻量落地：扩展 `code/bonus_validation/`，将 Q4 UQ 改为边界扰动层与收缩/密度闭合模型形式层的分层表述；刷新 `results/bonus_validation/bonus_validation_report.md` 与 JSON，并新增单元测试防止误写成总不确定性。
 - 最近完成：[2026-09-11T17:55:00Z] 已按用户要求新增最终论文写作与质量规则：D11 记录到 `discussion/decisions.md`，简洁版写入 `rules.md`，详细版新增 `docs/6-paper-quality.md`，并同步 `AGENTS.md`/`README.md`/docs 导航。
 - 最近完成：[2026-09-11T17:45:00Z] 已全库搜查各问题解法交付物中的硬编码仓库名/本机绝对路径；修复 `code/problem4_improved_fvmbdf/README.md` 和 `results/problem4_improved_fvmbdf/problem4_solution_and_code_explanation.md`；新增 `code/bonus_validation/check_repo_portability.py` 防漏检查，当前 `code/results/files` 扫描通过。
