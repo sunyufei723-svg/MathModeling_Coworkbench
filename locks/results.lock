@@ -5,3 +5,4 @@
 # 租约：时间戳超过 30 分钟未更新视为失效，可被删除并抢占
 # 拿锁 / 放锁 / 续租 / push 被拒回退的完整步骤见 docs/5-concurrency.md
 W agent_C 2026-09-12T02:50:15Z results/global_sensitivity/
+W agent_A 2026-09-12T02:58:00Z results/problem4_mass_closure/
