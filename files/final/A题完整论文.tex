@@ -706,19 +706,13 @@ BDF 积分触发终止事件后得到连续临界时间。内部通量平衡的�
 
 复用本文计算框架时，应同时复用其收敛检查和输入边界限定。若更换物性公式、半径插值方法、后期边界延拓方式或达标阈值，临界时间需要重新积分求解，不宜对现有表格作线性修正。调和平均界面通量也必须配合足够细的空间网格使用；粗网格会把低扩散表层压缩为过大的界面阻力，进而产生虚假的长时间结果。因此，复算时应保留网格加密、BDF 容差和双求解器交叉验证三类检查，最终报告同时给出点估计和相应适用边界。
 
-\clearpage
 \section{AI 工具使用声明}
 本参赛队在竞赛过程中使用了AI工具，主要用于思路梳理、代码辅助编写与调试、数值结果复核、格式检查，详细使用情况见支撑材料。
 
-\clearpage
 \section{参考文献}
 \begin{thebibliography}{99}
 \bibitem{liu2020} 刘琦.基于有限体积法非傅里叶导热及热粘弹性耦合问题的研究[D].哈尔滨工程大学,2020.
 \bibitem{shan2021} 单惠敏.香菇热风烘干实验与数值模拟[D].湖南科技大学,2021.
-\bibitem{zou2026} 邹丹丹.寒区粳稻交向混流干燥机理与能效评价研究[D].黑龙江八一农垦大学,2026.
-\bibitem{pang2024} 庞凌云,袁志华,詹丽娟,等.铁棍山药片热风干燥过程中传热传质规律[J].食品与机械,2024,40(8):157-165.
-\bibitem{wijerathne2025} Wijerathne, A.D.H.T., Joardder, M.U.H., Welsh, Z.G., Nayak, R., Sablani, S.S. and Karim, A. (2025), Recent Advances in Food Drying Modeling: Empirical to Multiscale Physics-Informed Neural Networks. Compr Rev Food Sci Food Saf., 24: e70194. \url{https://doi.org/10.1111/1541-4337.70194}
-\bibitem{akter2022} Akter, Ferdusee, Muhury, Ripa, Sultana, Afroza, Deb, Ujjwal Kumar, A Comprehensive Review of Mathematical Modeling for Drying Processes of Fruits and Vegetables, International Journal of Food Science, 2022, 6195257, 10 pages, 2022. \url{https://doi.org/10.1155/2022/6195257}
 \bibitem{morris1991} Morris D E. Factorial sampling plans for preliminary computational experiments. Technometrics, 1991, 33(2): 161-174.
 \bibitem{xiu2002} Xiu D, Karniadakis G E. The Wiener-Askey polynomial chaos for stochastic differential equations. SIAM Journal on Scientific Computing, 2002, 24(2): 619-644.
 \bibitem{sobol2001} Sobol I M. Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates. Mathematics and Computers in Simulation, 2001, 55(1-3): 271-280.
