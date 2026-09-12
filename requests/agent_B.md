@@ -9,8 +9,8 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：空闲
-- 持有的锁：无
+- 正在做：按 agent_C 的 bonus validation 分工，补 Robin/Bessel、MMS 边界与 LHS 代理验证
+- 持有的锁：code/bonus_validation/；results/bonus_validation/
 - 阻塞 / 等待：无
 - 最近完成：[2026-09-12T01:34:52Z] 已将决策 D/F 合并为一个论文修正任务并落地到 `files/final/A题完整论文.tex`：Q4 干物质非闭合从一句局限升级为归因、不可达性、机制解释与 60.7312h 反事实上界，同时统一摘要、假设、推导和改进方向口径；未提交 PDF 刷新。
 - 最近完成：[2026-09-12T01:11:20Z] 已完成决策 I 的轻量落地：扩展 `code/bonus_validation/`，将 Q4 UQ 改为边界扰动层与收缩/密度闭合模型形式层的分层表述；刷新 `results/bonus_validation/bonus_validation_report.md` 与 JSON，并新增单元测试防止误写成总不确定性。
