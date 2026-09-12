@@ -280,7 +280,7 @@
 
 - **内容**：不动点迭代 R_{k+1}=R₀/√(S_k)，3 次收敛（κ 变幅 27.87→6.85→1.22→**0.17%**），R(t\*)=1.2718 cm，**t\*=60.7312 h**（同 N=401 口径 vs 50.8442 h，+9.887 h）。由此得出 **t\* 的模型形式区间 = [50.8245, 60.7312] h**。
 - **必需的前提认知**：附件 2 是题设数据，**闭合分支绝不能替换主答案**（主值仍 50.8245 h），只能与已有 L4（Euler+对流，52.3842 h）同级作模型形式对照。
-- **代价**：需 **code + results 两把锁**；新开 `code/problem4_mass_closure/`（不动 C 的 `problem4_fvm_bdf/`）；N=3201 正式复算约 3 分钟；表 7 新增一行 + 结果说明文件。**目前这组数字只跑在 gitignored 的 `附件/` 临时脚本里（N=401），队友无法复跑**——不做 G 就意味着这组数字只能以「附录引用」形式存在。
+- **代价**：需 **code + results 两把锁**；新开 `code/problem4_mass_closure/`（不动 C 的 `problem4_fvm_bdf/`）；N=3201 正式复算约 3 分钟；表 7 新增一行 + 结果说明文件。**这组数字的 N=401 诊断本轮已入库**（[`code/problem4_limitations/drymass_closure.py`](../code/problem4_limitations/drymass_closure.py)，队友可复跑闭合迭代），但**论文表 7 口径的正式 N=3201 复算仍未做**——不做 G 就意味着 60.73 h 只能以「附录引用」形式存在，而非表 7 正式一行。
 - **我的建议**：**若时间允许就做**（性价比高：3 分钟算力换一条硬上下界）；若时间紧，可只做 **F**、把 60.73 h 作为正文引用的估算值而不入表。
 
 **决策 H：潜热能量预算（41.1 倍）要不要写进论文？ → ✅ 队员已定向（2026-09-12）：写，且作为「我们不考虑潜热」的依据。**
@@ -331,6 +331,9 @@
 - [`ideas.md`](ideas.md)（B 风险复盘 + A 替代方法头脑风暴）
 - [`problem4_improved_review_by_A.md`](problem4_improved_review_by_A.md)（§二十二 方案复核）
 - [`problem4_L2_L3_reconcile_by_A.md`](problem4_L2_L3_reconcile_by_A.md)（L2/L3 reconcile）
+
+**诊断代码（Q4 局限性分析，本轮入库）**
+- [`code/problem4_limitations/`](../code/problem4_limitations/)（5 脚本 + README：上界论证、κ=G·S 分解与闭合迭代、拟合/含水率反证、潜热能量预算与 ΔT 扫描）
 
 **留言板**
 - [`requests/agent_A.md`](../requests/agent_A.md)（本机）
