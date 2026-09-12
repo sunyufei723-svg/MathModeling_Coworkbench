@@ -78,7 +78,7 @@ def fig1() -> None:
     p = REPO / "results" / "problem1_improved" / "result1.xlsx"
     tt, rr, T, _ = load_field(p, "温度")
     _, _, C, _ = load_field(p, "水分浓度")
-    fig, axes = plt.subplots(1, 2, figsize=(9.6, 3.9), sharex=True)
+    fig, axes = plt.subplots(2, 1, figsize=(7.0, 6.6), sharex=True)
     for ax, mat, ylabel in ((axes[0], T, "温度/℃"), (axes[1], C, "水分浓度/(kg/kg)")):
         for ts in (100, 600, 1200, 1800):
             i = int(np.argmin(np.abs(tt - ts)))
@@ -98,7 +98,7 @@ def fig2() -> None:
     tt, rr, T, _ = load_field(p, "温度")
     _, _, C, _ = load_field(p, "水分浓度")
     th = tt / 3600.0
-    fig, axes = plt.subplots(1, 2, figsize=(10.2, 4.1))
+    fig, axes = plt.subplots(2, 1, figsize=(7.0, 7.4))
     for ax, mat, cblabel, title in (
         (axes[0], T, "温度/℃", "(a) 温度 T(r,t)"),
         (axes[1], C, "水分浓度/(kg/kg)", "(b) 水分浓度 C(r,t)"),
@@ -111,7 +111,7 @@ def fig2() -> None:
         ax.set_xlabel("时间/h")
         ax.set_ylabel("距中心半径/cm")
         ax.set_title(title)
-    fig.suptitle("图2 变物性热湿耦合条件下温度与水分浓度的时空演化", fontsize=11)
+    fig.suptitle("图3 变物性热湿耦合条件下温度与水分浓度的时空演化", fontsize=11)
     save(fig, "fig2_problem2_heatmap")
 
 
@@ -122,7 +122,7 @@ def fig3() -> None:
     t_star = ver["final"]["continuous_event_time_h"]
     t_first = ver["final"]["first_strictly_compliant_60s_time_h"]
     th = tt / 3600.0
-    fig, axes = plt.subplots(1, 2, figsize=(10.4, 4.1))
+    fig, axes = plt.subplots(2, 1, figsize=(7.0, 7.4))
     ax = axes[0]
     m = ax.pcolormesh(th, rr, C.T, shading="nearest", cmap="viridis")
     m.set_rasterized(True)
@@ -143,8 +143,8 @@ def fig3() -> None:
     ax.set_ylabel("水分浓度/(kg/kg)")
     ax.set_title("(b) 关键位置水分演化与全域达标时刻")
     ax.grid(alpha=0.3)
-    ax.legend(fontsize=7.5, loc="upper right")
-    fig.suptitle("图3 固定半径条件下水分浓度演化及全域达标时刻", fontsize=11)
+    ax.legend(fontsize=7.5, loc="upper center")
+    fig.suptitle("图4 固定半径条件下水分浓度演化及全域达标时刻", fontsize=11)
     save(fig, "fig3_problem3_event")
 
 
@@ -161,7 +161,7 @@ def fig4() -> None:
     Rt = np.array([radius.radius_cm_at(t) for t in tt])
     mask = np.isnan(C) | np.array([[r > Rt[i] for r in rr] for i in range(len(tt))])
     Cm = np.ma.masked_array(C, mask=mask)
-    fig, axes = plt.subplots(1, 2, figsize=(10.6, 4.2))
+    fig, axes = plt.subplots(2, 1, figsize=(7.0, 7.6))
     ax = axes[0]
     ax.set_facecolor("#e8e8e8")
     m = ax.pcolormesh(th, rr, Cm.T, shading="nearest", cmap="viridis")
@@ -190,7 +190,7 @@ def fig4() -> None:
         transform=ax.transAxes, va="top", fontsize=7.2,
         bbox=dict(boxstyle="round", fc="#fff8dc", ec="gray", lw=0.6),
     )
-    fig.suptitle("图4 半径收缩条件下水分浓度演化及收缩作用对照", fontsize=11)
+    fig.suptitle("图5 半径收缩条件下水分浓度演化及收缩作用对照", fontsize=11)
     save(fig, "fig4_problem4_moving_boundary")
 
 
@@ -204,7 +204,7 @@ def fig5() -> None:
     hf_rows = hf["rows"]
     y_hf = np.array([r["pde_event_time_h"] for r in hf_rows])
     p_hf = np.array([r["pce_prediction_h"] for r in hf_rows])
-    fig, axes = plt.subplots(1, 2, figsize=(10.4, 4.2))
+    fig, axes = plt.subplots(2, 1, figsize=(7.0, 7.2))
     ax = axes[0]
     lo = min(y_val.min(), y_pred.min(), y_hf.min(), p_hf.min()) * 0.98
     hi = max(y_val.max(), y_pred.max(), y_hf.max(), p_hf.max()) * 1.02
@@ -232,7 +232,7 @@ def fig5() -> None:
     ax.set_title("(b) 干燥时间的 Sobol 全局敏感性")
     ax.grid(alpha=0.3, axis="x")
     ax.legend(fontsize=8, loc="center right")
-    fig.suptitle("图5 PCE 代理模型预测精度及干燥时间的 Sobol 全局敏感性", fontsize=11)
+    fig.suptitle("图6 PCE 代理模型预测精度及干燥时间的 Sobol 全局敏感性", fontsize=11)
     save(fig, "fig5_pce_sobol")
 
 
