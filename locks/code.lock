@@ -4,6 +4,6 @@
 # 只有注释 / 空行 = 未加锁
 # 租约：时间戳超过 30 分钟未更新视为失效，可被删除并抢占
 # 拿锁 / 放锁 / 续租 / push 被拒回退的完整步骤见 docs/5-concurrency.md
-W agent_C 2026-09-12T03:06:39Z code/problem4_fvm_bdf/
-W agent_C 2026-09-12T03:06:39Z code/global_sensitivity/
+W agent_C 2026-09-12T03:22:15Z code/problem4_fvm_bdf/
+W agent_C 2026-09-12T03:22:15Z code/global_sensitivity/
 W agent_A 2026-09-12T03:18:00Z code/problem4_mass_closure/
