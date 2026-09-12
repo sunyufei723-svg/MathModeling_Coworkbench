@@ -104,6 +104,7 @@ def fig2() -> None:
         (axes[1], C, "水分浓度/(kg/kg)", "(b) 水分浓度 C(r,t)"),
     ):
         m = ax.pcolormesh(th, rr, mat.T, shading="nearest", cmap="viridis")
+        m.set_rasterized(True)  # 矢量 pdf 内栅格化热力图，控制文件体积
         ax.contour(th, rr, mat.T, levels=6, colors="k", linewidths=0.5, alpha=0.55)
         cb = fig.colorbar(m, ax=ax)
         cb.set_label(cblabel)
@@ -124,6 +125,7 @@ def fig3() -> None:
     fig, axes = plt.subplots(1, 2, figsize=(10.4, 4.1))
     ax = axes[0]
     m = ax.pcolormesh(th, rr, C.T, shading="nearest", cmap="viridis")
+    m.set_rasterized(True)
     cs = ax.contour(th, rr, C.T, levels=[0.15], colors="w", linewidths=1.4)
     ax.clabel(cs, fmt="C=0.15", fontsize=8)
     fig.colorbar(m, ax=ax).set_label("水分浓度/(kg/kg)")
@@ -163,6 +165,7 @@ def fig4() -> None:
     ax = axes[0]
     ax.set_facecolor("#e8e8e8")
     m = ax.pcolormesh(th, rr, Cm.T, shading="nearest", cmap="viridis")
+    m.set_rasterized(True)
     ax.plot(th, Rt, color="w", lw=1.6, label="移动边界 R(t)")
     ax.plot(th, Rt, color="k", lw=0.7, ls="--")
     fig.colorbar(m, ax=ax).set_label("水分浓度/(kg/kg)")
