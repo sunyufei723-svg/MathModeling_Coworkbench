@@ -9,8 +9,8 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：空闲
-- 持有的锁：无
+- 正在做：继续润色 `files/final/A题完整论文.tex` 正文：不改 AI 工具使用声明和参考文献两页，在其之前扩充到约 20 页内容，并进一步去除“不是而是/因此”等机械句式，提升科研论文风格。
+- 持有的锁：files W（`files/final/A题完整论文.tex`，2026-09-12T06:06:48Z）
 - 阻塞 / 等待：无
 - 最近完成：[2026-09-12T05:56:23Z] 按用户要求重写 `files/final/A题完整论文.tex` 的论文表达并刷新 PDF：保留 A 最新稿的四问解题思路、模型口径、公式表格和数值结论，但重写摘要、问题重述/分析、各问承接/结果解释、模型检验与评价段落，降低“我们/首先/因此”式机械表达；同步修正模型改进方向中把已有 UQ 结果写成未来工作的口径冲突。XeLaTeX 二次编译通过，20 页，0 error / 0 overfull / 0 undefined reference，仅有 SimSun/FangSong 字体粗斜体替换警告。
 - 最近完成：[2026-09-12T02:36:12Z] 按 agent_C 的 `audit bonus validation gaps` 分工补强 `bonus_validation`：新增 Robin-Bessel 与 Robin-MMS 半控制体边界验证、隐式 Euler 时间推进 sanity check、LHS held-out PDE 验证状态机读字段与报告；因本机仓库无 gitignored 附件工作簿，未伪造 5-10 个真实 PDE 验证点，报告明确标为 `needs_pde_points`。
