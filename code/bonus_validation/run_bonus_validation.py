@@ -112,6 +112,10 @@ Q4_TABLE_H = {
     (2.0, 1.1): 47.905240450,
 }
 
+Q4_MAIN_H = 50.824506989
+Q4_CLOSURE_UPPER_H = 60.7312
+Q4_CLOSURE_SOURCE = "discussion/limitations_fix_analysis_by_A.md"
+
 
 def bilinear_table_predict(table: dict[tuple[float, float], float], delta_t: np.ndarray, c_factor: np.ndarray) -> np.ndarray:
     t0, t1 = -2.0, 2.0
@@ -166,6 +170,49 @@ def surrogate_uq(table: dict[tuple[float, float], float], seed_offset: int = 0) 
     }
 
 
+def layered_uq_statement() -> dict[str, object]:
+    """Separate boundary-condition UQ from Q4 shrinkage/density-closure model-form UQ."""
+    q3_boundary = surrogate_uq(Q3_TABLE_H, seed_offset=0)
+    q4_boundary = surrogate_uq(Q4_TABLE_H, seed_offset=17)
+    q4_half_width = 0.5 * (q4_boundary["p95_h"] - q4_boundary["p05_h"])
+    q4_upper_shift = Q4_CLOSURE_UPPER_H - Q4_MAIN_H
+
+    return {
+        "problem3": {
+            "boundary_surrogate": {
+                **q3_boundary,
+                "half_width_h": 0.5 * (q3_boundary["p95_h"] - q3_boundary["p05_h"]),
+                "interpretation": "boundary-condition layer only",
+            },
+            "dominant_layer": "boundary_surrogate",
+        },
+        "problem4": {
+            "main_answer_h": Q4_MAIN_H,
+            "boundary_surrogate": {
+                **q4_boundary,
+                "half_width_h": q4_half_width,
+                "interpretation": "continuous boundary-condition layer only; not a total uncertainty interval",
+            },
+            "shrinkage_density_closure": {
+                "lower_bound_h": Q4_MAIN_H,
+                "upper_bound_h": Q4_CLOSURE_UPPER_H,
+                "upper_shift_h": q4_upper_shift,
+                "ratio_to_boundary_half_width": q4_upper_shift / q4_half_width,
+                "source": Q4_CLOSURE_SOURCE,
+                "interpretation": "model-form layer from enforcing dry-mass closure on the shrinkage/density caliber",
+            },
+            "dominant_layer": "shrinkage_density_closure",
+            "recommended_paper_sentence": (
+                "For Q4, the LHS boundary surrogate gives a boundary-condition layer of about "
+                f"+/-{q4_half_width:.2f} h, whereas the shrinkage/density-closure model-form layer "
+                f"shifts the upper bound by +{q4_upper_shift:.2f} h; thus the dominant uncertainty "
+                "comes from the consistency between the prescribed radius trajectory and the empirical density relation, "
+                "not from the +/-2 deg C and +/-10% boundary perturbations."
+            ),
+        },
+    }
+
+
 def table_to_markdown(rows: list[ConvergenceRow]) -> str:
     lines = ["| N | L2 error | max error | rate |", "|---:|---:|---:|---:|"]
     for row in rows:
@@ -179,6 +226,9 @@ def write_report(summary: dict[str, object]) -> None:
     bessel_rows = summary["bessel_convergence"]
     q3 = summary["uq_surrogate"]["problem3"]
     q4 = summary["uq_surrogate"]["problem4"]
+    layered_q4 = summary["layered_uq"]["problem4"]
+    boundary = layered_q4["boundary_surrogate"]
+    closure = layered_q4["shrinkage_density_closure"]
 
     report = f"""# Bonus validation report
 
@@ -200,7 +250,7 @@ def write_report(summary: dict[str, object]) -> None:
 
 结论：Bessel 模态从解析结构上覆盖了圆柱坐标奇点附近的正则性处理，可补强“径向模型没有把 1/r 项离散错”的论证。
 
-## 3. LHS surrogate uncertainty check
+## 3. Boundary-layer LHS surrogate check
 
 基于已验收的 3x3 边界敏感性结果构建双线性代理面，变量范围为 `Delta T in [-2,2] deg C`、`moisture factor in [0.9,1.1]`，采用 5000 点 Latin Hypercube 采样。该项不是替代全模型重算，而是论文中的快速鲁棒性量化。
 
@@ -210,6 +260,23 @@ def write_report(summary: dict[str, object]) -> None:
 | Q4 | {q4["mean_h"]:.4f} | {q4["std_h"]:.4f} | {q4["p05_h"]:.4f} | {q4["p50_h"]:.4f} | {q4["p95_h"]:.4f} | {q4["sensitivity_contribution"]["ambient_temperature_delta_c"]:.3f} | {q4["sensitivity_contribution"]["moisture_boundary_factor"]:.3f} |
 
 结论：在当前边界扰动范围内，终止时间不确定性主要由环境温度扰动贡献，湿度因子贡献较小；这与 Q3/Q4 已有 3x3 敏感性表的方向一致。
+
+## 4. Layered UQ statement for Q4
+
+上述 LHS 代理面只覆盖边界条件层，不应写成 Q4 的总不确定性。A 的 dry-mass closure 诊断指出，题设给定 `R(t)` 与经验密度关系之间的闭合口径会形成更大的模型形式层。因此 Q4 的 UQ 应分层表述：
+
+| Layer | Quantity | Value |
+|---|---|---:|
+| Boundary-condition layer | LHS p05-p95 | {boundary["p05_h"]:.4f} - {boundary["p95_h"]:.4f} h |
+| Boundary-condition layer | half-width | {boundary["half_width_h"]:.4f} h |
+| Shrinkage/density-closure layer | main answer lower bound | {closure["lower_bound_h"]:.4f} h |
+| Shrinkage/density-closure layer | dry-mass-closure upper bound | {closure["upper_bound_h"]:.4f} h |
+| Shrinkage/density-closure layer | upper shift | +{closure["upper_shift_h"]:.4f} h |
+| Ratio | closure shift / boundary half-width | {closure["ratio_to_boundary_half_width"]:.2f} |
+
+推荐论文表述：{layered_q4["recommended_paper_sentence"]}
+
+注意：`60.7312 h` 目前来自 `discussion/limitations_fix_analysis_by_A.md` 的诊断值，适合作为分层 UQ 的模型形式上界说明；若要把它作为正式表格 rung，应另建 `problem4_mass_closure/` 做 N=3201 可复现计算。
 """
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUTPUT_DIR / "bonus_validation_report.md").write_text(report, encoding="utf-8")
@@ -238,6 +305,7 @@ def main() -> None:
         "sources": {
             "problem3": "results/problem3_fvm_bdf/boundary_sensitivity.md",
             "problem4": "results/problem4_fvm_bdf/verification.json",
+            "problem4_shrinkage_density_closure": Q4_CLOSURE_SOURCE,
         },
         "mms_convergence": rows_to_dicts(mms_rows),
         "bessel_convergence": rows_to_dicts(bessel_rows),
@@ -245,6 +313,7 @@ def main() -> None:
             "problem3": surrogate_uq(Q3_TABLE_H, seed_offset=0),
             "problem4": surrogate_uq(Q4_TABLE_H, seed_offset=17),
         },
+        "layered_uq": layered_uq_statement(),
     }
     write_report(summary)
     print(f"Wrote {OUTPUT_DIR / 'bonus_validation_report.md'}")

@@ -28,7 +28,7 @@
 
 结论：Bessel 模态从解析结构上覆盖了圆柱坐标奇点附近的正则性处理，可补强“径向模型没有把 1/r 项离散错”的论证。
 
-## 3. LHS surrogate uncertainty check
+## 3. Boundary-layer LHS surrogate check
 
 基于已验收的 3x3 边界敏感性结果构建双线性代理面，变量范围为 `Delta T in [-2,2] deg C`、`moisture factor in [0.9,1.1]`，采用 5000 点 Latin Hypercube 采样。该项不是替代全模型重算，而是论文中的快速鲁棒性量化。
 
@@ -38,3 +38,20 @@
 | Q4 | 50.9790 | 1.8409 | 48.1038 | 50.9777 | 53.8402 | 0.999 | 0.001 |
 
 结论：在当前边界扰动范围内，终止时间不确定性主要由环境温度扰动贡献，湿度因子贡献较小；这与 Q3/Q4 已有 3x3 敏感性表的方向一致。
+
+## 4. Layered UQ statement for Q4
+
+上述 LHS 代理面只覆盖边界条件层，不应写成 Q4 的总不确定性。A 的 dry-mass closure 诊断指出，题设给定 `R(t)` 与经验密度关系之间的闭合口径会形成更大的模型形式层。因此 Q4 的 UQ 应分层表述：
+
+| Layer | Quantity | Value |
+|---|---|---:|
+| Boundary-condition layer | LHS p05-p95 | 48.1038 - 53.8402 h |
+| Boundary-condition layer | half-width | 2.8682 h |
+| Shrinkage/density-closure layer | main answer lower bound | 50.8245 h |
+| Shrinkage/density-closure layer | dry-mass-closure upper bound | 60.7312 h |
+| Shrinkage/density-closure layer | upper shift | +9.9067 h |
+| Ratio | closure shift / boundary half-width | 3.45 |
+
+推荐论文表述：For Q4, the LHS boundary surrogate gives a boundary-condition layer of about +/-2.87 h, whereas the shrinkage/density-closure model-form layer shifts the upper bound by +9.91 h; thus the dominant uncertainty comes from the consistency between the prescribed radius trajectory and the empirical density relation, not from the +/-2 deg C and +/-10% boundary perturbations.
+
+注意：`60.7312 h` 目前来自 `discussion/limitations_fix_analysis_by_A.md` 的诊断值，适合作为分层 UQ 的模型形式上界说明；若要把它作为正式表格 rung，应另建 `problem4_mass_closure/` 做 N=3201 可复现计算。

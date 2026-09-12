@@ -1,7 +1,8 @@
 {
   "sources": {
     "problem3": "results/problem3_fvm_bdf/boundary_sensitivity.md",
-    "problem4": "results/problem4_fvm_bdf/verification.json"
+    "problem4": "results/problem4_fvm_bdf/verification.json",
+    "problem4_shrinkage_density_closure": "discussion/limitations_fix_analysis_by_A.md"
   },
   "mms_convergence": [
     {
@@ -79,6 +80,52 @@
         "ambient_temperature_delta_c": 0.9987808228005697,
         "moisture_boundary_factor": 0.0012191771994303456
       }
+    }
+  },
+  "layered_uq": {
+    "problem3": {
+      "boundary_surrogate": {
+        "samples": 5000,
+        "mean_h": 57.34624764395719,
+        "std_h": 2.0978866147068276,
+        "p05_h": 54.09030839703551,
+        "p50_h": 57.356586001352824,
+        "p95_h": 60.6101918615043,
+        "sensitivity_contribution": {
+          "ambient_temperature_delta_c": 0.9992991760869326,
+          "moisture_boundary_factor": 0.0007008239130673676
+        },
+        "half_width_h": 3.2599417322343953,
+        "interpretation": "boundary-condition layer only"
+      },
+      "dominant_layer": "boundary_surrogate"
+    },
+    "problem4": {
+      "main_answer_h": 50.824506989,
+      "boundary_surrogate": {
+        "samples": 5000,
+        "mean_h": 50.97899637574231,
+        "std_h": 1.840877653859033,
+        "p05_h": 48.10375027063025,
+        "p50_h": 50.97774854279548,
+        "p95_h": 53.84020426584499,
+        "sensitivity_contribution": {
+          "ambient_temperature_delta_c": 0.9987808228005697,
+          "moisture_boundary_factor": 0.0012191771994303456
+        },
+        "half_width_h": 2.868226997607369,
+        "interpretation": "continuous boundary-condition layer only; not a total uncertainty interval"
+      },
+      "shrinkage_density_closure": {
+        "lower_bound_h": 50.824506989,
+        "upper_bound_h": 60.7312,
+        "upper_shift_h": 9.906693011000002,
+        "ratio_to_boundary_half_width": 3.4539431569621275,
+        "source": "discussion/limitations_fix_analysis_by_A.md",
+        "interpretation": "model-form layer from enforcing dry-mass closure on the shrinkage/density caliber"
+      },
+      "dominant_layer": "shrinkage_density_closure",
+      "recommended_paper_sentence": "For Q4, the LHS boundary surrogate gives a boundary-condition layer of about +/-2.87 h, whereas the shrinkage/density-closure model-form layer shifts the upper bound by +9.91 h; thus the dominant uncertainty comes from the consistency between the prescribed radius trajectory and the empirical density relation, not from the +/-2 deg C and +/-10% boundary perturbations."
     }
   }
 }
