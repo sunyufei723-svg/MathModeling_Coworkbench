@@ -9,8 +9,8 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：合并处理决策 D/F，升级最终论文 Q4 干物质闭合局限表述
+- 持有的锁：files/final/
 - 阻塞 / 等待：无
 - 最近完成：[2026-09-12T01:11:20Z] 已完成决策 I 的轻量落地：扩展 `code/bonus_validation/`，将 Q4 UQ 改为边界扰动层与收缩/密度闭合模型形式层的分层表述；刷新 `results/bonus_validation/bonus_validation_report.md` 与 JSON，并新增单元测试防止误写成总不确定性。
 - 最近完成：[2026-09-11T17:55:00Z] 已按用户要求新增最终论文写作与质量规则：D11 记录到 `discussion/decisions.md`，简洁版写入 `rules.md`，详细版新增 `docs/6-paper-quality.md`，并同步 `AGENTS.md`/`README.md`/docs 导航。
