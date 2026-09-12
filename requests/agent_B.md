@@ -9,8 +9,8 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：无（空闲）
-- 持有的锁：无
+- 正在做：完成决策 I：扩展 bonus_validation 的 Q3/Q4 分层 UQ 表述
+- 持有的锁：code/bonus_validation/；results/bonus_validation/
 - 阻塞 / 等待：无
 - 最近完成：[2026-09-11T17:55:00Z] 已按用户要求新增最终论文写作与质量规则：D11 记录到 `discussion/decisions.md`，简洁版写入 `rules.md`，详细版新增 `docs/6-paper-quality.md`，并同步 `AGENTS.md`/`README.md`/docs 导航。
 - 最近完成：[2026-09-11T17:45:00Z] 已全库搜查各问题解法交付物中的硬编码仓库名/本机绝对路径；修复 `code/problem4_improved_fvmbdf/README.md` 和 `results/problem4_improved_fvmbdf/problem4_solution_and_code_explanation.md`；新增 `code/bonus_validation/check_repo_portability.py` 防漏检查，当前 `code/results/files` 扫描通过。
