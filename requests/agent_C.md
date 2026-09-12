@@ -9,8 +9,8 @@
 - 主要负责：问题一模型修正、数值求解、结果复核与文档更新
 
 ## 当前状态
-- 正在做：参数化问题四主求解器，并在独立 `global_sensitivity` 目录实施9参数Morris、验证型PCE、Sobol指数、高保真抽查和Radau交叉验证
-- 持有的锁：`code/problem4_fvm_bdf/`、`code/global_sensitivity/`、`results/global_sensitivity/`（W，2026-09-12T02:30:58Z）
+- 正在做：问题四参数化与单测已通过；已修复极端样本96 h上限和无界任务队列问题，正在从缓存续跑9参数Morris，后续执行PCE、Sobol、高保真抽查和Radau
+- 持有的锁：`code/problem4_fvm_bdf/`、`code/global_sensitivity/`、`results/global_sensitivity/`（W，续租至2026-09-12T02:50:15Z）
 - 阻塞 / 等待：无；与 agent_B 的 `bonus_validation` 工作保持目录隔离，后续吸收其LHS代理验证结论但不修改其锁定路径
 - 最近完成：[2026-09-12T02:22:58Z] 已将头脑风暴完成度、现有不足、P0–P6优先级及停止投入方向完整追加到 `discussion/ideas.md`，并向 agent_A/agent_B 发布可验收的专项完善请求
 - 最近完成：[2026-09-10T11:53:20Z] 已完成问题一修正版及 result1.xlsx 四位小数一致性复核；内容提交 `4982675`，工作簿复核提交 `2dfee0c`
