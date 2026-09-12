@@ -1,0 +1,108 @@
+\documentclass[UTF8,12pt,a4paper]{ctexart}
+
+\usepackage[a4paper,top=2.4cm,bottom=2.4cm,left=2.6cm,right=2.6cm]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{setspace}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont=SimHei]{SimSun}
+\setCJKsansfont{Microsoft YaHei}
+\setCJKmonofont{Microsoft YaHei}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\linespread{1.28}
+\pagestyle{plain}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\title{\heiti AI工具使用详情}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\vspace{-2.5em}
+
+本参赛队在竞赛过程中使用了AI工具，主要用于思路梳理、代码辅助编写与调试、数值结果复核、格式检查，详细使用情况见下文。
+
+\section{使用的AI工具}
+
+\noindent\begin{tabularx}{\textwidth}{C{3.0cm} C{5.0cm} Y}
+\toprule
+工具名称 & 版本或型号 & 主要用途 \\
+\midrule
+Qoder & Qwen3.8-Max\newline Agent模式 & 协作讨论、代码辅助、结果检查和文档整理 \\
+OpenAI Codex & GPT-5系列 & 建模讨论、程序修改与调试、数值验证、图表和论文辅助 \\
+\bottomrule
+\end{tabularx}
+
+\section{具体使用目的和环节}
+
+\subsection{题意分析和模型方案讨论}
+
+在开始计算前，我们先自行阅读题目及附件，再向AI说明对各问的理解，请其检查单位、边界条件、初始条件和终止判据是否存在遗漏。AI帮助整理了四个问题之间的关系，并比较了有限差分、有限体积、后向欧拉和BDF等数值方法的特点。
+
+AI曾提出增加潜热项、更复杂的多相传递模型等建议。由于题目没有给出相应闭合参数，我们没有将这些内容写入主模型，只在局限性分析中说明其可能影响。
+
+\subsection{程序编写和调试}
+
+AI用于辅助编写和修改部分Python、JavaScript及LaTeX代码，主要涉及圆柱径向控制体的体积和界面面积、温度与水分联合状态、自适应BDF求解、稀疏Jacobian结构。
+
+\subsection{数值验证和敏感性分析}
+
+AI协助设计了空间网格加密、时间步或求解容差变化以及不同求解器之间的比较。我们实际通过程序对有限体积网格、BDF容差、后向欧拉-Picard方法和Radau方法的结果进行核验。
+
+在敏感性分析部分，AI建议先用Morris方法筛选参数，再使用高保真样本拟合PCE代理模型并计算Sobol指数。参数含义、变化范围和概率分布由我们结合题目及附件确定。
+
+\subsection{表格、图形和论文整理}
+
+AI用于辅助检查result1至result4结果表的结构、时间间隔、半径位置、单位和有效数字，并提出部分绘图建议。
+
+在论文整理阶段，AI主要用于查找重复表述、统一术语、检查模型与程序结果是否一致。我们对论文内容进行了重新组织，删除了不符合题意、表述过满或过于模板化的内容。
+
+\section{主要提示方式与使用过程说明}
+
+典型的提问方式为：先给出题目中的公式、当前程序和预期结果，再要求AI定位公式、单位或离散实现中的问题。下表列出几次对最终工作有实际影响的交互。表中的提示内容经过压缩，但未改变原意。
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{longtable}{L{2.4cm} L{4.0cm} L{4.1cm} L{4.1cm}}
+\toprule
+使用环节 & 参赛队提出的问题 & AI提供的帮助 & 采纳和核验情况 \\
+\midrule
+\endfirsthead
+\toprule
+使用环节 & 参赛队提出的问题 & AI提供的帮助 & 采纳和核验情况 \\
+\midrule
+\endhead
+问题一、二的数值方法 & 如何区分内部计算网格和题目输出网格，并在变物性条件下处理界面通量？ & 建议使用严格的圆柱径向有限体积法，界面系数采用调和平均，内部细网格计算后再抽取规定位置。 & 核对附件公式和单位后采纳；通过两级网格、时间容差和结果表检查确认。 \\
+\addlinespace
+问题三的停止条件 & 如何确定全域水分第一次达到要求的时间，并保证Excel仍按60秒输出？ & 使用全域最大水分构造下降方向事件；连续事件时间与首个60秒达标时刻分别报告。 & 检查事件前后状态和最大值位置，并用独立时间推进结果复核。 \\
+\addlinespace
+问题四的收缩描述 & 材料坐标和Euler空间坐标模型应如何选择？ & 建议以材料坐标模型为主，Euler模型保留为敏感性对照；质量闭合情景另行说明。 & 参赛队比较不同模型的物理含义后采用该口径，未将对照模型作为答案。 \\
+\addlinespace
+敏感性与不确定性 & Morris、PCE、Sobol和Radau应按什么顺序使用？ & 建议先筛选参数，再验证代理模型，最后计算Sobol指数；Radau只用于交叉核验。 & 参数范围由参赛队确定，代理结果用未参与拟合的高保真样本检查。 \\
+\addlinespace
+论文和图表 & 哪些图有必要保留，怎样避免图题重复和数值口径不一致？ & 给出时空演化、终止事件、收缩轨迹和敏感性图的建议，并检查图注和单位。 & 参赛队核对每幅图的数据来源和结论，并统一正式计算结果。 \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\section{对 AI 输出的采纳、人工修改和核验的主要情况}
+
+我们没有将AI生成的内容直接作为最终答案使用，其给出的建模建议先由我们与题目、附件和相关文献进行评估、检验与核对，再决定是否采用；数值结果必须能够由提交的程序和输入文件复现，文字和图表必须与实际计算结果一致。
+
+问题完成后，参赛队进行了以下检查：比较不同空间网格和时间设置下的结果；使用独立求解方法核对关键时刻；检查边界条件、单位、非负性和终止判据；核对Excel模板中的工作表、列数、时间间隔和保留位数；对敏感性和不确定性结果限制解释范围。发现答案与题目条件不一致时，以题目和附件为准并进行人工修改。
+
+本参赛队对论文中的模型、程序、数据和结论承担全部责任。
+
+\end{document}

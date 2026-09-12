@@ -15,6 +15,7 @@
 \usepackage{titlesec}
 \usepackage{fancyhdr}
 \usepackage{indentfirst}
+\usepackage{etoolbox}
 
 \IfFontExistsTF{SimSun}{\setCJKmainfont{SimSun}}{}
 \IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{}
@@ -46,6 +47,7 @@
 
 \lstset{basicstyle=\ttfamily\small,breaklines=true,frame=single,columns=fullflexible,numbers=left,numberstyle=\tiny,showstringspaces=false}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black,pdftitle={药材热风烘干过程的热质耦合建模与数值模拟}}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
 
 \begin{document}
 
@@ -705,6 +707,25 @@ BDF 积分触发终止事件后得到连续临界时间。内部通量平衡的�
 复用本文计算框架时，应同时复用其收敛检查和输入边界限定。若更换物性公式、半径插值方法、后期边界延拓方式或达标阈值，临界时间需要重新积分求解，不宜对现有表格作线性修正。调和平均界面通量也必须配合足够细的空间网格使用；粗网格会把低扩散表层压缩为过大的界面阻力，进而产生虚假的长时间结果。因此，复算时应保留网格加密、BDF 容差和双求解器交叉验证三类检查，最终报告同时给出点估计和相应适用边界。
 
 \clearpage
+\section{AI 工具使用声明}
+本参赛队在竞赛过程中使用了AI工具，主要用于思路梳理、代码辅助编写与调试、数值结果复核、格式检查，详细使用情况见支撑材料。
+
+\clearpage
+\section{参考文献}
+\begin{thebibliography}{99}
+\bibitem{liu2020} 刘琦.基于有限体积法非傅里叶导热及热粘弹性耦合问题的研究[D].哈尔滨工程大学,2020.
+\bibitem{shan2021} 单惠敏.香菇热风烘干实验与数值模拟[D].湖南科技大学,2021.
+\bibitem{zou2026} 邹丹丹.寒区粳稻交向混流干燥机理与能效评价研究[D].黑龙江八一农垦大学,2026.
+\bibitem{pang2024} 庞凌云,袁志华,詹丽娟,等.铁棍山药片热风干燥过程中传热传质规律[J].食品与机械,2024,40(8):157-165.
+\bibitem{wijerathne2025} Wijerathne, A.D.H.T., Joardder, M.U.H., Welsh, Z.G., Nayak, R., Sablani, S.S. and Karim, A. (2025), Recent Advances in Food Drying Modeling: Empirical to Multiscale Physics-Informed Neural Networks. Compr Rev Food Sci Food Saf., 24: e70194. \url{https://doi.org/10.1111/1541-4337.70194}
+\bibitem{akter2022} Akter, Ferdusee, Muhury, Ripa, Sultana, Afroza, Deb, Ujjwal Kumar, A Comprehensive Review of Mathematical Modeling for Drying Processes of Fruits and Vegetables, International Journal of Food Science, 2022, 6195257, 10 pages, 2022. \url{https://doi.org/10.1155/2022/6195257}
+\bibitem{morris1991} Morris D E. Factorial sampling plans for preliminary computational experiments. Technometrics, 1991, 33(2): 161-174.
+\bibitem{xiu2002} Xiu D, Karniadakis G E. The Wiener-Askey polynomial chaos for stochastic differential equations. SIAM Journal on Scientific Computing, 2002, 24(2): 619-644.
+\bibitem{sobol2001} Sobol I M. Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates. Mathematics and Computers in Simulation, 2001, 55(1-3): 271-280.
+\bibitem{saltelli2010} Saltelli A, Annoni P, Azzini I, Campolongo F, Riva M, Tarantola S. Variance based sensitivity analysis of model output: Design and estimator for the total sensitivity index. Computer Physics Communications, 2010, 181(2): 259-270.
+\end{thebibliography}
+
+\clearpage
 \appendix
 \section{附录核心代码说明}
 本附录列出四个问题对应的核心求解接口。各程序均以题目附件数据为输入，按正文给定的物性、边界和网格配置完成计算，并输出 Excel 全量结果、论文表格和验证信息。附录仅说明主流程和复现入口，具体参数取值、收敛检验和敏感性结论见正文相应章节。
@@ -764,30 +785,5 @@ BDF 积分触发终止事件后得到连续临界时间。内部通量平衡的�
   \caption{问题四代理模型验证与全局敏感性。(a) 4 阶多项式混沌代理预测与高保真 PDE 临界时间的对比，圆点为 40 个独立验证样本，三角为 6 个 $N=3201$ 复核样本；(b) 筛选后 5 个参数对干燥时间的 Sobol 一阶与总效应指数，误差棒为残差 bootstrap 的代理系数 $95\%$ 区间，不具有统计置信区间含义。}
   \label{fig:uq-pce-sobol}
 \end{figure}
-
-\clearpage
-\section*{AI 工具使用声明}
-\addcontentsline{toc}{section}{AI 工具使用声明}
-本参赛队在竞赛过程中使用了AI工具，主要用于思路梳理、代码辅助编写与调试、数值结果复核、格式检查，详细使用情况见支撑材料。
-
-\clearpage
-\begin{thebibliography}{99}
-\addcontentsline{toc}{section}{参考文献}
-\bibitem{liu2020} 刘琦.基于有限体积法非傅里叶导热及热粘弹性耦合问题的研究[D].哈尔滨工程大学,2020.
-\bibitem{shan2021} 单惠敏.香菇热风烘干实验与数值模拟[D].湖南科技大学,2021.
-\bibitem{zou2026} 邹丹丹.寒区粳稻交向混流干燥机理与能效评价研究[D].黑龙江八一农垦大学,2026.
-\bibitem{pang2024} 庞凌云,袁志华,詹丽娟,等.铁棍山药片热风干燥过程中传热传质规律[J].食品与机械,2024,40(8):157-165.
-\bibitem{wijerathne2025} Wijerathne, A.D.H.T., Joardder, M.U.H., Welsh, Z.G., Nayak, R., Sablani, S.S. and Karim, A. (2025), Recent Advances in Food Drying Modeling: Empirical to Multiscale Physics-Informed Neural Networks. Compr Rev Food Sci Food Saf., 24: e70194. \url{https://doi.org/10.1111/1541-4337.70194}
-\bibitem{akter2022} Akter, Ferdusee, Muhury, Ripa, Sultana, Afroza, Deb, Ujjwal Kumar, A Comprehensive Review of Mathematical Modeling for Drying Processes of Fruits and Vegetables, International Journal of Food Science, 2022, 6195257, 10 pages, 2022. \url{https://doi.org/10.1155/2022/6195257}
-\bibitem{mayor2004} Mayor, L.; Sereno, A. M. “Modelling shrinkage during convective drying of food materials: a review.” 2004, Journal of Food Engineering 61(3):373–386. 英文. DOI: 10.1016/S0260-8774(03)00144-4
-\bibitem{adrover2019} Adrover A, Brasiello A. A moving boundary model for food isothermal drying and shrinkage: One-dimensional versus two-dimensional approaches. J Food Process Eng. 2019; 42:e13178. \url{https://doi.org/10.1111/jfpe.13178}
-\bibitem{wang2014} 王会林, 卢涛, 姜培学. 生物多孔介质热风干燥数学模型及数值模拟[J]. 农业工程学报, 2014, 30(20): 325-333. DOI:10.3969/j.issn.1002-6819.2014.20.039.
-\bibitem{liugehan2020} 刘格含, 王鹏, 吴小华, 等. 农产品热风干燥传热传质数值模拟研究进展[J]. 食品工业科技, 2020, 41(22): 342-350,357. DOI:10.13386/j.issn1002-0306.2020010245.
-\bibitem{shang2025} 尚庆松, 吴兰, 安晓鹏. 粮食水分迁移模型的研究进展[J]. 农业工程学报, 2025, 41(21): 278-287. DOI:10.11975/j.issn.1002-6819.202503225.
-\bibitem{morris1991} Morris D E. Factorial sampling plans for preliminary computational experiments. Technometrics, 1991, 33(2): 161-174.
-\bibitem{xiu2002} Xiu D, Karniadakis G E. The Wiener-Askey polynomial chaos for stochastic differential equations. SIAM Journal on Scientific Computing, 2002, 24(2): 619-644.
-\bibitem{sobol2001} Sobol I M. Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates. Mathematics and Computers in Simulation, 2001, 55(1-3): 271-280.
-\bibitem{saltelli2010} Saltelli A, Annoni P, Azzini I, Campolongo F, Riva M, Tarantola S. Variance based sensitivity analysis of model output: Design and estimator for the total sensitivity index. Computer Physics Communications, 2010, 181(2): 259-270.
-\end{thebibliography}
 
 \end{document}
