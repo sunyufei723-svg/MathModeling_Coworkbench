@@ -1,0 +1,12 @@
+{
+  "morris_passed": true,
+  "pce_passed": true,
+  "sobol_crosscheck_passed": true,
+  "high_fidelity_passed": true,
+  "radau_passed": true,
+  "all_acceptance_checks_passed": true,
+  "final_resume_wall_time_s": 1.7907525999762584,
+  "unique_pde_evaluation_count_in_final_dataset": 444,
+  "sum_recorded_solver_runtime_s": 6373.166224600311,
+  "main_answer_unchanged_h": 50.82450698946728
+}

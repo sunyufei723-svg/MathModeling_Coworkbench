@@ -1,0 +1,89 @@
+{
+  "target": "problem4 continuous drying event time t_star",
+  "distributions": "independent uniform engineering perturbations",
+  "not_statistical_confidence_interval": true,
+  "model_form_exclusion": "dry-mass-closure alternative remains a separate discrete layer",
+  "parameters": [
+    {
+      "name": "ambient_temperature_delta_c",
+      "label": "$\\Delta T_\\infty$",
+      "lower": -2.0,
+      "upper": 2.0,
+      "unit": "deg C",
+      "interpretation": "4 h 后环境温度相对附件末值的工程偏移"
+    },
+    {
+      "name": "ambient_moisture_factor",
+      "label": "$f_{C_\\infty}$",
+      "lower": 0.9,
+      "upper": 1.1,
+      "unit": "1",
+      "interpretation": "4 h 后环境水分边界倍率"
+    },
+    {
+      "name": "heat_transfer_factor",
+      "label": "$f_h$",
+      "lower": 0.9,
+      "upper": 1.1,
+      "unit": "1",
+      "interpretation": "表面对流换热系数倍率"
+    },
+    {
+      "name": "mass_transfer_factor",
+      "label": "$f_{h_m}$",
+      "lower": 0.9,
+      "upper": 1.1,
+      "unit": "1",
+      "interpretation": "表面对流传质系数倍率"
+    },
+    {
+      "name": "diffusivity_prefactor_factor",
+      "label": "$f_{D_0}$",
+      "lower": 0.9,
+      "upper": 1.1,
+      "unit": "1",
+      "interpretation": "附录4水分扩散前因子倍率"
+    },
+    {
+      "name": "activation_temperature_factor",
+      "label": "$f_\\beta$",
+      "lower": 0.95,
+      "upper": 1.05,
+      "unit": "1",
+      "interpretation": "活化温度参数 beta=3850 K 的倍率"
+    },
+    {
+      "name": "shrinkage_amplitude_factor",
+      "label": "$f_R$",
+      "lower": 0.95,
+      "upper": 1.05,
+      "unit": "1",
+      "interpretation": "保持初始半径不变的收缩幅度倍率"
+    },
+    {
+      "name": "density_intercept_factor",
+      "label": "$f_{\\rho_0}$",
+      "lower": 0.95,
+      "upper": 1.05,
+      "unit": "1",
+      "interpretation": "密度关系截距760的倍率"
+    },
+    {
+      "name": "density_slope_factor",
+      "label": "$f_{\\rho_1}$",
+      "lower": 0.9,
+      "upper": 1.1,
+      "unit": "1",
+      "interpretation": "密度关系水分系数90的倍率"
+    }
+  ],
+  "attachments": {
+    "attachment1_sha256": "7ef32870abeef420b89560b2530ff60dfe4255917805151d89988d0311af9dd7",
+    "attachment2_sha256": "5563acbfa4b4afb10cc6c03e2207e5369bf39da27576672aff14cc5c32e704af"
+  },
+  "software": {
+    "python": "3.14.3",
+    "numpy": "2.4.1",
+    "scipy": "1.17.1"
+  }
+}

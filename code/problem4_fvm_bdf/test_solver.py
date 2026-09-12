@@ -15,9 +15,15 @@ from fvm import (
     interface_values,
     internal_flux_numerator,
 )
-from model import density, heat_capacity, moisture_diffusivity, thermal_conductivity
+from model import PhysicalParameters, density, heat_capacity, moisture_diffusivity, thermal_conductivity
 from radius import RadiusSeries
-from solver_bdf import SolverConfig, build_coupled_rhs, drying_event_value, solve_problem4_bdf
+from solver_bdf import (
+    SolverConfig,
+    _radius_values,
+    build_coupled_rhs,
+    drying_event_value,
+    solve_problem4_bdf,
+)
 from solver_be import BESolverConfig, coupled_backward_euler_step
 
 
@@ -41,6 +47,39 @@ class Problem4FvmBdfTests(unittest.TestCase):
         self.assertAlmostEqual(float(thermal_conductivity(c)[0]), 0.12 + 0.20 * 2.55 / 3.55)
         expected_d = 4.2e-4 * np.exp(-0.30 / 2.55) * np.exp(-3850.0 / 323.15)
         self.assertAlmostEqual(float(moisture_diffusivity(c, t)[0]), expected_d, places=18)
+
+    def test_physical_parameters_are_injectable_without_changing_defaults(self):
+        c = np.array([2.55])
+        t = np.array([50.0])
+        defaults = PhysicalParameters()
+        self.assertAlmostEqual(float(density(c, defaults)[0]), float(density(c)[0]))
+        self.assertAlmostEqual(
+            float(moisture_diffusivity(c, t, defaults)[0]),
+            float(moisture_diffusivity(c, t)[0]),
+            places=18,
+        )
+        changed = PhysicalParameters(
+            density_intercept=800.0,
+            diffusivity_prefactor=5.0e-4,
+            activation_temperature_k=3600.0,
+        )
+        self.assertNotEqual(float(density(c, changed)[0]), float(density(c)[0]))
+        self.assertNotEqual(
+            float(moisture_diffusivity(c, t, changed)[0]),
+            float(moisture_diffusivity(c, t)[0]),
+        )
+        with self.assertRaises(ValueError):
+            PhysicalParameters(diffusivity_prefactor=0.0)
+
+    def test_shrinkage_amplitude_preserves_initial_radius(self):
+        config = replace(
+            SolverConfig(node_count=21),
+            physical_parameters=PhysicalParameters(shrinkage_amplitude_factor=0.5),
+        )
+        initial_radius_m, _ = _radius_values(0.0, self.radius, config)
+        final_radius_m, _ = _radius_values(10000.0, self.radius, config)
+        self.assertAlmostEqual(initial_radius_m, 0.0200)
+        self.assertAlmostEqual(final_radius_m, 0.0175)
 
     def test_reference_geometry_is_exact_half_disk_weight(self):
         geometry = build_reference_geometry(81)

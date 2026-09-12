@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from math import floor
 from typing import Callable
 
@@ -17,7 +17,7 @@ try:
         internal_flux_numerator,
         sample_physical_profile,
     )
-    from .model import density, heat_capacity, moisture_diffusivity, thermal_conductivity
+    from .model import PhysicalParameters, density, heat_capacity, moisture_diffusivity, thermal_conductivity
     from .radius import RadiusSeries
 except ImportError:
     from environment import EnvironmentSeries, PostBoundary, boundary_at, post_boundary_from_tail  # type: ignore
@@ -29,7 +29,7 @@ except ImportError:
         internal_flux_numerator,
         sample_physical_profile,
     )
-    from model import density, heat_capacity, moisture_diffusivity, thermal_conductivity  # type: ignore
+    from model import PhysicalParameters, density, heat_capacity, moisture_diffusivity, thermal_conductivity  # type: ignore
     from radius import RadiusSeries  # type: ignore
 
 
@@ -51,6 +51,8 @@ class SolverConfig:
     d_interface_mean: str = "harmonic"
     model_form: str = "material"
     fixed_radius_cm: float | None = None
+    physical_parameters: PhysicalParameters = field(default_factory=PhysicalParameters)
+    integration_method: str = "BDF"
     relative_tolerance: float = 1.0e-8
     temperature_absolute_tolerance: float = 1.0e-8
     moisture_absolute_tolerance: float = 1.0e-10
@@ -118,8 +120,12 @@ def _radius_values(t_s: float, radius: RadiusSeries, config: SolverConfig) -> tu
         if config.fixed_radius_cm <= 0.0:
             raise ValueError("fixed_radius_cm must be positive")
         return config.fixed_radius_cm / 100.0, 0.0
-    radius_cm = radius.radius_cm_at(t_s)
-    radius_rate_cm_s = radius.radius_rate_cm_s_at(t_s)
+    base_radius_cm = float(radius.radius_cm[0])
+    shrinkage_factor = config.physical_parameters.shrinkage_amplitude_factor
+    radius_cm = base_radius_cm + shrinkage_factor * (radius.radius_cm_at(t_s) - base_radius_cm)
+    radius_rate_cm_s = shrinkage_factor * radius.radius_rate_cm_s_at(t_s)
+    if radius_cm <= 0.0:
+        raise ValueError("scaled radius must remain positive")
     return radius_cm / 100.0, radius_rate_cm_s / max(radius_cm, 1.0e-30)
 
 
@@ -141,7 +147,7 @@ def build_coupled_rhs(
         external_temperature, external_moisture = boundary_at(t_s, environment, post_boundary)
 
         node_k = thermal_conductivity(moisture)
-        node_d = moisture_diffusivity(moisture, temperature)
+        node_d = moisture_diffusivity(moisture, temperature, config.physical_parameters)
         heat_numerator = internal_flux_numerator(
             temperature,
             interface_values(node_k, config.k_interface_mean),
@@ -159,7 +165,7 @@ def build_coupled_rhs(
             external_moisture - moisture[-1]
         )
 
-        rho_cp = density(moisture) * heat_capacity(moisture)
+        rho_cp = density(moisture, config.physical_parameters) * heat_capacity(moisture)
         temperature_rate = heat_numerator / (radius_m**2 * rho_cp * geometry.volumes_hat)
         moisture_rate = moisture_numerator / (radius_m**2 * geometry.volumes_hat)
 
@@ -228,9 +234,22 @@ def _normalized_balance_residual(
 
 
 def _dry_mass_index(radius_m: float, moisture: np.ndarray, geometry: ReferenceGeometry) -> float:
+    return _dry_mass_index_with_parameters(radius_m, moisture, geometry, PhysicalParameters())
+
+
+def _dry_mass_index_with_parameters(
+    radius_m: float,
+    moisture: np.ndarray,
+    geometry: ReferenceGeometry,
+    parameters: PhysicalParameters,
+) -> float:
     return float(
         radius_m**2
-        * np.sum(density(moisture) / (1.0 + np.asarray(moisture, dtype=float)) * geometry.volumes_hat)
+        * np.sum(
+            density(moisture, parameters)
+            / (1.0 + np.asarray(moisture, dtype=float))
+            * geometry.volumes_hat
+        )
     )
 
 
@@ -252,6 +271,8 @@ def solve_problem4_bdf(
         raise ValueError("fallback_time_limit_s must exceed initial_time_limit_s")
     if config.sample_interval_s <= 0 or config.report_interval_s <= 0:
         raise ValueError("output intervals must be positive")
+    if config.integration_method not in {"BDF", "Radau"}:
+        raise ValueError("integration_method must be 'BDF' or 'Radau'")
 
     geometry = build_reference_geometry(config.node_count)
     node_count = geometry.node_count
@@ -283,7 +304,7 @@ def solve_problem4_bdf(
             rhs,
             (float(start), float(end)),
             state,
-            method="BDF",
+            method=config.integration_method,
             events=events,
             dense_output=True,
             rtol=config.relative_tolerance,
@@ -292,9 +313,9 @@ def solve_problem4_bdf(
             jac_sparsity=jacobian_pattern,
         )
         if not solution.success:
-            raise RuntimeError(f"BDF integration failed: {solution.message}")
+            raise RuntimeError(f"{config.integration_method} integration failed: {solution.message}")
         if not np.isfinite(solution.y).all():
-            raise RuntimeError("BDF integration returned non-finite values")
+            raise RuntimeError(f"{config.integration_method} integration returned non-finite values")
         return solution
 
     segments = []
@@ -377,13 +398,23 @@ def solve_problem4_bdf(
     )
     dry_mass = np.array(
         [
-            _dry_mass_index(r_cm / 100.0, profile, geometry)
+            _dry_mass_index_with_parameters(
+                r_cm / 100.0,
+                profile,
+                geometry,
+                config.physical_parameters,
+            )
             for r_cm, profile in zip(radius_cm, sample_moisture, strict=True)
         ],
         dtype=float,
     )
     initial_radius_m, _ = _radius_values(0.0, radius, config)
-    initial_dry_mass = _dry_mass_index(initial_radius_m, initial_state[node_count:], geometry)
+    initial_dry_mass = _dry_mass_index_with_parameters(
+        initial_radius_m,
+        initial_state[node_count:],
+        geometry,
+        config.physical_parameters,
+    )
     dry_mass_with_initial = np.concatenate([[initial_dry_mass], dry_mass])
     dry_mass_relative_range = float(
         (np.max(dry_mass_with_initial) - np.min(dry_mass_with_initial))

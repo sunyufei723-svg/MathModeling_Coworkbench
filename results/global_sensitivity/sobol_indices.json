@@ -1,0 +1,191 @@
+{
+  "method": "orthonormal Legendre PCE coefficients with Saltelli surrogate cross-check",
+  "distribution_assumption": "independent uniform engineering ranges",
+  "conditioning": "five Morris-selected parameters vary; four excluded parameters remain at baseline",
+  "not_direct_full_pde_saltelli": true,
+  "bootstrap_interval_interpretation": "residual-bootstrap PCE coefficient uncertainty only; not a physical or statistical parameter confidence interval",
+  "analytical": {
+    "pce_variance_h2": 278.33143205554654,
+    "rows": [
+      {
+        "parameter": "activation_temperature_factor",
+        "first_order": 0.9403634616712357,
+        "total_order": 0.9471314678731588,
+        "first_order_95_interval": [
+          0.9403418262596475,
+          0.9403862659401953
+        ],
+        "total_order_95_interval": [
+          0.9471089468414221,
+          0.9471537392021483
+        ]
+      },
+      {
+        "parameter": "diffusivity_prefactor_factor",
+        "first_order": 0.027353941032212288,
+        "total_order": 0.030737861739358736,
+        "first_order_95_interval": [
+          0.027338937060013557,
+          0.027368562237040216
+        ],
+        "total_order_95_interval": [
+          0.030722945215878362,
+          0.03075309627202072
+        ]
+      },
+      {
+        "parameter": "ambient_temperature_delta_c",
+        "first_order": 0.014090347550094187,
+        "total_order": 0.01624023280166704,
+        "first_order_95_interval": [
+          0.014080074149879248,
+          0.014100987519098789
+        ],
+        "total_order_95_interval": [
+          0.016230601819850095,
+          0.01625100557293381
+        ]
+      },
+      {
+        "parameter": "shrinkage_amplitude_factor",
+        "first_order": 0.011233149354440482,
+        "total_order": 0.012705928888984091,
+        "first_order_95_interval": [
+          0.011224025505005092,
+          0.011242007994271847
+        ],
+        "total_order_95_interval": [
+          0.012696433264259961,
+          0.012715530753452416
+        ]
+      },
+      {
+        "parameter": "mass_transfer_factor",
+        "first_order": 7.840195330334075e-05,
+        "total_order": 8.161962453900036e-05,
+        "first_order_95_interval": [
+          7.767957993007223e-05,
+          7.914602045502773e-05
+        ],
+        "total_order_95_interval": [
+          8.094239980068206e-05,
+          8.23869798940304e-05
+        ]
+      }
+    ],
+    "sum_first_order": 0.993119301561286,
+    "interactions": [
+      {
+        "parameter_left": "activation_temperature_factor",
+        "parameter_right": "diffusivity_prefactor_factor",
+        "second_order": 0.003280002107708099
+      },
+      {
+        "parameter_left": "activation_temperature_factor",
+        "parameter_right": "ambient_temperature_delta_c",
+        "second_order": 0.002066342349015156
+      },
+      {
+        "parameter_left": "activation_temperature_factor",
+        "parameter_right": "shrinkage_amplitude_factor",
+        "second_order": 0.0014023596677588425
+      },
+      {
+        "parameter_left": "diffusivity_prefactor_factor",
+        "parameter_right": "ambient_temperature_delta_c",
+        "second_order": 5.089264352581023e-05
+      },
+      {
+        "parameter_left": "diffusivity_prefactor_factor",
+        "parameter_right": "shrinkage_amplitude_factor",
+        "second_order": 3.993955928086644e-05
+      },
+      {
+        "parameter_left": "ambient_temperature_delta_c",
+        "parameter_right": "shrinkage_amplitude_factor",
+        "second_order": 2.1570626426099613e-05
+      },
+      {
+        "parameter_left": "activation_temperature_factor",
+        "parameter_right": "mass_transfer_factor",
+        "second_order": 3.017056558429327e-06
+      },
+      {
+        "parameter_left": "diffusivity_prefactor_factor",
+        "parameter_right": "mass_transfer_factor",
+        "second_order": 1.010220619790272e-07
+      },
+      {
+        "parameter_left": "shrinkage_amplitude_factor",
+        "parameter_right": "mass_transfer_factor",
+        "second_order": 5.211099820443531e-08
+      },
+      {
+        "parameter_left": "ambient_temperature_delta_c",
+        "parameter_right": "mass_transfer_factor",
+        "second_order": 1.9556499461397028e-08
+      }
+    ]
+  },
+  "saltelli_surrogate_crosscheck": {
+    "sample_count": 100000,
+    "rows": [
+      {
+        "parameter": "activation_temperature_factor",
+        "first_order": 0.9395124656560501,
+        "total_order": 0.9437339792911982
+      },
+      {
+        "parameter": "diffusivity_prefactor_factor",
+        "first_order": 0.02772494088172077,
+        "total_order": 0.03075118885662168
+      },
+      {
+        "parameter": "ambient_temperature_delta_c",
+        "first_order": 0.013884386647970823,
+        "total_order": 0.01628511308917538
+      },
+      {
+        "parameter": "shrinkage_amplitude_factor",
+        "first_order": 0.011754810351788741,
+        "total_order": 0.012754736060394662
+      },
+      {
+        "parameter": "mass_transfer_factor",
+        "first_order": 0.00014281418503765822,
+        "total_order": 8.147490560281146e-05
+      }
+    ]
+  },
+  "crosscheck": {
+    "comparisons": [
+      {
+        "parameter": "activation_temperature_factor",
+        "first_order_absolute_difference": 0.0008509960151856788,
+        "total_order_absolute_difference": 0.0033974885819606504
+      },
+      {
+        "parameter": "diffusivity_prefactor_factor",
+        "first_order_absolute_difference": 0.00037099984950848125,
+        "total_order_absolute_difference": 1.3327117262942889e-05
+      },
+      {
+        "parameter": "ambient_temperature_delta_c",
+        "first_order_absolute_difference": 0.00020596090212336368,
+        "total_order_absolute_difference": 4.4880287508340666e-05
+      },
+      {
+        "parameter": "shrinkage_amplitude_factor",
+        "first_order_absolute_difference": 0.0005216609973482597,
+        "total_order_absolute_difference": 4.880717141057117e-05
+      },
+      {
+        "parameter": "mass_transfer_factor",
+        "first_order_absolute_difference": 6.441223173431746e-05,
+        "total_order_absolute_difference": 1.447189361888923e-07
+      }
+    ],
+    "maximum_absolute_difference": 0.0033974885819606504,
+    "passed": true
+  }
+}
