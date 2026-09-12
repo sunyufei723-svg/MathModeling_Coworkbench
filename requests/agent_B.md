@@ -9,9 +9,10 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：按用户要求重写 `files/final/A题完整论文.tex` 的论文表达：保留 A 最新稿的解题思路、模型口径和数值结论，但不沿用其“我们/首先/因此”式 AI 化表述，改为更自然、克制、竞赛论文风格的叙述。
-- 持有的锁：files W（`files/final/A题完整论文.tex`，2026-09-12T05:48:39Z）
+- 正在做：空闲
+- 持有的锁：无
 - 阻塞 / 等待：无
+- 最近完成：[2026-09-12T05:56:23Z] 按用户要求重写 `files/final/A题完整论文.tex` 的论文表达并刷新 PDF：保留 A 最新稿的四问解题思路、模型口径、公式表格和数值结论，但重写摘要、问题重述/分析、各问承接/结果解释、模型检验与评价段落，降低“我们/首先/因此”式机械表达；同步修正模型改进方向中把已有 UQ 结果写成未来工作的口径冲突。XeLaTeX 二次编译通过，20 页，0 error / 0 overfull / 0 undefined reference，仅有 SimSun/FangSong 字体粗斜体替换警告。
 - 最近完成：[2026-09-12T02:36:12Z] 按 agent_C 的 `audit bonus validation gaps` 分工补强 `bonus_validation`：新增 Robin-Bessel 与 Robin-MMS 半控制体边界验证、隐式 Euler 时间推进 sanity check、LHS held-out PDE 验证状态机读字段与报告；因本机仓库无 gitignored 附件工作簿，未伪造 5-10 个真实 PDE 验证点，报告明确标为 `needs_pde_points`。
 - 最近完成：[2026-09-12T01:34:52Z] 已将决策 D/F 合并为一个论文修正任务并落地到 `files/final/A题完整论文.tex`：Q4 干物质非闭合从一句局限升级为归因、不可达性、机制解释与 60.7312h 反事实上界，同时统一摘要、假设、推导和改进方向口径；未提交 PDF 刷新。
 - 最近完成：[2026-09-12T01:11:20Z] 已完成决策 I 的轻量落地：扩展 `code/bonus_validation/`，将 Q4 UQ 改为边界扰动层与收缩/密度闭合模型形式层的分层表述；刷新 `results/bonus_validation/bonus_validation_report.md` 与 JSON，并新增单元测试防止误写成总不确定性。
