@@ -23,16 +23,16 @@ import pandas as pd
 from scipy.interpolate import CubicSpline, PchipInterpolator
 from scipy.optimize import curve_fit
 
-ROOT = Path(__file__).resolve().parents[4]   # 仓库根（脚本在 code/submission/analysis/problem4_limitations/）
+ROOT = Path(__file__).resolve().parents[5]   # 仓库根（脚本在 code/submission/problem4/analysis/problem4_limitations/）
 # 让 stdout/stderr 用 UTF-8，避免 Windows 管道/重定向下 GBK 编码崩溃（脚本含 ⇒ κ ρ ⟨⟩ 等字符）
 for _stream in (sys.stdout, sys.stderr):
     try:
         _stream.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):
         pass
-PKG = ROOT / "code" / "submission" / "business" / "problem4"
+PKG = ROOT / "code" / "submission" / "problem4" / "core"
 sys.path.insert(0, str(PKG))
-sys.path.insert(0, str(ROOT / "code" / "submission" / "pipeline" / "problem4"))
+sys.path.insert(0, str(ROOT / "code" / "submission" / "problem4" / "run"))
 
 import solver_bdf as sb  # noqa: E402
 from model import density  # noqa: E402

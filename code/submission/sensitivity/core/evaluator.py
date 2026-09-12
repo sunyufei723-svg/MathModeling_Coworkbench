@@ -21,7 +21,7 @@ except ImportError:
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
-PROBLEM4_DIR = PROJECT_ROOT / "code" / "submission" / "business" / "problem4"
+PROBLEM4_DIR = PROJECT_ROOT / "code" / "submission" / "problem4" / "core"
 if str(PROBLEM4_DIR) not in sys.path:
     sys.path.insert(0, str(PROBLEM4_DIR))
 

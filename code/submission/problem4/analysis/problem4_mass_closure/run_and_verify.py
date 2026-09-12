@@ -6,8 +6,8 @@
   * numerical_verification.md             —— 空间网格收敛 + 时间积分敏感 + κ→1 质量闭合核验
   * problem4_mass_closure_explanation.md  —— 模型/假设/方程/结果/边界（解法与代码说明）
 
-只读 import code/submission/business/problem4；不改其任何文件。运行：
-  python code/submission/analysis/problem4_mass_closure/run_and_verify.py \
+只读 import code/submission/problem4/core；不改其任何文件。运行：
+  python code/submission/problem4/analysis/problem4_mass_closure/run_and_verify.py \
       --attachment1 附件/附件1.xlsx --attachment2 附件/附件2.xlsx \
       --results-dir results/problem4_mass_closure --work-dir <临时目录> [--resume] [--quick]
 """
@@ -26,14 +26,14 @@ import numpy as np
 import pandas as pd
 import scipy
 
-ROOT = Path(__file__).resolve().parents[4]
+ROOT = Path(__file__).resolve().parents[5]
 for _stream in (sys.stdout, sys.stderr):
     try:
         _stream.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):
         pass
-if str(ROOT / "code" / "submission" / "analysis" / "problem4_mass_closure") not in sys.path:
-    sys.path.insert(0, str(ROOT / "code" / "submission" / "analysis" / "problem4_mass_closure"))
+if str(ROOT / "code" / "submission" / "problem4" / "analysis" / "problem4_mass_closure") not in sys.path:
+    sys.path.insert(0, str(ROOT / "code" / "submission" / "problem4" / "analysis" / "problem4_mass_closure"))
 
 from closure import ClosureConfig, ClosureResult, load_inputs, run_closure  # noqa: E402
 
@@ -392,7 +392,7 @@ def main() -> None:
             "numpy_version": np.__version__,
             "scipy_version": scipy.__version__,
             "pandas_version": pd.__version__,
-            "solver_dir": str(ROOT / "code" / "submission" / "business" / "problem4"),
+            "solver_dir": str(ROOT / "code" / "submission" / "problem4" / "core"),
         },
         "archived_references": {
             "given_t_star_h_n401": ARCHIVED_GIVEN_T_STAR_H_N401,

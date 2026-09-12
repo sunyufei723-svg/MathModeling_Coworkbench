@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import scipy
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "business" / "problem3"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "core"))
 try:
     from .model import EnvironmentSeries, PostBoundary, post_boundary_from_tail
     from .solver_bdf import SimulationResult, SolverConfig, solve_problem3_bdf
@@ -27,7 +27,7 @@ except ImportError:
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 ORIGINAL_RESULT = PROJECT_ROOT / "results" / "problem3" / "result3.xlsx"
-ORIGINAL_SOLVER = PROJECT_ROOT / "code" / "submission" / "baselines" / "problem3" / "solver.py"
+ORIGINAL_SOLVER = PROJECT_ROOT / "code" / "submission" / "problem3" / "baselines" / "solver.py"
 PAPER_RADII_CM = np.array([0.0, 0.5, 1.0, 1.5, 2.0])
 BASELINE_TIME_S = 198210
 CANDIDATE_TIME_H = 57.4778

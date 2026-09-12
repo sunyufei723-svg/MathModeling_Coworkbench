@@ -13,8 +13,8 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[4]
-_HERE = ROOT / "code" / "submission" / "analysis" / "problem4_mass_closure"
+ROOT = Path(__file__).resolve().parents[5]
+_HERE = ROOT / "code" / "submission" / "problem4" / "analysis" / "problem4_mass_closure"
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 

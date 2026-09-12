@@ -14,7 +14,7 @@ from pathlib import Path
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
+PROJECT_ROOT = Path(__file__).resolve().parents[5]
 SCAN_ROOTS = ("code", "results", "files")
 SKIP_PARTS = {".git", "__pycache__", ".pytest_cache"}
 TEXT_SUFFIXES = {

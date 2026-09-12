@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import scipy
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "business" / "sensitivity"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "core"))
 try:
     from .evaluator import BASELINE_EVENT_TIME_S, ModelEvaluator
     from .morris import analyse_morris, generate_morris_design

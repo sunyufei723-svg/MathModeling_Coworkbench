@@ -18,7 +18,7 @@ from scipy.optimize import brentq
 from scipy.special import j0, j1
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
+PROJECT_ROOT = Path(__file__).resolve().parents[5]
 OUTPUT_DIR = PROJECT_ROOT / "results" / "bonus_validation"
 
 

@@ -39,7 +39,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[4]   # 仓库根（本文件在 code/submission/analysis/problem4_mass_closure/）
+ROOT = Path(__file__).resolve().parents[5]   # 仓库根（本文件在 code/submission/problem4/analysis/problem4_mass_closure/）
 # 强制 UTF-8，避免 Windows 管道/重定向下 GBK 编码崩溃（本模块 print 含 κ ρ ⟨⟩ ⇒ 等字符）
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -47,10 +47,10 @@ for _stream in (sys.stdout, sys.stderr):
     except (AttributeError, ValueError):
         pass
 
-_SOLVER_DIR = ROOT / "code" / "submission" / "business" / "problem4"
+_SOLVER_DIR = ROOT / "code" / "submission" / "problem4" / "core"
 if str(_SOLVER_DIR) not in sys.path:
     sys.path.insert(0, str(_SOLVER_DIR))
-_PIPELINE_DIR = ROOT / "code" / "submission" / "pipeline" / "problem4"
+_PIPELINE_DIR = ROOT / "code" / "submission" / "problem4" / "run"
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 

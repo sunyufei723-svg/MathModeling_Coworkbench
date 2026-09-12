@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import scipy
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "business" / "problem4"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "core"))
 from environment import EnvironmentSeries, PostBoundary, post_boundary_from_tail
 from radius import RadiusSeries
 from scenarios import engineering_boundary_scenarios, mass_transfer_scenarios
@@ -98,10 +98,10 @@ def reproduce_legacy(
     radius: RadiusSeries,
 ) -> dict:
     cases = [
-        ("L1", project_root / "code" / "submission" / "baselines" / "problem4_L1" / "solver.py", 201, L1_REFERENCE_TIME_S),
+        ("L1", project_root / "code" / "submission" / "problem4" / "baselines" / "L1" / "solver.py", 201, L1_REFERENCE_TIME_S),
         (
             "L2",
-            project_root / "code" / "submission" / "baselines" / "problem4_L2" / "solver.py",
+            project_root / "code" / "submission" / "problem4" / "baselines" / "L2" / "solver.py",
             801,
             L2_REFERENCE_TIME_S,
         ),

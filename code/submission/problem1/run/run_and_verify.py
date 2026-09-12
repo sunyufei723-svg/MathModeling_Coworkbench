@@ -25,7 +25,7 @@ from pathlib import Path
 import numpy as np
 import openpyxl
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "business" / "problem1"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "core"))
 
 from solver import EnvironmentSeries, SimulationResult, SolverConfig, solve_problem1
 
