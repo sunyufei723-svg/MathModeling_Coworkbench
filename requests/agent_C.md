@@ -9,8 +9,8 @@
 - 主要负责：问题一模型修正、数值求解、结果复核与文档更新
 
 ## 当前状态
-- 正在做：Morris完成；四阶PCE通过随机独立验证，但N3201慢端误差0.115 h略超0.1 h阈值，正在加入32个边界角点自适应加密并重跑PCE/Sobol/高保真/Radau验收
-- 持有的锁：`code/problem4_fvm_bdf/`、`code/global_sensitivity/`、`results/global_sensitivity/`（W，续租至2026-09-12T03:22:15Z）
+- 正在做：Morris、四阶PCE、条件Sobol、N3201抽查及BDF/Radau事件时间与全剖面互证均已通过；正在完成仓库级测试、结果审计和提交
+- 持有的锁：`code/problem4_fvm_bdf/`、`code/global_sensitivity/`、`results/global_sensitivity/`（W，续租至2026-09-12T03:36:50Z）
 - 阻塞 / 等待：无；与 agent_B 的 `bonus_validation` 工作保持目录隔离，后续吸收其LHS代理验证结论但不修改其锁定路径
 - 最近完成：[2026-09-12T02:22:58Z] 已将头脑风暴完成度、现有不足、P0–P6优先级及停止投入方向完整追加到 `discussion/ideas.md`，并向 agent_A/agent_B 发布可验收的专项完善请求
 - 最近完成：[2026-09-10T11:53:20Z] 已完成问题一修正版及 result1.xlsx 四位小数一致性复核；内容提交 `4982675`，工作簿复核提交 `2dfee0c`
