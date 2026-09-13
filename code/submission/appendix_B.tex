@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage{geometry}
 \usepackage{fancyhdr}
+\usepackage{booktabs}
 
 \geometry{
   a4paper,
@@ -20,13 +21,48 @@
 % 页眉页脚
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[C]{附录B · 代码清单}
+\fancyhead[C]{附录}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 
 \begin{document}
 
+% ========== 附录A ==========
+\begin{center}
+  \Large\bfseries 附录A：支撑材料清单
+\end{center}
+\vspace{1em}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lp{10cm}}
+\toprule
+\textbf{文件名} & \textbf{说明} \\
+\midrule
+problem1.py & 问题一求解器：径向 FVM + BDF 时间推进，输出温度场与水分场 \\
+problem2.py & 问题二求解器：变物性耦合模型，输出中心温度与干燥时间 \\
+problem3.py & 问题三求解器：严格径向 FVM + BDF，含后向欧拉交叉验证 \\
+problem4.py & 问题四求解器：动边界 FVM + BDF，多情景模拟 \\
+sensitivity.py & 全局敏感性分析：Morris 筛选 + PCE-Sobol 指数 + Radau 交叉验证 \\
+figures.py & 论文插图生成脚本（图1–图5） \\
+limitations.py & 模型局限性分析：干物质闭合、潜热影响、半径上限证明 \\
+mass\_closure.py & 质量闭合验证：干物质守恒与水分平衡核算 \\
+bonus.py & 附加验证：Bessel 解析模态、时间推进阶数、参数敏感性 \\
+交叉验证.py & BE-BDF 交叉验证绘图与误差分析 \\
+result1.xlsx & 问题一数值结果（温度场、水分场随时间演化） \\
+result2.xlsx & 问题二数值结果（中心温度、干燥时间表） \\
+result3.xlsx & 问题三数值结果（径向温度/水分分布） \\
+result4.xlsx & 问题四数值结果（多情景半径、温度、水分演化） \\
+requirements.txt & Python 依赖包清单（numpy/scipy/pandas/matplotlib/openpyxl/Pillow） \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+% ========== 附录B ==========
 \begin{center}
   \Large\bfseries 附录B：代码清单
 \end{center}
