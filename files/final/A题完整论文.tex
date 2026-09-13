@@ -7,7 +7,6 @@
 \usepackage{booktabs,longtable,array,multirow,tabularx}
 \usepackage{graphicx,float,subcaption}
 \usepackage{caption}
-\usepackage{algorithm2e}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{listings}
@@ -250,17 +249,7 @@
 上述两个表面条件分别描述药材表面与热风之间的换热和换质。由于本问中 $\rho,c_p,k$ 为常数，且 $D(C)$ 不含温度项，温度场与水分场之间没有直接耦合，可以分别积分求解。
 
 \subsection{模型求解}
-空间方向采用前文建立的径向有限体积格式，时间方向采用自适应 BDF 隐式积分。计算以几何半径 $R$、初值 $T_0,C_0$、附件1边界序列和附录2物性参数为已知条件，最终得到 $0$ 到 $1800\rm\,s$ 内各输出点的 $T(r,t)$ 与 $C(r,t)$。内部计算网格取 $\Delta r=0.0025\rm\,cm$，使表面附近的温度和水分梯度能够被充分分辨；得到连续半径网格上的数值解后，再抽取到题目要求的 $0.1\rm\,cm$ 输出位置。水分扩散系数 $D(C)$ 随含水率变化较快，界面扩散系数采用调和平均，以避免在低扩散区域高估界面通量。输出前设置 $C\leftarrow\max(C,0)$ 作为非负保护，本问计算中未触发该修正。
-
-\begin{algorithm}[H]
-  \SetAlgoLined
-  构造径向有限体积网格和控制体几何量\;
-  对附件1环境温度和环境水分浓度建立线性插值函数\;
-  分别组装温度方程和水分方程的隐式时间积分右端\;
-  用 BDF 积分至 $1800\rm\,s$\;
-  抽取题目指定时间和半径位置的结果，保留四位小数\;
-  \caption{问题一求解流程}
-\end{algorithm}
+空间方向采用前文建立的径向有限体积格式，时间方向采用自适应 BDF 隐式积分。计算以几何半径 $R$、初值 $T_0,C_0$、附件1边界序列和附录2物性参数为已知条件，先对烘房温度和环境水分浓度建立线性插值函数，再分别组装温度方程和水分方程的右端项，积分至 $1800\rm\,s$ 后抽取题目指定时间和半径位置的结果。内部计算网格取 $\Delta r=0.0025\rm\,cm$，使表面附近的温度和水分梯度能够被充分分辨；得到连续半径网格上的数值解后，再抽取到题目要求的 $0.1\rm\,cm$ 输出位置。水分扩散系数 $D(C)$ 随含水率变化较快，界面扩散系数采用调和平均，以避免在低扩散区域高估界面通量。输出前设置 $C\leftarrow\max(C,0)$ 作为非负保护，本问计算中未触发该修正。
 
 \subsection{结果分析}
 表\ref{tab:q1-temp} 和表\ref{tab:q1-moist} 给出了问题一的代表性输出。温度场在半小时内整体升高，并由表面向中心逐步传递。$1800\rm\,s$ 时，表面温度为 $36.7856^\circ\mathrm C$，中心温度为 $33.5753^\circ\mathrm C$，说明热量已进入药材内部，但径向温差仍然存在。水分场的响应慢于温度场：同一时刻表面含水率降至 $1.5102\rm\,kg/kg$，中心仍保持 $2.5500\rm\,kg/kg$，脱水主要集中在近表面区域。图\ref{fig:q1-radial} 进一步给出典型时刻的径向分布，温度曲线随时间整体上移，水分曲线则只在外层明显下降，说明预热阶段中热扩散快于水分扩散。
@@ -364,18 +353,7 @@
 \subsection{模型求解}
 问题二仍采用严格径向守恒有限体积法进行空间离散。内部网格取 $\Delta r=0.025\rm\,cm$，共 81 个径向节点；温度和水分拼接后，联合状态维度为 162。控制体体积 $V_i=\pi(r_{i+1/2}^2-r_{i-1/2}^2)$、界面面积 $A_{i+1/2}=2\pi r_{i+1/2}$ 均按圆柱几何组装。界面热导率 $k$ 和扩散系数 $D$ 采用调和平均，以便在相邻控制体物性差异较大时保持通量计算稳定。
 
-时间方向采用 \texttt{scipy.integrate.solve\_ivp} 中的自适应 BDF 隐式积分器。每次推进以上一时刻联合状态 $u^n=[T^n;C^n]$、附件1边界和附录3物性公式为基础，得到下一输出时刻联合状态 $u^{n+1}=[T^{n+1};C^{n+1}]$。计算设置为 $\mathrm{rtol}=2\times10^{-8}$，温度和水分的绝对容差分别为 $2\times10^{-9}$、$2\times10^{-10}$，最大内部步长为 $5\rm\,s$。由于 $T$ 与 $C$ 位于同一个状态向量内，BDF 在每个隐式步中同时处理热方程和水分方程的非线性残差，不再采用“先求温度、再求水分”的分步方式。为提高稳定性，非线性残差对应的块三对角稀疏 Jacobian 由解析式给出。
-
-\begin{algorithm}[H]
-  \SetAlgoLined
-  构造径向 FVM 网格与控制体几何量 $V_i,A_{i\pm1/2}$\;
-  由 $u^n$ 计算物性 $\rho(C),c_p(C),k(C),D(C,T+273.15)$\;
-  界面 $k,D$ 取调和平均，组装严格守恒通量残差 $f(t,u)$\;
-  中心控制体自然满足对称零通量，表面控制体加入 Robin 对流通量\;
-  调用自适应 BDF 积分器（块三对角解析 Jacobian）推进至下一输出时刻\;
-  \Return $u^{n+1}$\;
-  \caption{问题二联合状态自适应 BDF 时间推进}
-\end{algorithm}
+时间方向采用 \texttt{scipy.integrate.solve\_ivp} 中的自适应 BDF 隐式积分器。每次推进以上一时刻联合状态 $u^n=[T^n;C^n]$、附件1边界和附录3物性公式为基础，先计算 $\rho(C),c_p(C),k(C),D(C,T+273.15)$，再用调和平均得到界面 $k,D$ 并组装严格守恒通量残差 $f(t,u)$。中心控制体自然满足对称零通量，表面控制体加入 Robin 对流通量，最终得到下一输出时刻联合状态 $u^{n+1}=[T^{n+1};C^{n+1}]$。计算设置为 $\mathrm{rtol}=2\times10^{-8}$，温度和水分的绝对容差分别为 $2\times10^{-9}$、$2\times10^{-10}$，最大内部步长为 $5\rm\,s$。由于 $T$ 与 $C$ 位于同一个状态向量内，BDF 在每个隐式步中同时处理热方程和水分方程的非线性残差，不再采用“先求温度、再求水分”的分步方式。为提高稳定性，非线性残差对应的块三对角稀疏 Jacobian 由解析式给出。
 
 BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部最大步长受 $5\rm\,s$ 上限约束，最小步长出现在初期薄边界层。为检验数值稳定性，本文将网格由 $\Delta r=0.025\rm\,cm$ 加密至 $0.0125\rm\,cm$，在 30 个论文采样点上得到温度最大绝对差 $4.16\times10^{-5}\rm\,{}^\circ\mathrm C$、水分最大绝对差 $4.67\times10^{-5}\rm\,kg/kg$。进一步收紧 BDF 容差并缩小最大步长后，温度最大绝对差为 $1.91\times10^{-5}\rm\,{}^\circ\mathrm C$，水分最大绝对差为 $4.84\times10^{-8}\rm\,kg/kg$。这些差异均低于四位小数显示精度，说明表\ref{tab:q2-temp} 和表\ref{tab:q2-moist} 的结果对网格和时间容差不敏感。
 
@@ -481,19 +459,7 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \begin{equation}
   t_{60}=60\left\lceil\frac{t^*}{60}\right\rceil.
 \end{equation}
-二者分别对应“连续事件定位”和“结果文件首个达标行”，后文分开报告。
-
-\begin{algorithm}[H]
-  \SetAlgoLined
-  构造严格径向 FVM 网格（$\Delta r=0.00078125\rm\,cm$，2561 节点）\;
-  初始化联合状态 $u(0)=[T_0;C_0]$，$t=0$\;
-  设置事件函数 $g_h(t)=\max_i C_i(t)-0.15$，方向 $-1$，\texttt{terminal=True}\;
-  调用自适应 BDF 积分器（块三对角解析 Jacobian）推进\;
-  在 $g_h(t)$ 变号处定位连续临界时间 $t^*$\;
-  按 $60\rm\,s$ 输出网格保存水分场，并抽取到题目指定半径位置\;
-  另用 backward-Euler + Picard 作双求解器交叉验证\;
-  \caption{问题三达标停机求解流程}
-\end{algorithm}
+二者分别对应“连续事件定位”和“结果文件首个达标行”，后文分开报告。实际求解时，固定半径网格取 $\Delta r=0.00078125\rm\,cm$、共 2561 个节点，联合状态初始化为 $u(0)=[T_0;C_0]$。BDF 积分器在 $g_h(t)$ 由正变负处进行步内事件定位，得到连续临界时间 $t^*$；随后按 $60\rm\,s$ 输出网格保存水分场，并抽取到题目指定半径位置。为避免停机时间只依赖单一积分器，本文另用 backward-Euler + Picard 格式进行交叉验证。
 
 \subsection{结果分析}
 在附件1末值外推边界下，连续事件定位给出
@@ -612,23 +578,7 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \subsection{模型求解}
 问题四在固定 $\xi$ 网格上采用严格径向守恒有限体积法。计算条件包括初值 $T_0,C_0$、附录4物性、附件1环境边界及末值外推规则，以及附件2半径序列 $R(t)$；计算结果包括连续临界时间 $t^*$ 和含移动表面列的水分浓度过程表。生产配置取 $N=3201$ 个 $\xi$ 节点，$\Delta\xi=1/(N-1)$；控制体几何量取 $\hat V_i=\frac12(\xi_{i+1/2}^2-\xi_{i-1/2}^2)$，界面面积取 $\hat A_{i+1/2}=\xi_{i+1/2}$，相当于在单位 $\xi$ 圆盘上组装径向守恒通量。界面热导率 $k$ 和扩散系数 $D$ 均采用调和平均，以降低强梯度区域的界面通量高估风险。
 
-时间推进仍采用 \texttt{scipy.integrate.solve\_ivp} 的联合状态自适应 BDF 隐式积分器。计算参数为 $\mathrm{rtol}=10^{-8}$，温度和水分绝对容差分别为 $10^{-8}$ 与 $10^{-10}$，最大内部步长为 $30\rm\,s$。每个时间步由附件2线性插值得到当前 $R(t)$，并据此更新有效扩散系数 $\mathrm{cond}/R^2$ 和表面对流尺度 $\mathrm{transfer}\cdot R$。中心 $\xi=0$ 用对称零通量条件消除奇点，表面 $\xi=1$ 施加第三类边界；块三对角稀疏 Jacobian 由解析式提供。终止事件设为 $g(t)=\max_\xi C(\xi,t)-0.15$，其中 \texttt{terminal=True}，\texttt{direction}$=-1$。为验证物质坐标实现，程序还进行了 $D=0$ 时物质剖面守恒自检，并以 backward-Euler + Picard 固定步隐式格式作为独立对照。
-
-\begin{algorithm}[H]
-  \SetAlgoLined
-  构造固定 $\xi$ 网格（$N=3201$），初始化联合状态 $u(0)=[T_0;C_0]$，$t=0$\;
-  定义终止事件 $g(t)=\max_\xi C(\xi,t)-0.15$，方向 $-1$，\texttt{terminal=True}\;
-  \While{积分器未触发终止事件}{
-    由附件2插值取当前 $R(t)$\;
-    由 $u$ 计算物性 $\rho(C),c_p(C),k(C),D(C,T+273.15)$\;
-    界面 $k,D$ 取调和平均，组装 $\xi$ 系压缩扩散通量残差（扩散乘 $1/R^2$、表面对流乘 $R$）\;
-    调用自适应 BDF 积分器（块三对角解析 Jacobian）推进\;
-    若到达 $60\rm\,s$ 输出间隔，按固定距离 $d=\xi R(t)$ 记录水分浓度，$d>R(t)$ 处置空\;
-  }
-  输出 $t^*$ 及终止时刻水分浓度\;
-  另用 backward-Euler + Picard 作双求解器交叉验证\;
-  \caption{问题四移动边界达标停机求解流程}
-\end{algorithm}
+时间推进仍采用 \texttt{scipy.integrate.solve\_ivp} 的联合状态自适应 BDF 隐式积分器。计算参数为 $\mathrm{rtol}=10^{-8}$，温度和水分绝对容差分别为 $10^{-8}$ 与 $10^{-10}$，最大内部步长为 $30\rm\,s$。每个时间步由附件2线性插值得到当前 $R(t)$，并据此更新有效扩散系数 $\mathrm{cond}/R^2$ 和表面对流尺度 $\mathrm{transfer}\cdot R$；同时由当前联合状态计算 $\rho(C),c_p(C),k(C),D(C,T+273.15)$，再用调和平均组装界面通量。中心 $\xi=0$ 用对称零通量条件消除奇点，表面 $\xi=1$ 施加第三类边界；块三对角稀疏 Jacobian 由解析式提供。终止事件设为 $g(t)=\max_\xi C(\xi,t)-0.15$，其中 \texttt{terminal=True}，\texttt{direction}$=-1$。到达 $60\rm\,s$ 输出间隔时，程序按固定距离 $d=\xi R(t)$ 记录水分浓度，若指定距离已超过当前半径，则该位置不再属于药材内部。为验证物质坐标实现，程序还进行了 $D=0$ 时物质剖面守恒自检，并以 backward-Euler + Picard 固定步隐式格式作为独立对照。
 
 BDF 积分触发终止事件后得到连续临界时间。内部通量平衡的最大归一化残差为 $2.087\times10^{-16}$，处于机器精度量级；最小原始水分为 $0.0525\rm\,kg/kg$，计算过程中未触发非负裁剪；全域最大含水率始终位于中心 $\xi=0$，与圆柱径向扩散的滞后规律一致。backward-Euler + Picard 对照在 $\Delta t=20/10/5/2.5\rm\,s$ 四档时间步下分别给出 $t^*=50.8377/50.8312/50.8279/50.8262\rm\,h$，随时间步减小向 BDF 结果收敛；最细 BE 与 BDF 相差 $6.15\rm\,s$，相对差为 $3.36\times10^{-5}$。
 
@@ -750,81 +700,17 @@ BDF 积分触发终止事件后得到连续临界时间。内部通量平衡的�
 
 复用本文计算框架时，应同时复用其收敛检查和输入边界限定。若更换物性公式、半径插值方法、后期边界延拓方式或达标阈值，临界时间需要重新积分求解，不宜对现有表格作线性修正。调和平均界面通量也必须配合足够细的空间网格使用；粗网格会把低扩散表层压缩为过大的界面阻力，进而产生虚假的长时间结果。因此，复算时应保留网格加密、BDF 容差和双求解器交叉验证三类检查，最终报告同时给出点估计和相应适用边界。
 
-\clearpage
-\appendix
-\section{附录核心代码说明}
-本附录列出四个问题对应的核心求解接口。各程序均以题目附件数据为输入，按正文给定的物性、边界和网格配置完成计算，并输出 Excel 全量结果、论文表格和验证信息。附录只说明主流程和复现入口，具体参数取值、收敛检验和敏感性结论见正文相应章节。复现时应优先运行各问题目录下的主脚本，再核对输出文件与正文表格是否一致。
-
-\subsection{Q1 核心代码接口}
-\begin{lstlisting}[language=Python,caption={问题一求解主流程接口}]
-# code/problem1_improved/run_and_verify.py
-# 数据来源: 附件1烘房温度和环境水分边界.
-# 离散: 固定半径径向守恒 FVM, 界面扩散系数取调和平均.
-# 求解: 自适应 BDF 推进温度场和水分场, 输出前执行非负检查.
-# 验证: baseline、改进配置和网格加密配置三组对照.
-# 结果文件: result1.xlsx、problem1_improved_tables.md、verification.json.
-\end{lstlisting}
-
-\subsection{Q2 核心代码接口}
-\begin{lstlisting}[language=Python,caption={问题二联合状态自适应 BDF 求解接口}]
-# code/problem2_fvm_bdf/solver.py
-# solve_problem2(environment, config)
-# 数据来源: 附件1边界数据、附录3状态相关物性和求解配置.
-# 离散: 严格径向控制体积 V_i = pi*(r_{i+1/2}^2-r_{i-1/2}^2).
-# 耦合: 界面 k、D 取调和平均, 逐步更新 rho(C)、cp(C)、k(C)、D(C,T).
-# 求解: T/C 拼成 162 维联合状态, solve_ivp(method='BDF') 整体推进.
-# 结果文件: result2.xlsx 以及正文表4、表5.
-\end{lstlisting}
-
-\subsection{Q3 核心代码接口}
-\begin{lstlisting}[language=Python,caption={问题三达标停机连续事件定位接口}]
-# code/problem3_fvm_bdf/solver_bdf.py
-# solve_problem3(environment, config)
-# 数据来源: 问题二耦合模型、附录3物性和 4 h 后边界外推规则.
-# 离散: 固定半径细网格, Delta r = 0.00078125 cm, 共 2561 节点.
-# 事件: g(t)=max(C)-0.15, terminal=True, direction=-1, 连续定位 t*.
-# 验证: solver_be.py 提供后向欧拉--Picard 交叉验证.
-# 结果内容: t*=57.1727 h、result3.xlsx、正文表6和边界敏感性结果.
-\end{lstlisting}
-
-\subsection{Q4 核心代码接口}
-\begin{lstlisting}[language=Python,caption={问题四移动边界达标停机接口}]
-# code/problem4_fvm_bdf/solver_bdf.py
-# solve_problem4(environment, radius_series, config)
-# 数据来源: 附件1边界、附件2半径序列 R(t)、附录4物性.
-# 坐标: Landau front-fixing, xi=r/R(t), 主模型采用物质坐标.
-# 离散: 固定 xi 网格严格守恒 FVM, N=3201, 界面 k、D 取调和平均.
-# 求解: T/C 联合状态自适应 BDF, 终止事件 max(C)<0.15.
-# 验证: R(t) 线性插值更新, solver_be.py 作独立求解器对照.
-# 结果内容: t*=50.8245 h、result4.xlsx、正文表7和边界敏感性结果.
-\end{lstlisting}
-
-\section{全局敏感性与代理模型验证}
-为说明问题四终止时间对经验参数与边界假设的稳健性，本附录在声明的工程扰动范围内作全局敏感性分析。首先用 Morris 筛选\cite{morris1991} 对 9 个候选参数按影响强度排序，选取活化温度因子、扩散前因子、环境温度偏差、收缩幅度因子与传质系数因子进入后续分析，其余参数固定在基准值。随后以 192 个训练样本（拉丁超立方采样加角点加密）拟合 4 阶 Legendre 多项式混沌代理\cite{xiu2002}，在 40 个未参与拟合的独立验证样本上得 $Q^2=0.999999821$、均方根误差 $0.006856\rm\,h$、最大绝对误差 $0.025037\rm\,h$；另以 $N=3201$ 生产网格复核 6 个样本，最大绝对误差 $0.035754\rm\,h$，说明代理精度满足敏感性分析要求。
-
-在通过验证的代理系数上解析计算 Sobol 一阶与总效应指数\cite{sobol2001}，并以 Saltelli 抽样\cite{saltelli2010} 交叉检查。如图\ref{fig:uq-pce-sobol} 所示，活化温度因子的总效应指数为 $0.94713$，远高于扩散前因子 $0.03074$、环境温度偏差 $0.01624$、收缩幅度因子 $0.01271$ 与传质系数因子 $0.00008$；最大二阶交互项（活化温度因子与扩散前因子）仅 $0.003280$。这说明在所设扰动范围内，问题四终止时间的方差主要由扩散系数中的温度活化项控制，参数交互作用较弱。需要说明的是，上述参数均服从声明的独立均匀工程扰动（活化温度因子 $\pm5\%$、其余倍率因子 $\pm10\%$ 或环境温度 $\pm2^\circ\mathrm C$），故排序结论是条件敏感性结论，而非由观测数据估计的统计置信区间；它不替换主答案 $50.8245\rm\,h$，也不包含收缩--密度闭合层的离散模型形式不确定性。
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.88\textwidth]{../../results/paper_figures/fig5_pce_sobol.pdf}
-  \caption{问题四代理模型验证与全局敏感性。(a) 4 阶多项式混沌代理预测与高保真 PDE 临界时间的对比，圆点为 40 个独立验证样本，三角为 6 个 $N=3201$ 复核样本；(b) 筛选后 5 个参数对干燥时间的 Sobol 一阶与总效应指数，误差棒为残差 bootstrap 的代理系数 $95\%$ 区间，不具有统计置信区间含义。}
-  \label{fig:uq-pce-sobol}
-\end{figure}
-
-\clearpage
-\section*{AI 工具使用声明}
-\addcontentsline{toc}{section}{AI 工具使用声明}
+\section{AI 工具使用声明}
 本参赛队在建模与论文整理过程中使用了 AI 工具辅助代码调试、文字组织、格式检查和表达润色。AI 工具未被用于替代题意理解、模型选择、参数确认或结果判定。本文中的模型公式、参数取值、程序输出、图表数据和结论均由参赛队依据题目附件、计算程序和人工复核结果确认；若 AI 输出与题目条件或程序结果不一致，以题目附件和人工复核结果为准。
 
-\clearpage
-\begin{thebibliography}{99}
-\addcontentsline{toc}{section}{参考文献}
-\bibitem{cumcm2026a} 2026年全国大学生数学建模竞赛A题题目、附件及附录材料.
-\bibitem{morris1991} Morris D E. Factorial sampling plans for preliminary computational experiments. \textit{Technometrics}, 1991, 33(2): 161--174.
-\bibitem{xiu2002} Xiu D, Karniadakis G E. The Wiener-Askey polynomial chaos for stochastic differential equations. \textit{SIAM Journal on Scientific Computing}, 2002, 24(2): 619--644.
-\bibitem{sobol2001} Sobol I M. Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates. \textit{Mathematics and Computers in Simulation}, 2001, 55(1--3): 271--280.
-\bibitem{saltelli2010} Saltelli A, Annoni P, Azzini I, Campolongo F, Riva M, Tarantola S. Variance based sensitivity analysis of model output: Design and estimator for the total sensitivity index. \textit{Computer Physics Communications}, 2010, 181(2): 259--270.
-\end{thebibliography}
+\section{参考文献}
+\begin{enumerate}[label={[\arabic*]},leftmargin=3em,itemsep=0pt,topsep=0pt]
+  \item 2026年全国大学生数学建模竞赛A题题目、附件及附录材料.
+  \item Morris D E. Factorial sampling plans for preliminary computational experiments. \textit{Technometrics}, 1991, 33(2): 161--174.
+  \item Xiu D, Karniadakis G E. The Wiener-Askey polynomial chaos for stochastic differential equations. \textit{SIAM Journal on Scientific Computing}, 2002, 24(2): 619--644.
+  \item Sobol I M. Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates. \textit{Mathematics and Computers in Simulation}, 2001, 55(1--3): 271--280.
+  \item Saltelli A, Annoni P, Azzini I, Campolongo F, Riva M, Tarantola S. Variance based sensitivity analysis of model output: Design and estimator for the total sensitivity index. \textit{Computer Physics Communications}, 2010, 181(2): 259--270.
+\end{enumerate}
 
 \end{document}
 
