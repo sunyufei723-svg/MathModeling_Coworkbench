@@ -9,9 +9,10 @@
 - 主要负责：（建模 / 编程求解 / 论文写作 / 数据处理 …）
 
 ## 当前状态
-- 正在做：[2026-09-13T08:30:21Z] 调整 `files/final/202609007132.tex` 中图8/图9位置与说明
-- 持有的锁：files/final/202609007132.tex, files/final/202609007132.pdf
+- 正在做：空闲
+- 持有的锁：无
 - 阻塞 / 等待：无
+- 最近完成：[2026-09-13T08:35:50Z] 已更新 `files/final/202609007132.tex/PDF`：将原 9.6 小节中的半径收缩机制图及解析移至 9.2 建模思路；图8输出裁剪为仅保留(a)图，并删除(b)图对应的图注与正文消融对照说明。XeLaTeX 二次编译通过，23 页，0 error / 0 overfull / 0 underfull / 0 undefined reference，仅有 xeCJK 警告。
 - 最近完成：[2026-09-13T07:45:05Z] 已将用户提供的交叉验证画图脚本原样上传为 `code/交叉验证.py`；`py -m py_compile code\交叉验证.py` 语法检查通过。
 - 最近完成：[2026-09-13T04:00:24Z] 已重新上传桌面 `lunwen` 中更新后的全文精修版到 `files/final/A题完整论文_全文精修_完整稿.tex` 与 PDF，未覆盖原论文
 - 最近完成：[2026-09-13T03:25:10Z] 已重新上传桌面 `C:\Users\Lenovo\Desktop\lunwen\A题完整论文_全文精修.tex` 的 11:23 更新版到 `files/final/A题完整论文.tex` 并重新编译 PDF；XeLaTeX 二次编译通过，20 页，0 error / 0 overfull / 0 underfull / 0 undefined reference，仅有 xeCJK 与 SimSun 字体替代警告。
