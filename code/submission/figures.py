@@ -6,8 +6,8 @@
 - 图3 result3.xlsx + verification3.json（final.continuous_event_time_h=57.1727 / first_strictly_compliant_60s_time_h=57.1833）
 - 图4 result4.xlsx + verification4.json（shrinkage_ablation：50.8245 h vs 129.0944 h）
       半径轨迹 R(t) 复用 problem4.py 的 load_inputs 读 附件/附件2.xlsx（与求解同口径）
-- 图5 results/global_sensitivity/{pce_validation,high_fidelity_checks,sobol_indices}.json
-      （注：sensitivity 单文件化落地后，此数据源改指其产物）
+- 图5 global_sensitivity/{pce_validation,high_fidelity_checks,sobol_indices}.json
+      （由 sensitivity.py 生成于本脚本同目录）
 
 resultN.xlsx / verificationN.json 由 problemN.py 生成于本脚本同目录；附件/ 为题目原始输入。
 输出：paper_figures/figN_*.png（600 dpi）与同名 .pdf（矢量），落在本脚本同目录下。
@@ -201,7 +201,7 @@ def fig4() -> None:
 
 
 def fig5() -> None:
-    gs = REPO / "results" / "global_sensitivity"   # sensitivity 单文件化后改指其产物
+    gs = BASE / "global_sensitivity"   # sensitivity.py 产物目录
     pv = json.loads((gs / "pce_validation.json").read_text(encoding="utf-8"))
     hf = json.loads((gs / "high_fidelity_checks.json").read_text(encoding="utf-8"))
     sb = json.loads((gs / "sobol_indices.json").read_text(encoding="utf-8"))
@@ -253,16 +253,16 @@ def preflight() -> None:
         BASE / "verification4.json",
         BASE / "附件" / "附件1.xlsx",
         BASE / "附件" / "附件2.xlsx",
-        REPO / "results" / "global_sensitivity" / "pce_validation.json",
-        REPO / "results" / "global_sensitivity" / "high_fidelity_checks.json",
-        REPO / "results" / "global_sensitivity" / "sobol_indices.json",
+        BASE / "global_sensitivity" / "pce_validation.json",
+        BASE / "global_sensitivity" / "high_fidelity_checks.json",
+        BASE / "global_sensitivity" / "sobol_indices.json",
     ]
     missing = [str(p) for p in required if not p.exists()]
     if missing:
         raise SystemExit(
             "缺少绘图所需输入文件：\n  " + "\n  ".join(missing)
             + "\n请先在同目录运行 problem1.py…problem4.py 生成 resultN.xlsx / verificationN.json，"
-              "并确保 附件/ 与 results/global_sensitivity/ 就位。"
+              "并确保 附件/ 与 global_sensitivity/ 就位。"
         )
 
 

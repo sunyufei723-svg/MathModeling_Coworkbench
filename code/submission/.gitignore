@@ -3,3 +3,4 @@
 paper_figures/
 __pycache__/
 *.pyc
+global_sensitivity/_work/   # sensitivity.py 的 PDE 求解缓存（可续跑，体积大）

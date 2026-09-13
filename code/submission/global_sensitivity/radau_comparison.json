@@ -1,0 +1,44 @@
+{
+  "node_count": 1601,
+  "rows": [
+    {
+      "scenario": "default",
+      "bdf_event_time_h": 50.825422315121216,
+      "radau_event_time_h": 50.825422311829755,
+      "absolute_difference_s": 1.1849275324493647e-05,
+      "event_surface_moisture_difference": 1.7139067942650854e-15,
+      "representative_profile_maximum_moisture_difference": 2.68661315361296e-07,
+      "event_argmax_same": true,
+      "bdf_runtime_s": 31.916152599995257,
+      "radau_runtime_s": 82.95673979999265
+    },
+    {
+      "scenario": "surrogate_fast_sample",
+      "bdf_event_time_h": 26.648009084905098,
+      "radau_event_time_h": 26.648009153941132,
+      "absolute_difference_s": 0.0002485297300154343,
+      "event_surface_moisture_difference": 1.7215909253742723e-11,
+      "representative_profile_maximum_moisture_difference": 1.773778002256421e-08,
+      "event_argmax_same": true,
+      "bdf_runtime_s": 26.379180000018096,
+      "radau_runtime_s": 54.15413399998215
+    },
+    {
+      "scenario": "surrogate_slow_sample",
+      "bdf_event_time_h": 108.52736929521241,
+      "radau_event_time_h": 108.5273691866337,
+      "absolute_difference_s": 0.0003908833605237305,
+      "event_surface_moisture_difference": 1.56472057533108e-14,
+      "representative_profile_maximum_moisture_difference": 1.5989524188020354e-07,
+      "event_argmax_same": true,
+      "bdf_runtime_s": 45.834777000010945,
+      "radau_runtime_s": 214.54090389999328
+    }
+  ],
+  "acceptance": {
+    "event_time_difference_limit_s": 30.0,
+    "surface_moisture_difference_limit": 0.0001,
+    "representative_profile_maximum_moisture_difference_limit": 0.0001
+  },
+  "passed": true
+}
