@@ -460,22 +460,7 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \begin{equation}
   u(t)=\bigl[T_0(t),\ldots,T_{N-1}(t),C_0(t),\ldots,C_{N-1}(t)\bigr]^{\mathsf T}.
 \end{equation}
-时间推进采用自适应 BDF，参数为
-\begin{equation}
-  \mathrm{rtol}=10^{-8},\qquad
-  \mathrm{atol}_T=10^{-8},\qquad
-  \mathrm{atol}_C=10^{-10},\qquad
-  \Delta t_{\max}=30\rm\,s.
-\end{equation}
-连续事件函数取式(26)中的 $g_h(t)$，设置 \texttt{terminal=True}、\texttt{direction}$=-1$。积分器在步内定位
-\begin{equation}
-  g_h(t^*)=0,
-\end{equation}
-得到连续临界时间。题目要求的 Excel 输出采用 $60\rm\,s$ 时间网格，因此另定义离散输出达标时刻
-\begin{equation}
-  t_{60}=60\left\lceil\frac{t^*}{60}\right\rceil.
-\end{equation}
-二者分别对应“连续事件定位”和“结果文件首个达标行”，后文分开报告。
+时间推进采用自适应BDF，得到连续临界时间和离散临界时间，二者分别对应“连续事件定位”和“结果文件首个达标行”，后文分开报告。
 
 实际求解时，固定半径网格取 $\Delta r=0.00078125\rm\,cm$、共 2561 个节点，联合状态初始化为 $u(0)=[T_0;C_0]$。BDF 积分器在 $g_h(t)$ 由正变负处进行步内事件定位，得到连续临界时间 $t^*$；随后按 $60\rm\,s$ 输出网格保存水分场，并抽取到题目指定半径位置。
 
@@ -490,11 +475,11 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \begin{equation}
   C_{\max,h}(t^*)=C(0,t^*)=0.1499888\rm\,kg/kg<C_{\rm cr}.
 \end{equation}
-由式(32)得到首个 $60\rm\,s$ 输出网格达标时刻
+按 $60\rm\,s$ 输出网格向后取首个达标行，得到离散达标时刻
 \begin{equation}
   t_{60}=205860\rm\,s=57.1833\rm\,h.
 \end{equation}
-因此，正文报告连续临界时间 $t^*$，结果文件末行采用 $t_{60}$。表\ref{tab:q3-moist} 中终止行中心值显示为 $0.1500$，来源于四舍五入；全精度值满足式(34)。
+因此，正文报告连续临界时间 $t^*$，结果文件末行采用 $t_{60}$。表\ref{tab:q3-moist} 中终止行中心值显示为 $0.1500$，来源于四舍五入；全精度值满足全域达标条件。
 
 \begin{table}[H]
   \centering
@@ -521,7 +506,7 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \begin{equation}
   C(R,t)<C_{\rm cr}\ \not\Rightarrow\ C_{\max}(t)<C_{\rm cr}.
 \end{equation}
-图\ref{fig:q3-event} 中，$C=C_{\rm cr}$ 等值线由表面向中心收缩，进一步说明干燥前沿自外向内推进；连续临界时间 $t^*$ 和离散输出时刻 $t_{60}$ 分别对应式(33)和式(35)。
+图\ref{fig:q3-event} 中，$C=C_{\rm cr}$ 等值线由表面向中心收缩，进一步说明干燥前沿自外向内推进；连续临界时间 $t^*$ 对应积分器的连续事件定位，离散输出时刻 $t_{60}$ 对应结果文件中的首个达标行。
 
 \begin{figure}[H]
   \centering
@@ -548,7 +533,7 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
   \quad |t^*_h-t^*_{\rm Rich}|\approx10\rm\,s,
   \quad |t^*_{h}-t^*_{2h}|=39.34\rm\,s.
 \end{equation}
-可见，边界外推带来的小时级变化显著大于数值离散误差。因此，$57.1727\rm\,h$ 是末值外推边界下的点估计，式(38)用于描述外部边界不确定性。
+可见，边界外推带来的小时级变化显著大于数值离散误差。因此，$57.1727\rm\,h$ 是末值外推边界下的点估计，上述边界情景区间用于描述外部边界不确定性。
 
 \subsection{本问小结与后续衔接}
 问题三在固定半径、附录3物性和末值外推边界下得到
