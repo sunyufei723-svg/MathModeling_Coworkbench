@@ -108,8 +108,6 @@
   \label{fig:overall-route}
 \end{figure}
 
-如图\ref{fig:overall-route}所示，问题一首先在固定半径和常物性条件下建立径向传热、传质模型，为后续计算提供基础；问题二进一步引入状态相关物性，将温度场与水分场统一为耦合状态进行求解；问题三在热湿耦合模型基础上引入全截面含水率终止判据，通过连续搜索确定临界干燥时间；问题四进一步考虑药材半径随时间收缩的移动边界，通过坐标变换将变区域问题转化为固定计算域上的耦合问题。由此形成由基础物理场模拟向实际停机判定逐级推进的完整建模体系。
-
 \section{模型假设}
 \begin{enumerate}[label=\arabic*.,leftmargin=2.5em]
   \item 药材近似为轴对称长圆柱体。由于长度明显大于半径，忽略轴向传递和端面效应，只考虑径向一维传热、传质过程。
@@ -176,19 +174,34 @@
 \subsection{几何简化依据}
 将圆柱药材简化为一维径向模型，需要同时满足两个判断：一是内部温度和水分梯度不能忽略，二是端面效应相对较弱。前者可用热 Biot 数和质 Biot 数估计：
 \begin{equation}
-  Bi_T=\frac{hR}{k},\qquad Bi_C=\frac{h_mR}{D(C_0)}.
+\left\{
+\begin{aligned}
+Bi_T&=\frac{hR}{k},\\
+Bi_C&=\frac{h_mR}{D(C_0)}.
+\end{aligned}
+\right.
 \end{equation}
 按问题一参数估计，$Bi_T\approx1.389$、$Bi_C\approx3.24$，均大于 $0.1$。这说明药材内部存在明显梯度，不能用集总参数模型代替空间分布模型。另一方面，$1800\rm\,s$ 内热扩散尺度和水分扩散尺度分别为
 \begin{equation}
-  l_T=\sqrt{\alpha t},\qquad l_C=\sqrt{D(C_0)t},\qquad \alpha=\frac{k}{\rho c_p}.
+\left\{
+\begin{aligned}
+l_T&=\sqrt{\alpha t},\\
+l_C&=\sqrt{D(C_0)t},\\
+\alpha&=\frac{k}{\rho c_p}.
+\end{aligned}
+\right.
 \end{equation}
 代入参数可得 $l_T\approx1.74\rm\,cm$、$l_C\approx0.30\rm\,cm$，均小于圆柱半长 $12.5\rm\,cm$。因此，在题目给定的主要计算尺度内，端面影响不会主导整体干燥过程，忽略轴向传递是合理的。
 
 \subsection{径向有限体积离散}
 柱坐标方程中含有 $1/r$ 项，若直接差分，中心点和表面通量处理容易不一致。为保持守恒结构，本文采用有限体积法。取单位长度圆柱截面，节点 $r_i=i\Delta r$，控制体体积和界面面积分别为
 \begin{equation}
-  V_i=\pi\left(r_{i+1/2}^2-r_{i-1/2}^2\right),\qquad
-  A_{i+1/2}=2\pi r_{i+1/2}.
+\left\{
+\begin{aligned}
+V_i&=\pi\left(r_{i+1/2}^2-r_{i-1/2}^2\right),\\
+A_{i+1/2}&=2\pi r_{i+1/2}.
+\end{aligned}
+\right.
 \end{equation}
 对具有径向扩散形式的一般方程
 \begin{equation}
@@ -217,38 +230,50 @@
 \end{equation}
 水分场满足径向 Fick 扩散方程：
 \begin{equation}
-  \frac{\partial C}{\partial t}
-  =\frac1r\frac{\partial}{\partial r}
-  \left[rD(C)\frac{\partial C}{\partial r}\right],
-  \qquad
-  D(C)=7\times10^{-9}\exp\left(-\frac{0.89}{C}\right).
+\left\{
+\begin{aligned}
+\frac{\partial C}{\partial t}
+&=\frac{1}{r}\frac{\partial}{\partial r}
+\left[rD(C)\frac{\partial C}{\partial r}\right],\\
+D(C)&=7\times10^{-9}\exp\left(-\frac{0.89}{C}\right).
+\end{aligned}
+\right.
 \end{equation}
 初始条件为
 \begin{equation}
-  T(r,0)=28,\qquad C(r,0)=2.55.
+\left\{
+\begin{aligned}
+T(r,0)&=28,\\
+C(r,0)&=2.55.
+\end{aligned}
+\right.
 \end{equation}
 中心对称边界为
 \begin{equation}
-  \left.\frac{\partial T}{\partial r}\right|_{r=0}=0,\qquad
-  \left.\frac{\partial C}{\partial r}\right|_{r=0}=0.
+\left\{
+\begin{aligned}
+\left.\frac{\partial T}{\partial r}\right|_{r=0}&=0,\\
+\left.\frac{\partial C}{\partial r}\right|_{r=0}&=0.
+\end{aligned}
+\right.
 \end{equation}
 表面 Robin 边界为
 \begin{equation}
+\left\{
+\begin{aligned}
   -k\left.\frac{\partial T}{\partial r}\right|_{r=R}
-  =h\left[T(R,t)-T_\infty(t)\right],
-\end{equation}
-\begin{equation}
+  &=h\left[T(R,t)-T_\infty(t)\right],\\
   -D(C_s)\left.\frac{\partial C}{\partial r}\right|_{r=R}
-  =h_m\left[C(R,t)-C_\infty(t)\right].
+  &=h_m\left[C(R,t)-C_\infty(t)\right].
+\end{aligned}
+\right.
 \end{equation}
 上述两个表面条件分别描述药材表面与热风之间的换热和换质。由于本问中 $\rho,c_p,k$ 为常数，且 $D(C)$ 不含温度项，温度场与水分场之间没有直接耦合，可以分别积分求解。
 
 \subsection{模型求解}
 空间方向采用前文建立的径向有限体积格式，时间方向采用自适应 BDF 隐式积分。计算以几何半径 $R$、初值 $T_0,C_0$、附件1边界序列和附录2物性参数为已知条件，先对烘房温度和环境水分浓度建立线性插值函数，再分别组装温度方程和水分方程的右端项，积分至 $1800\rm\,s$ 后抽取题目指定时间和半径位置的结果。
 
-内部计算网格取 $\Delta r=0.0025\rm\,cm$，使表面附近的温度和水分梯度能够被充分分辨；得到连续半径网格上的数值解后，再抽取到题目要求的 $0.1\rm\,cm$ 输出位置。水分扩散系数 $D(C)$ 随含水率变化较快，界面扩散系数采用调和平均，以避免在低扩散区域高估界面通量。
-
-输出前设置 $C\leftarrow\max(C,0)$ 作为非负保护。
+内部计算网格取 $\Delta r=0.0025\rm\,cm$，使表面附近的温度和水分梯度能够被充分分辨；得到连续半径网格上的数值解后，再抽取到题目要求的 $0.1\rm\,cm$ 输出位置。水分扩散系数 $D(C)$ 随含水率变化较快，界面扩散系数采用调和平均，以避免在低扩散区域高估界面通量。输出前设置C为 $\max(C,0)$ 作为非负保护。
 
 \subsection{结果分析}
 表\ref{tab:q1-temp} 和表\ref{tab:q1-moist} 给出了问题一的代表性输出。温度场在半小时内整体升高，并由表面向中心逐步传递。$1800\rm\,s$ 时，表面温度为 $36.7856^\circ\mathrm C$，中心温度为 $33.5753^\circ\mathrm C$，说明热量已进入药材内部，但径向温差仍然存在。水分场的响应慢于温度场：同一时刻表面含水率降至 $1.5102\rm\,kg/kg$，中心仍保持 $2.5500\rm\,kg/kg$，脱水主要集中在近表面区域。
@@ -317,18 +342,19 @@
 \subsection{模型建立}
 附录3给出的状态相关物性如下：
 \begin{equation}
-  \rho(C)=650+128C,
+\left\{
+\begin{aligned}
+\rho(C)&=650+128C,\\
+c_p(C)&=1450+\frac{2736C}{C+1},\\
+k(C)&=0.21+\frac{0.38C}{C+1},\\
+D(C,T)&=2.4\times10^{-3}
+\exp\left(-\frac{0.45}{C}\right)
+\exp\left(-\frac{3850}{T_K}\right),\\
+T_K&=T+273.15.
+\end{aligned}
+\right.
 \end{equation}
-\begin{equation}
-  c_p(C)=1450+\frac{2736C}{C+1},
-\end{equation}
-\begin{equation}
-  k(C)=0.21+\frac{0.38C}{C+1},
-\end{equation}
-\begin{equation}
-  D(C,T)=2.4\times10^{-3}\exp\left(-\frac{0.45}{C}\right)
-  \exp\left(-\frac{3850}{T_K}\right),\qquad T_K=T+273.15.
-\end{equation}
+\setcounter{equation}{18}
 在该物性体系下，能量方程写为
 \begin{equation}
   \rho(C)c_p(C)\frac{\partial T}{\partial t}
@@ -343,13 +369,16 @@
 \end{equation}
 初始条件和中心对称边界沿用问题一。表面边界中的物性取表面状态值，写为
 \begin{equation}
-  -k(C_s)\left.\frac{\partial T}{\partial r}\right|_{r=R}
-  =h\left[T(R,t)-T_\infty(t)\right],
+\left\{
+\begin{aligned}
+-k(C_s)\left.\frac{\partial T}{\partial r}\right|_{r=R}
+&=h\left[T(R,t)-T_\infty(t)\right],\\
+-D(C_s,T_s)\left.\frac{\partial C}{\partial r}\right|_{r=R}
+&=h_m\left[C(R,t)-C_\infty(t)\right].
+\end{aligned}
+\right.
 \end{equation}
-\begin{equation}
-  -D(C_s,T_s)\left.\frac{\partial C}{\partial r}\right|_{r=R}
-  =h_m\left[C(R,t)-C_\infty(t)\right].
-\end{equation}
+\setcounter{equation}{22}
 
 与问题一的常物性模型不同，问题二中材料热物性与传质物性均随当前状态发生变化。其中，水分浓度不仅直接决定密度、比热容和热导率，还与温度共同影响有效扩散系数。因此，温度场和水分场之间通过状态相关物性形成双向反馈，二者不能再视为相互独立的演化过程，其耦合关系如图\ref{fig:q2-coupling}所示。
 
@@ -365,13 +394,11 @@
 \subsection{模型求解}
 问题二仍采用径向有限体积法进行空间离散。内部网格取 $\Delta r=0.025\rm\,cm$，共 81 个径向节点；温度和水分拼接后，联合状态维度为 162。控制体体积 $V_i=\pi(r_{i+1/2}^2-r_{i-1/2}^2)$、界面面积 $A_{i+1/2}=2\pi r_{i+1/2}$ 均按圆柱几何组装。界面热导率 $k$ 和扩散系数 $D$ 采用调和平均，以便在相邻控制体物性差异较大时保持通量计算稳定。
 
-时间方向采用 \texttt{scipy.integrate.solve\_ivp} 中的自适应 BDF 隐式积分器。每次推进以上一时刻联合状态 $u^n=[T^n;C^n]$、附件1边界和附录3物性公式为基础，先计算 $\rho(C),c_p(C),k(C),D(C,T+273.15)$，再用调和平均得到界面 $k,D$。据此计算各控制体的传热、传质通量，并构成待求解方程。中心控制体自然满足对称零通量，表面控制体加入 Robin 对流通量，最终得到下一输出时刻联合状态 $u^{n+1}=[T^{n+1};C^{n+1}]$。
-
-计算设置为 $\mathrm{rtol}=2\times10^{-8}$，温度和水分的绝对容差分别为 $2\times10^{-9}$、$2\times10^{-10}$，最大内部步长为 $5\rm\,s$。
+时间方向采用自适应 BDF 隐式积分器。每次推进以上一时刻联合状态 $u^n=[T^n;C^n]$、附件1边界和附录3物性公式为基础，先计算 $\rho(C),c_p(C),k(C),D(C,T+273.15)$，再用调和平均得到界面 $k,D$。据此计算各控制体的传热、传质通量，并构成待求解方程。中心控制体自然满足对称零通量，表面控制体加入 Robin 对流通量，最终得到下一输出时刻联合状态 $u^{n+1}=[T^{n+1};C^{n+1}]$。
 
 由于 $T$ 与 $C$ 位于同一个状态向量内，BDF 在每个隐式步中同时处理热方程和水分方程的非线性残差，不再采用“先求温度、再求水分”的分步方式。为提高稳定性，非线性残差对应的块三对角稀疏 Jacobian 由解析式给出。
 
-BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部最大步长受 $5\rm\,s$ 上限约束，最小步长出现在初期薄边界层。为检验数值稳定性，本文将网格由 $\Delta r=0.025\rm\,cm$ 加密至 $0.0125\rm\,cm$，在 30 个论文采样点上得到温度最大绝对差 $4.16\times10^{-5}\rm\,{}^\circ\mathrm C$、水分最大绝对差 $4.67\times10^{-5}\rm\,kg/kg$。进一步收紧 BDF 容差并缩小最大步长后，温度最大绝对差为 $1.91\times10^{-5}\rm\,{}^\circ\mathrm C$，水分最大绝对差为 $4.84\times10^{-8}\rm\,kg/kg$。这些差异均低于四位小数显示精度，说明表\ref{tab:q2-temp} 和表\ref{tab:q2-moist} 的结果对网格和时间容差不敏感。
+BDF 积分覆盖 $0$--$3\rm\,h$，内部最大步长受 $5\rm\,s$ 上限约束，最小步长出现在初期薄边界层。为检验数值稳定性，本文将网格由 $\Delta r=0.025\rm\,cm$ 加密至 $0.0125\rm\,cm$，在 30 个论文采样点上得到温度最大绝对差 $4.16\times10^{-5}\rm\,{}^\circ\mathrm C$、水分最大绝对差 $4.67\times10^{-5}\rm\,kg/kg$。进一步收紧 BDF 容差并缩小最大步长后，温度最大绝对差为 $1.91\times10^{-5}\rm\,{}^\circ\mathrm C$，水分最大绝对差为 $4.84\times10^{-8}\rm\,kg/kg$。这些差异均低于四位小数显示精度，说明表\ref{tab:q2-temp} 和表\ref{tab:q2-moist} 的结果对网格和时间容差不敏感。
 
 \subsection{结果分析}
 表\ref{tab:q2-temp} 和表\ref{tab:q2-moist} 给出了问题二的计算结果。药材温度在前 $2\rm\,h$ 上升较快，随后逐渐接近烘房温度；到 $3\rm\,h$ 时，中心温度为 $49.8495^\circ\mathrm C$，表面温度为 $49.9664^\circ\mathrm C$，二者仅相差约 $0.1169^\circ\mathrm C$。相比之下，水分浓度的径向差异仍然明显：$3\rm\,h$ 时中心为 $1.7662\rm\,kg/kg$，表面为 $1.0081\rm\,kg/kg$，中心与表面相差 $0.7581\rm\,kg/kg$。因此，恒温干燥后期的主要限制不再是升温，而是内部水分向表面的扩散。
@@ -414,7 +441,7 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.88\textwidth]{figures/fig2_problem2_heatmap.pdf}
+  \includegraphics[width=0.88\textwidth]{figures/fig2_problem2_heatmap_01/fig2_problem2_heatmap_01.jpg}
   \caption{变物性热湿耦合条件下温度与水分浓度的时空演化。(a) 温度 $T(r,t)$；(b) 水分浓度 $C(r,t)$；黑色细线为等值线。温度场约 $2\rm\,h$ 内接近烘房温度、径向梯度消失；水分场在整个 $3\rm\,h$ 内保持明显径向梯度，说明恒温干燥阶段受内部水分扩散控制。}
   \label{fig:q2-heatmap}
 \end{figure}
@@ -441,8 +468,12 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \end{equation}
 数值离散后，径向节点集为 $\mathcal R_h=\{r_i\}_{i=0}^{N-1}$，相应离散判据为
 \begin{equation}
-  C_{\max,h}(t)=\max_{r_i\in\mathcal R_h}C_i(t),\qquad
-  g_h(t)=C_{\max,h}(t)-C_{\rm cr}.
+\left\{
+\begin{aligned}
+C_{\max,h}(t)&=\max_{r_i\in\mathcal R_h}C_i(t),\\
+g_h(t)&=C_{\max,h}(t)-C_{\rm cr}.
+\end{aligned}
+\right.
 \end{equation}
 当 $g_h(t)$ 由正变负时，药材全截面达到题设水分要求。由于径向扩散路径最长的位置在中心，计算中通常有
 \begin{equation}
@@ -462,7 +493,7 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \end{equation}
 时间推进采用自适应BDF，得到连续临界时间和离散临界时间，二者分别对应“连续事件定位”和“结果文件首个达标行”，后文分开报告。
 
-实际求解时，固定半径网格取 $\Delta r=0.00078125\rm\,cm$、共 2561 个节点，联合状态初始化为 $u(0)=[T_0;C_0]$。BDF 积分器在 $g_h(t)$ 由正变负处进行步内事件定位，得到连续临界时间 $t^*$；随后按 $60\rm\,s$ 输出网格保存水分场，并抽取到题目指定半径位置。
+实际求解时，联合状态初始化为 $u(0)=[T_0;C_0]$。BDF 积分器在 $g_h(t)$ 由正变负处进行步内事件定位，得到连续临界时间 $t^*$；随后按 $60\rm\,s$ 输出网格保存水分场，并抽取到题目指定半径位置。
 
 为避免停机时间只依赖单一积分器，本文另用 backward-Euler + Picard 格式进行交叉验证。
 
@@ -510,7 +541,7 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.88\textwidth]{figures/fig3_problem3_event.pdf}
+  \includegraphics[width=0.88\textwidth]{figures/fig3_problem3_event_01/fig3_problem3_event_01.jpg}
   \caption{固定半径条件下水分浓度演化及全域达标时刻。(a) 水分浓度时空热力图，白色曲线为 $C=0.15\rm\,kg/kg$ 达标等值线；(b) 中心、表面与全域最大水分随时间演化，水平点线为达标阈值，竖线与三角标记分别给出连续临界时间与首个 $60\rm\,s$ 达标时刻。}
   \label{fig:q3-event}
 \end{figure}
@@ -572,14 +603,19 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \subsection{模型建立}
 附录4给出的状态相关物性为
 \begin{equation}
-  \rho(C)=760+90C,\qquad
-  c_p(C)=1850+\frac{2150C}{C+1},\qquad
-  k(C)=0.12+\frac{0.20C}{C+1},
+\left\{
+\begin{aligned}
+\rho(C)&=760+90C,\\
+c_p(C)&=1850+\frac{2150C}{C+1},\\
+k(C)&=0.12+\frac{0.20C}{C+1},\\
+D(C,T)&=4.2\times10^{-4}
+\exp\left(-\frac{0.30}{C}\right)
+\exp\left(-\frac{3850}{T_K}\right),\\
+T_K&=T+273.15.
+\end{aligned}
+\right.
 \end{equation}
-\begin{equation}
-  D(C,T)=4.2\times10^{-4}\exp\left(-\frac{0.30}{C}\right)
-  \exp\left(-\frac{3850}{T_K}\right),\qquad T_K=T+273.15.
-\end{equation}
+\setcounter{equation}{41}
 在物质坐标 $\xi$ 下，温度场与水分场可统一写为压缩扩散方程：
 \begin{equation}
   \left.\frac{\partial u}{\partial t}\right|_{\xi}
@@ -623,25 +659,21 @@ BDF 积分覆盖 $0$--$3\rm\,h$，并输出 10801 个 $1\rm\,s$ 时刻。内部�
 \end{equation}
 控制体几何量和界面面积分别为
 \begin{equation}
-  \hat V_i=\frac12\left(\xi_{i+1/2}^2-\xi_{i-1/2}^2\right),\qquad
-  \hat A_{i+1/2}=\xi_{i+1/2}.
+\left\{
+\begin{aligned}
+\hat V_i&=\frac{1}{2}
+\left(\xi_{i+1/2}^2-\xi_{i-1/2}^2\right),\\
+\hat A_{i+1/2}&=\xi_{i+1/2}.
+\end{aligned}
+\right.
 \end{equation}
 上述几何量相当于在单位 $\xi$ 圆盘上组装径向守恒通量。界面热导率 $k$ 和扩散系数 $D$ 均采用调和平均，以降低强梯度区域的界面通量高估风险。
 
-时间推进仍采用 \texttt{scipy.integrate.solve\_ivp} 的联合状态自适应 BDF 隐式积分器，计算参数为
-\begin{equation}
-  \mathrm{rtol}=10^{-8},\qquad
-  \mathrm{atol}_T=10^{-8},\qquad
-  \mathrm{atol}_C=10^{-10},\qquad
-  \Delta t_{\max}=30\rm\,s.
-\end{equation}
+时间推进仍采用联合状态自适应 BDF 隐式积分器，每个时间步由附件2线性插值得到当前 $R(t)$，并据此更新有效扩散系数 $\mathrm{cond}/R^2$ 和表面对流尺度 $\mathrm{transfer}\cdot R$；同时由当前联合状态计算 $\rho(C),c_p(C),k(C),D(C,T+273.15)$，再用调和平均组装界面通量。中心 $\xi=0$ 用对称零通量条件消除奇点，表面 $\xi=1$ 施加第三类边界；块三对角稀疏 Jacobian 由解析式提供。
 
-每个时间步由附件2线性插值得到当前 $R(t)$，并据此更新有效扩散系数 $\mathrm{cond}/R^2$ 和表面对流尺度 $\mathrm{transfer}\cdot R$；同时由当前联合状态计算 $\rho(C),c_p(C),k(C),D(C,T+273.15)$，再用调和平均组装界面通量。中心 $\xi=0$ 用对称零通量条件消除奇点，表面 $\xi=1$ 施加第三类边界；块三对角稀疏 Jacobian 由解析式提供。
-
-终止事件及其搜索方向设为
+终止事件设为
 \begin{equation}
-  g(t)=\max_\xi C(\xi,t)-0.15,\qquad
-  \texttt{terminal=True},\qquad \texttt{direction}=-1.
+  g(t)=\max_\xi C(\xi,t)-0.15
 \end{equation}
 到达 $60\rm\,s$ 输出间隔时，程序按固定距离 $d=\xi R(t)$ 记录水分浓度，若指定距离已超过当前半径，则该位置不再属于药材内部。
 
