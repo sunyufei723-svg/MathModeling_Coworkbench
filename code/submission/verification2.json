@@ -1,0 +1,196 @@
+{
+  "source_attachment": "E:\\MathModeling_Coworkbench\\code\\submission\\附件\\附件1.xlsx",
+  "main_config": {
+    "radius_cm": 2.0,
+    "internal_dr_cm": 0.025,
+    "output_dr_cm": 0.1,
+    "duration_s": 10800,
+    "output_dt_s": 1.0,
+    "initial_temperature_c": 28.0,
+    "initial_moisture": 2.55,
+    "heat_transfer_w_m2_k": 25.0,
+    "mass_transfer_m_s": 8e-07,
+    "relative_tolerance": 2e-08,
+    "temperature_absolute_tolerance": 2e-09,
+    "moisture_absolute_tolerance": 2e-10,
+    "max_time_step_s": 5.0
+  },
+  "diagnostics": {
+    "main": {
+      "internal_node_count": 81,
+      "state_size": 162,
+      "function_evaluations": 9327,
+      "jacobian_evaluations": 243,
+      "lu_decompositions": 1211,
+      "minimum_temperature_c": 28.0,
+      "minimum_moisture": 1.0081002171261435
+    },
+    "fine": {
+      "internal_node_count": 161,
+      "state_size": 322,
+      "function_evaluations": 9170,
+      "jacobian_evaluations": 233,
+      "lu_decompositions": 1189,
+      "minimum_temperature_c": 28.0,
+      "minimum_moisture": 1.008117394469958
+    },
+    "strict_time": {
+      "internal_node_count": 81,
+      "state_size": 162,
+      "function_evaluations": 20812,
+      "jacobian_evaluations": 434,
+      "lu_decompositions": 2334,
+      "minimum_temperature_c": 28.0,
+      "minimum_moisture": 1.008100222591653
+    },
+    "early_ultrafine": {
+      "internal_node_count": 321,
+      "state_size": 642,
+      "function_evaluations": 376,
+      "jacobian_evaluations": 1,
+      "lu_decompositions": 35,
+      "minimum_temperature_c": 28.0,
+      "minimum_moisture": 2.327213572421041
+    }
+  },
+  "spatial_refinement": {
+    "note": "在论文表3/表4 的 30 个采样点上比较",
+    "temperature_c": {
+      "maximum_absolute_difference": 4.155967450714115e-05,
+      "mean_absolute_difference": 1.054066356237134e-05
+    },
+    "moisture": {
+      "maximum_absolute_difference": 4.668348838565706e-05,
+      "mean_absolute_difference": 1.3566905711045093e-05
+    }
+  },
+  "time_solver_sensitivity": {
+    "note": "在论文表3/表4 的 30 个采样点上比较",
+    "temperature_c": {
+      "maximum_absolute_difference": 1.9130849345572187e-05,
+      "mean_absolute_difference": 3.325677819058607e-06
+    },
+    "moisture": {
+      "maximum_absolute_difference": 4.8444319666884894e-08,
+      "mean_absolute_difference": 1.9453174352849582e-08
+    }
+  },
+  "early_time_spatial_check_0_to_60_s": {
+    "comparison": "dr=0.0125 cm versus dr=0.00625 cm over 0-60 s",
+    "temperature_c": {
+      "maximum_absolute_difference": 1.4067540689666203e-05,
+      "mean_absolute_difference": 7.59311430966338e-07
+    },
+    "moisture": {
+      "maximum_absolute_difference": 0.004973605864550201,
+      "mean_absolute_difference": 4.277975607148388e-05
+    }
+  },
+  "physical_checks": {
+    "minimum_temperature_c": 28.0,
+    "minimum_moisture": 1.0081002171261435,
+    "all_finite": true
+  },
+  "selected_tables": {
+    "temperature_c": [
+      [
+        1800.0,
+        32.18925107339131,
+        32.382119926095854,
+        32.965944303104685,
+        33.96078290547829,
+        35.41307380266849
+      ],
+      [
+        3600.0,
+        40.38157342254528,
+        40.55357463432378,
+        41.06050245168658,
+        41.878259050603994,
+        42.99765543847206
+      ],
+      [
+        5400.0,
+        45.846767118243555,
+        45.93482046852433,
+        46.19297532375067,
+        46.605107951594476,
+        47.14012769514343
+      ],
+      [
+        7200.0,
+        48.45024262126313,
+        48.48806836030481,
+        48.598455873979646,
+        48.77356665403267,
+        49.003372260238265
+      ],
+      [
+        9000.0,
+        49.46698356111369,
+        49.479223039761145,
+        49.51365486959764,
+        49.565340208194016,
+        49.66086472188293
+      ],
+      [
+        10800.0,
+        49.84949958075461,
+        49.85534379862451,
+        49.87461322096913,
+        49.91014833558295,
+        49.96640987448237
+      ]
+    ],
+    "moisture": [
+      [
+        1800.0,
+        2.5499316936933125,
+        2.548870578210952,
+        2.525517264015679,
+        2.3257662081203834,
+        1.6486019885326262
+      ],
+      [
+        3600.0,
+        2.5256861331627762,
+        2.494742697379076,
+        2.3578134426608535,
+        2.02298983484729,
+        1.471050921823799
+      ],
+      [
+        5400.0,
+        2.3860256838208773,
+        2.325611002158474,
+        2.1344067947446246,
+        1.8020167308089987,
+        1.3475347903539785
+      ],
+      [
+        7200.0,
+        2.170840316304123,
+        2.108426046762782,
+        1.9236247753005367,
+        1.625929719229331,
+        1.2310645662555313
+      ],
+      [
+        9000.0,
+        1.9566414424373662,
+        1.900596572548506,
+        1.735976822911472,
+        1.4719768524222527,
+        1.1166214096650402
+      ],
+      [
+        10800.0,
+        1.7661796776787857,
+        1.7165343860931894,
+        1.5701955885594985,
+        1.3332542272504428,
+        1.0081002171261435
+      ]
+    ]
+  }
+}
