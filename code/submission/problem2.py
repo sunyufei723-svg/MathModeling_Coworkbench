@@ -315,7 +315,7 @@ def difference_summary(left: np.ndarray, right: np.ndarray) -> dict[str, float]:
 
 
 def write_result_xlsx(result: SimulationResult, template: Path, out_path: Path) -> None:
-    """读附件3 格式模板 → 按完整时间×半径网格覆盖写温度/水分两表（四位小数）。"""
+    """读附件3 格式模板 → 按完整时间×半径网格覆盖写温度/水分两表（全精度存储，四位小数显示）。"""
 
     workbook = openpyxl.load_workbook(template)
     radius = result.radius_cm
@@ -328,7 +328,7 @@ def write_result_xlsx(result: SimulationResult, template: Path, out_path: Path) 
             sheet.cell(i + 1, 1).value = int(round(result.time_s[i]))
             for j in range(radius.size):
                 cell = sheet.cell(i + 1, 2 + j)
-                cell.value = round(float(field[i, j]), 4)
+                cell.value = float(field[i, j])  # 全精度存储，仅用 number_format 控制四位小数显示（与原 result2.xlsx 一致）
                 cell.number_format = "0.0000"
         sheet.freeze_panes = "B2"
     out_path.parent.mkdir(parents=True, exist_ok=True)

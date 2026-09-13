@@ -1,0 +1,5 @@
+# figures.py 无参数重跑即可复现的论文配图（600 dpi PNG + 矢量 PDF，体积较大）；
+# 论文正文使用的规范副本已随仓库提交在 results/paper_figures/，此处不重复入库。
+paper_figures/
+__pycache__/
+*.pyc
